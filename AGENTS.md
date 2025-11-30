@@ -1,16 +1,51 @@
-# Important
+# Agent Instructions
 
-- Divide logics and UI into hooks and components.
-- Keep files and component maintable and shorts, devide into multiple if required.
-- Always seperate UI and logics into components and hooks.
-- Do not use useCallback unless necessary.
-- Write layout and components that should work in both light and dark mode.
-- Layout and components should be mobile first and responsive.
-- Do not write documentation .md file untill neccessary and it's a big feature.
-- use heroui-native https://github.com/heroui-inc/heroui-native for native app components and screens development
-- use shadcn-ui for web components and screens development
-- use Use shadcn CLI for installing any new web components
-- never create markdown (`.md`) files after you're done unless it's a big feature and planning is required. NEVER!
-- never user emojis in your replies.
-- check convex rules and docs if you're working on convex based projects and not sure about something.
-- Always make sure code you write is secure and not hackable
+## Core Principles
+
+1. **Read before editing** - Always read and understand relevant files before making changes. Never speculate about code you have not inspected.
+2. **Minimal changes** - Only make changes that are directly requested. Keep solutions simple and focused.
+3. **Security first** - Ensure all code is secure and not vulnerable to attacks.
+4. **No unnecessary files** - Never create markdown or documentation files unless explicitly requested for major features.
+
+## Code Architecture
+
+### Separation of Concerns
+
+- Separate UI and logic into **components** and **hooks**
+- Keep files short and maintainable; split into multiple files when needed
+- Avoid `useCallback` unless there is a clear performance need
+
+### Styling Requirements
+
+- All layouts must work in both **light and dark mode**
+- Design **mobile-first**, then add responsive breakpoints
+- Use Tailwind CSS for styling
+
+## Component Libraries
+
+### Web Development (`/apps/web`)
+
+1. **Check HeroUI React MCP first** - Use `mcp3_list_components` and `mcp3_get_component_info` before implementing any component
+2. **Use shadcn/ui** - Install via CLI: `pnpm dlx shadcn@latest add <component>`
+3. **MagicUI for animations** - Use `mcp0_getAnimations`, `mcp0_getComponents` etc. for subtle animations from magicui.design
+
+### Native Development (`/apps/native`)
+
+1. **Check HeroUI Native MCP first** - Use `mcp2_list_components` before using native React Native components
+2. **Prefer HeroUI Native** - Use Button over Pressable, TextField over TextInput, etc.
+3. **Use expo-image** for all images with:
+   - `cachePolicy="memory-disk"`
+   - `contentFit="cover"`
+   - `transition` for smooth loading
+
+## Backend (Convex)
+
+- Use **Convex MCP** (`mcp0_status`, `mcp0_tables`, `mcp0_functionSpec`) to understand the current schema
+- For complex issues, use **Exa MCP** (`mcp1_get_code_context_exa`) to search latest Convex documentation
+- Follow existing patterns in `/packages/backend/convex`
+
+## Response Guidelines
+
+- No emojis in responses
+- Be concise and direct
+- Provide code, not explanations unless asked
