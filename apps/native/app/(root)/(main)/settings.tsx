@@ -120,14 +120,14 @@ export default function SettingsRoute() {
           "Error",
           error instanceof Error
             ? error.message
-            : "Failed to enable notifications"
+            : "Failed to enable notifications",
         );
       }
     } else {
       Alert.alert(
         "Disable Notifications",
         "To disable notifications, please go to your device settings.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     }
   };
@@ -155,7 +155,7 @@ export default function SettingsRoute() {
           console.error(ctx.error);
           Alert.alert("Error", ctx.error.message || "Failed to delete user");
         },
-      }
+      },
     );
   };
 
@@ -315,7 +315,7 @@ export default function SettingsRoute() {
                       style: "destructive",
                       onPress: handleDeleteUser,
                     },
-                  ]
+                  ],
                 );
               }}
             >
@@ -351,7 +351,7 @@ const SignOutButton = () => {
           Alert.alert("Error", ctx.error.message || "Failed to sign out");
           setIsSigningOut(false);
         },
-      }
+      },
     );
 
     console.log(data, error);

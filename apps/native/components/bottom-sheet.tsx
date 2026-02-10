@@ -52,7 +52,7 @@ export const CustomBottomSheet = forwardRef<
         pressBehavior="close"
       />
     ),
-    []
+    [],
   );
 
   const handleSheetChanges = useCallback(
@@ -61,7 +61,7 @@ export const CustomBottomSheet = forwardRef<
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   return (
