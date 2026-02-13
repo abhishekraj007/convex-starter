@@ -1,5 +1,5 @@
 import { type GenericCtx } from "@convex-dev/better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
+import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { expo } from "@better-auth/expo";
 import { DataModel } from "../../_generated/dataModel";
 import { betterAuth } from "better-auth";
@@ -16,7 +16,7 @@ export function createAuth(
     logger: {
       disabled: optionsOnly,
     },
-    baseURL: "http://localhost:3004", // enable this for web login
+    baseURL: siteUrl, // enable this for web login
     // baseURL: siteUrl, // enable this for mobile login
     trustedOrigins: [siteUrl, nativeAppUrl, "http://localhost:3004"],
     database: authComponent.adapter(ctx),
@@ -36,6 +36,6 @@ export function createAuth(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       },
     },
-    plugins: [expo(), convex()],
+    plugins: [expo(), convex(), crossDomain({ siteUrl })],
   });
 }
