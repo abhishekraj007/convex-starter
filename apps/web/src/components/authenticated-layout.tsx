@@ -13,6 +13,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { CreditsModal } from "@/components/credits-modal";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Coins } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -30,9 +31,7 @@ export function AuthenticatedLayout({
   const router = useRouter();
   const t = useTranslations("common");
 
-  if (!userData) {
-    return null;
-  }
+  const isLoading = userData === undefined;
 
   return (
     <>
@@ -51,24 +50,32 @@ export function AuthenticatedLayout({
                   <LocaleSwitcher />
                 </div>
                 <ModeToggle />
-                {!premiumStatus?.isPremium && (
+                {isLoading ? (
+                  <Skeleton className="hidden sm:block h-8 w-20 rounded-md" />
+                ) : (
+                  !premiumStatus?.isPremium && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => router.push("/pricing")}
+                      className="hidden sm:flex"
+                    >
+                      {t("upgrade")}
+                    </Button>
+                  )
+                )}
+                {isLoading ? (
+                  <Skeleton className="h-8 w-16 rounded-md" />
+                ) : (
                   <Button
-                    variant="default"
+                    variant="outline"
                     size="sm"
-                    onClick={() => router.push("/pricing")}
-                    className="hidden sm:flex"
+                    onClick={() => setCreditsModalOpen(true)}
                   >
-                    {t("upgrade")}
+                    <Coins className="h-4 w-4 mr-2" />
+                    {userCredits?.credits ?? 0}
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCreditsModalOpen(true)}
-                >
-                  <Coins className="h-4 w-4 mr-2" />
-                  {userCredits?.credits ?? 0}
-                </Button>
               </div>
             </div>
           </header>

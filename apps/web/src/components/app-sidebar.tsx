@@ -14,6 +14,7 @@ import {
   Upload,
   FileText,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
@@ -116,10 +117,10 @@ export function AppSidebar() {
                     isActive={pathname === item.url}
                     tooltip={item.title}
                   >
-                    <a href={item.url}>
+                    <Link href={item.url as "/"}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -158,10 +159,10 @@ export function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuItem asChild>
-                  <a href="/settings">
+                  <Link href={"/settings" as "/"}>
                     <Settings />
                     Settings
-                  </a>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Button
