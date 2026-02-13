@@ -10,11 +10,13 @@ import {
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/components/mode-toggle";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { CreditsModal } from "@/components/credits-modal";
 import { Button } from "@/components/ui/button";
 import { Coins } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export function AuthenticatedLayout({
   children,
@@ -26,6 +28,7 @@ export function AuthenticatedLayout({
   const premiumStatus = useQuery(api.features.premium.queries.isPremium);
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
   const router = useRouter();
+  const t = useTranslations("common");
 
   if (!userData) {
     return null;
@@ -44,6 +47,9 @@ export function AuthenticatedLayout({
                 <span className="font-semibold">Convex Starter</span>
               </div>
               <div className="flex items-center gap-2">
+                <div className="hidden sm:block">
+                  <LocaleSwitcher />
+                </div>
                 <ModeToggle />
                 {!premiumStatus?.isPremium && (
                   <Button
@@ -52,7 +58,7 @@ export function AuthenticatedLayout({
                     onClick={() => router.push("/pricing")}
                     className="hidden sm:flex"
                   >
-                    Upgrade
+                    {t("upgrade")}
                   </Button>
                 )}
                 <Button

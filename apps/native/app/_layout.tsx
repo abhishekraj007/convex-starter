@@ -4,6 +4,7 @@ import "../global.css";
 import { HeroUINativeProvider } from "heroui-native";
 import { AppThemeProvider, useAppTheme } from "@/contexts/app-theme-context";
 import { PurchasesProvider } from "@/contexts/purchases-context";
+import { I18nProvider } from "@/contexts/i18n-context";
 import ConvexProvider from "@/providers/ConvexProvider";
 import SplashScreenProvider from "@/providers/SplashScreenProvider";
 import {
@@ -44,11 +45,13 @@ export default function Layout() {
     <GestureHandlerRootView className="flex-1">
       <ConvexProvider>
         <SplashScreenProvider>
-          <AppThemeProvider>
-            <PurchasesProvider>
-              <ThemedLayout />
-            </PurchasesProvider>
-          </AppThemeProvider>
+          <I18nProvider>
+            <AppThemeProvider>
+              <PurchasesProvider>
+                <ThemedLayout />
+              </PurchasesProvider>
+            </AppThemeProvider>
+          </I18nProvider>
         </SplashScreenProvider>
       </ConvexProvider>
     </GestureHandlerRootView>

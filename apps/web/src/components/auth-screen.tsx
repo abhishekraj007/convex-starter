@@ -27,17 +27,13 @@ export default function AuthScreen() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    try {
-      const res = await authClient.signIn.social({
-        provider: "google",
-        callbackURL: redirectTo,
-      });
-
-      console.log(res);
-    } catch (error) {
-      toast.error("Failed to sign in with Google");
-      setIsLoading(false);
-    }
+    const callbackURL =
+      typeof window !== "undefined" ? `${window.location.origin}/` : "/";
+    await authClient.signIn.social({
+      provider: "google",
+      // Must be absolute URL for multi-app auth
+      callbackURL,
+    });
   };
 
   const form = useForm({
@@ -61,7 +57,7 @@ export default function AuthScreen() {
             onError: (error) => {
               toast.error(error.error.message || "Failed to sign in");
             },
-          }
+          },
         );
       } else {
         await authClient.signUp.email(
@@ -85,17 +81,17 @@ export default function AuthScreen() {
                   },
                   onError: (error) => {
                     toast.error(
-                      "Account created but failed to sign in. Please sign in manually."
+                      "Account created but failed to sign in. Please sign in manually.",
                     );
                     setIsSignIn(true);
                   },
-                }
+                },
               );
             },
             onError: (error) => {
               toast.error(error.error.message || "Failed to create account");
             },
-          }
+          },
         );
       }
     },

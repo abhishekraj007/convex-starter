@@ -12,6 +12,7 @@ import {
   ChevronUp,
   User2,
   Upload,
+  FileText,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -69,6 +70,11 @@ const menuItems = [
     title: "Pricing",
     url: "/pricing",
     icon: CreditCard,
+  },
+  {
+    title: "Docs",
+    url: "/docs",
+    icon: FileText,
   },
 ];
 

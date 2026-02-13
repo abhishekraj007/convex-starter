@@ -6,13 +6,13 @@ import { AuthenticatedLayout } from "@/components/authenticated-layout";
 import Header from "@/components/header";
 import { usePathname } from "next/navigation";
 
-const publicRoutes = ["/", "/pricing", "/auth/sign-in", "/auth/sign-up"];
+const publicRoutes = ["/", "/pricing", "/docs", "/auth/sign-in", "/auth/sign-up"];
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const userData = useQuery(api.user.fetchUserAndProfile);
   const pathname = usePathname();
   const isPublicRoute =
-    publicRoutes.includes(pathname) || pathname?.startsWith("/auth/");
+    publicRoutes.includes(pathname) || pathname?.startsWith("/auth/") || pathname?.startsWith("/docs");
 
   // Show traditional header for public routes or non-authenticated users
   if (isPublicRoute || !userData) {

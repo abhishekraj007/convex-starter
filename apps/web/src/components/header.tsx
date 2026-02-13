@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
+import { LocaleSwitcher } from "./locale-switcher";
 import UserMenu from "./user-menu";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,7 @@ import { api } from "@convex-starter/backend/convex/_generated/api";
 import { CreditsModal } from "./credits-modal";
 import { Coins, Menu } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Sheet,
   SheetContent,
@@ -19,6 +21,8 @@ import {
 
 export default function Header() {
   const router = useRouter();
+  const t = useTranslations("nav");
+  const tc = useTranslations("common");
   const userData = useQuery(api.user.fetchUserAndProfile);
   const userCredits = useQuery(api.features.credits.queries.getUserCredits);
   const premiumStatus = useQuery(api.features.premium.queries.isPremium);
@@ -26,13 +30,13 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const links = [
-    { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/todos", label: "Todos" },
-    { to: "/tutor", label: "English Tutor" },
-    { to: "/pricing", label: "Pricing" },
-    { to: "/components", label: "Components" },
-  ] as const;
+    { to: "/" as const, label: t("home") },
+    { to: "/dashboard" as const, label: t("dashboard") },
+    { to: "/todos" as const, label: t("todos") },
+    { to: "/tutor" as const, label: t("tutor") },
+    { to: "/pricing" as const, label: t("pricing") },
+    { to: "/docs" as const, label: t("docs") },
+  ];
 
   return (
     <div>
@@ -83,6 +87,9 @@ export default function Header() {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
+          <div className="hidden sm:block">
+            <LocaleSwitcher />
+          </div>
           <ModeToggle />
           {userData && (
             <>
@@ -93,7 +100,7 @@ export default function Header() {
                   onClick={() => router.push("/pricing")}
                   className="hidden sm:flex"
                 >
-                  Upgrade
+                  {tc("upgrade")}
                 </Button>
               )}
               <Button
