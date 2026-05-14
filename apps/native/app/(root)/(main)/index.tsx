@@ -1,5 +1,5 @@
-import { Header } from "@/components";
-import { Button, Card } from "heroui-native";
+import { Header, LiquidGlassButton } from "@/components";
+import { Card } from "heroui-native";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -25,33 +25,41 @@ export default function HomeRoute() {
             <Card.Body className="gap-4">
               <Card.Title>Quick Actions</Card.Title>
               <View className="gap-3">
-                <Button
-                  variant="secondary"
+                <LiquidGlassButton
+                  fallbackVariant="secondary"
+                  fullWidth
                   onPress={() =>
                     router.push("/(root)/(main)/(tabs)/uploads" as any)
                   }
+                  pressableClassName="bg-accent/35"
                 >
                   <UploadCloud size={18} color="white" />
-                  <Button.Label>Open Uploads</Button.Label>
-                </Button>
-                <Button
-                  variant="secondary"
+                  <Text className="font-semibold text-white">Open Uploads</Text>
+                </LiquidGlassButton>
+                <LiquidGlassButton
+                  fallbackVariant="secondary"
+                  fullWidth
                   onPress={() =>
                     router.push("/(root)/(main)/(tabs)/notifications" as any)
                   }
+                  pressableClassName="bg-accent/35"
                 >
                   <Bell size={18} color="white" />
-                  <Button.Label>Open Notifications</Button.Label>
-                </Button>
-                <Button
-                  variant="tertiary"
+                  <Text className="font-semibold text-white">
+                    Open Notifications
+                  </Text>
+                </LiquidGlassButton>
+                <LiquidGlassButton
+                  fallbackVariant="tertiary"
+                  fullWidth
                   onPress={() =>
                     router.push("/(root)/(main)/(tabs)/account" as any)
                   }
+                  pressableClassName="bg-surface-tertiary/70"
                 >
                   <User size={18} color="white" />
-                  <Button.Label>Open Account</Button.Label>
-                </Button>
+                  <Text className="font-semibold text-white">Open Account</Text>
+                </LiquidGlassButton>
               </View>
             </Card.Body>
           </Card>

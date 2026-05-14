@@ -46,6 +46,19 @@
           "icon": "./assets/images/icon.png",
           "color": "#ffffff"
         }
+      ],
+      "expo-image",
+      "expo-localization",
+      "expo-secure-store",
+      "expo-video",
+      "expo-web-browser",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
+        }
       ]
     ],
     "experiments": {
