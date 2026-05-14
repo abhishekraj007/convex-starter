@@ -33,7 +33,10 @@ export default function TabsLayout() {
       <NativeTabs.Trigger name="uploads">
         <NativeTabs.Trigger.Label>{t("tabs.uploads")}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          sf={{ default: "icloud.and.arrow.up", selected: "icloud.and.arrow.up.fill" }}
+          sf={{
+            default: "icloud.and.arrow.up",
+            selected: "icloud.and.arrow.up.fill",
+          }}
           md="cloud_upload"
         />
       </NativeTabs.Trigger>

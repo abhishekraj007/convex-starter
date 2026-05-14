@@ -1,7 +1,18 @@
 import type { ComponentProps, PropsWithChildren } from "react";
-import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from "expo-glass-effect";
+import {
+  GlassView,
+  isGlassEffectAPIAvailable,
+  isLiquidGlassAvailable,
+} from "expo-glass-effect";
 import { Button } from "heroui-native";
-import { Platform, Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import { useAppTheme } from "@/contexts/app-theme-context";
 import { cn } from "@/lib/utils";
 
