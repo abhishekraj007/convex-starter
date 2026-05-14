@@ -26,7 +26,7 @@ export default function UploadsScreen() {
     if (permissionResult.granted === false) {
       Alert.alert(
         "Permission Required",
-        "Permission to access camera roll is required!"
+        "Permission to access camera roll is required!",
       );
       return;
     }
@@ -258,7 +258,7 @@ export default function UploadsScreen() {
                         </View>
 
                         <Button
-                          variant="destructive-soft"
+                          variant="danger-soft"
                           size="sm"
                           isIconOnly
                           onPress={() => handleDelete(upload.key)}

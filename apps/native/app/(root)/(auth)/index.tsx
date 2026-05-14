@@ -1,119 +1,185 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
-import { Text, View, ActivityIndicator, ImageBackground } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useConvexAuth } from "convex/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { Button, Spinner } from "heroui-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { X } from "lucide-react-native";
 import { useAppleAuth, useGoogleAuth } from "@/lib/betterAuth/oauth";
+import { useTranslation } from "@/hooks/use-translation";
+import { LanguageSheet } from "@/components/language/language-sheet";
 
 export default function Landing() {
-  // const { colors } = useTheme();
   const router = useRouter();
-  const { isAuthenticated } = useConvexAuth();
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const { t, language, supportedLanguages } = useTranslation();
+  const [isLanguageSheetOpen, setIsLanguageSheetOpen] = useState(false);
   const { signIn: signInWithGoogle, isLoading: isGoogleLoading } =
     useGoogleAuth();
   const { signIn: signInWithApple, isLoading: isAppleLoading } = useAppleAuth();
 
+  const handleClose = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/(root)/(main)");
+  };
+
   const handleGoogleSignIn = async () => {
-    setIsSigningIn(true);
-    await signInWithGoogle();
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+      Alert.alert(t("alerts.error"), t("auth.failedGoogleSignIn"));
+    }
   };
 
   const handleAppleSignIn = async () => {
-    setIsSigningIn(true);
-    await signInWithApple();
+    try {
+      await signInWithApple();
+    } catch (error) {
+      console.error("Apple Sign-In error:", error);
+      Alert.alert(t("alerts.error"), t("auth.failedSignIn"));
+    }
   };
 
-  useEffect(() => {
-    // Redirect to main after successful authentication
-    if (isAuthenticated && isSigningIn) {
-      router.replace("/(root)/(main)");
-    }
-  }, [isAuthenticated, isSigningIn]);
-
-  const isLoading = isGoogleLoading || isAppleLoading || isSigningIn;
+  const isLoading = isGoogleLoading || isAppleLoading;
+  const languageLabel =
+    supportedLanguages.find((item) => item.code === language)?.label ??
+    "English";
 
   return (
     <>
-      <ImageBackground
-        source={require("@/assets/images/login-bg.jpeg")}
-        style={{ flex: 1 }}
-        resizeMode="cover"
-        blurRadius={8}
-      >
-        {/* Dark overlay */}
-        <View
+      <View style={{ flex: 1 }}>
+        <Image
+          source={require("@/assets/images/login-bg.jpeg")}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+        />
+
+        <LinearGradient
+          colors={[
+            "rgba(0,0,0,0.1)",
+            "rgba(0,0,0,0.45)",
+            "rgba(0,0,0,0.78)",
+            "rgba(0,0,0,0.95)",
+          ]}
+          locations={[0, 0.48, 0.7, 1]}
           style={{
             position: "absolute",
-            top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            height,
           }}
         />
 
-        <View className="flex-1 justify-end gap-3 p-6">
+        <Button
+          variant="tertiary"
+          size="sm"
+          onPress={() => setIsLanguageSheetOpen(true)}
+          style={{
+            position: "absolute",
+            top: insets.top,
+            left: 16,
+            zIndex: 10,
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            borderRadius: 20,
+          }}
+        >
+          <Text className="text-xs text-white">{languageLabel}</Text>
+        </Button>
+
+        <Button
+          variant="tertiary"
+          size="sm"
+          isIconOnly
+          onPress={handleClose}
+          style={{
+            position: "absolute",
+            top: insets.top,
+            right: 16,
+            zIndex: 10,
+            width: 40,
+            height: 40,
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            borderRadius: 20,
+          }}
+        >
+          <X size={20} color="white" />
+        </Button>
+
+        <View
+          className="flex-1 justify-end gap-3 p-6"
+          style={{ paddingBottom: insets.bottom + 12 }}
+        >
           <View className="flex-1 justify-end">
             <Text className="font-extrabold text-6xl text-white/90">
-              StatusAI
+              Convex Starter
             </Text>
-            <Text className="text-white/80 text-lg">
-              Sign in to get started
-            </Text>
+            <Text className="text-white/80">{t("auth.signInDescription")}</Text>
           </View>
-          <View className="w-full flex-row gap-4 ">
-            {/* google */}
+          <View className="w-full gap-4">
             <Button
-              className="flex-1 overflow-hidden rounded-full bg-white/20"
-              variant="tertiary"
+              size="md"
+              className="overflow-hidden rounded-full bg-white/20"
+              variant="ghost"
               onPress={handleGoogleSignIn}
               isDisabled={isLoading}
             >
-              <Ionicons name="logo-google" size={20} color="white" />
-              <Text className="text-white">Google</Text>
+              {isGoogleLoading ? (
+                <Spinner size="sm" color="white" />
+              ) : (
+                <Ionicons name="logo-google" size={20} color="white" />
+              )}
+              <Text className="text-white">{t("auth.google")}</Text>
             </Button>
-            {/* apple */}
             <Button
-              className="flex-1 overflow-hidden rounded-full bg-white/20"
-              variant="secondary"
+              size="md"
+              className="overflow-hidden rounded-full bg-white/20"
+              variant="ghost"
               onPress={handleAppleSignIn}
               isDisabled={isLoading}
             >
-              <Ionicons name="logo-apple" size={20} color={"white"} />
-              <Text className="text-white">Apple</Text>
+              {isAppleLoading ? (
+                <Spinner size="sm" color="white" />
+              ) : (
+                <Ionicons name="logo-apple" size={20} color="white" />
+              )}
+              <Text className="text-white">{t("auth.apple")}</Text>
             </Button>
           </View>
           <View className="justify-center gap-1 flex-row flex-wrap items-center ">
             <Text className="text-white/50 text-sm">
-              By signing in, you agree to our
+              {t("auth.termsAgreement")}
             </Text>
-            <Text className="text-white/80 text-xs">terms of service</Text>
-            <Text className="text-muted text-sm">and</Text>
-            <Text className="text-white/80 text-xs">privacy policy</Text>
+            <Text className="text-white/80 text-xs">
+              {t("auth.termsOfService")}
+            </Text>
+            <Text className="text-muted text-sm">{t("auth.and")}</Text>
+            <Text className="text-white/80 text-xs">
+              {t("auth.privacyPolicy")}
+            </Text>
           </View>
         </View>
-      </ImageBackground>
+      </View>
 
-      {/* Loading overlay */}
-      {isLoading && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <ActivityIndicator size="large" color="#fff" />
-        </View>
-      )}
+      <LanguageSheet
+        isOpen={isLanguageSheetOpen}
+        onOpenChange={setIsLanguageSheetOpen}
+      />
     </>
   );
 }

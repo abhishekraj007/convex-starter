@@ -3,6 +3,12 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { components, internal } from "./_generated/api";
 import { R2, type R2Callbacks } from "@convex-dev/r2";
 import { authComponent } from "./lib/betterAuth";
+import { rateLimiter } from "./lib/rateLimit";
+import {
+  MAX_UPLOADS_PER_USER,
+  getUserStorageQuota,
+  validateUploadMetadata,
+} from "./lib/uploadValidation";
 
 // Initialize the R2 component
 export const r2 = new R2(components.r2);
@@ -18,6 +24,10 @@ export const generateUploadUrlWithUser = mutation({
     if (!user) {
       throw new Error("Not authenticated");
     }
+    await rateLimiter.limit(ctx, "uploadUrlMint", {
+      key: user._id,
+      throws: true,
+    });
     // Create a key with userId prefix so we can extract it later
     const key = `${user._id}/${crypto.randomUUID()}`;
     return await r2.generateUploadUrl(key);
@@ -28,12 +38,16 @@ export const generateUploadUrlWithUser = mutation({
 export const { generateUploadUrl, syncMetadata, onSyncMetadata } = r2.clientApi(
   {
     callbacks,
-    checkUpload: async (ctx, bucket) => {
+    checkUpload: async (ctx, _bucket) => {
       // Verify the user is authenticated before allowing upload
       const user = await authComponent.safeGetAuthUser(ctx as any);
       if (!user) {
         throw new Error("Not authenticated");
       }
+      await rateLimiter.limit(ctx as any, "uploadUrlMint", {
+        key: user._id,
+        throws: true,
+      });
     },
     onSyncMetadata: async (ctx, args) => {
       // This runs after metadata sync, so r2.getMetadata will work
@@ -45,10 +59,34 @@ export const { generateUploadUrl, syncMetadata, onSyncMetadata } = r2.clientApi(
         return;
       }
 
+      const invalidReason = validateUploadMetadata(
+        metadata.contentType,
+        metadata.size,
+      );
+      if (invalidReason) {
+        console.warn(
+          `[onSyncMetadata] rejecting upload ${args.key}: ${invalidReason}`,
+        );
+        try {
+          await r2.deleteObject(ctx, args.key);
+        } catch (err) {
+          console.error(
+            `[onSyncMetadata] failed to delete invalid upload ${args.key}:`,
+            err,
+          );
+        }
+        return;
+      }
+
       // Extract userId from key (format: userId/uuid)
       const userId = args.key.split("/")[0];
       if (!userId) {
         console.error("No userId found in key:", args.key);
+        try {
+          await r2.deleteObject(ctx, args.key);
+        } catch {
+          // Object may already be gone.
+        }
         return;
       }
 
@@ -60,7 +98,7 @@ export const { generateUploadUrl, syncMetadata, onSyncMetadata } = r2.clientApi(
         contentLength: metadata.size || 0,
       });
     },
-  }
+  },
 );
 
 // Mutation to associate an upload with the current user
@@ -72,6 +110,10 @@ export const associateUpload = mutation({
     const user = await authComponent.safeGetAuthUser(ctx);
     if (!user) {
       throw new Error("Not authenticated");
+    }
+
+    if (!args.key.startsWith(`${user._id}/`)) {
+      throw new Error("Not authorized for this key");
     }
 
     // Get metadata from R2
@@ -87,22 +129,23 @@ export const associateUpload = mutation({
       .first();
 
     if (existing) {
-      // Update the userId if it's not set
-      if (!existing.userId) {
-        await ctx.db.patch(existing._id, {
-          userId: user._id,
-        });
-      }
-      return;
+      if (existing.userId === user._id) return;
+      throw new Error("Upload already associated with another user");
     }
 
-    // Create new record
-    await ctx.db.insert("uploads", {
+    const invalidReason = validateUploadMetadata(
+      metadata.contentType,
+      metadata.size,
+    );
+    if (invalidReason) {
+      throw new Error(`Invalid upload: ${invalidReason}`);
+    }
+
+    await ctx.runMutation(internal.uploads.createUploadRecord, {
       key: args.key,
       userId: user._id,
       contentType: metadata.contentType || "application/octet-stream",
       contentLength: metadata.size || 0,
-      uploadedAt: Date.now(),
     });
   },
 });
@@ -117,6 +160,41 @@ export const createUploadRecord = internalMutation({
     isNew: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("uploads")
+      .withIndex("by_key", (q) => q.eq("key", args.key))
+      .first();
+    if (existing) {
+      return;
+    }
+
+    const userProfile = await ctx.db
+      .query("profile")
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", args.userId))
+      .unique();
+
+    const quota = getUserStorageQuota(userProfile?.isPremium);
+    const currentBytes = userProfile?.storageBytesUsed ?? 0;
+    const currentCount = userProfile?.uploadCount ?? 0;
+
+    const exceedsBytes = currentBytes + args.contentLength > quota;
+    const exceedsCount = currentCount >= MAX_UPLOADS_PER_USER;
+    if (exceedsBytes || exceedsCount) {
+      console.warn(
+        `[createUploadRecord] quota exceeded for user ${args.userId}: ` +
+          `bytesUsed=${currentBytes}, incoming=${args.contentLength}, quota=${quota}, count=${currentCount}`,
+      );
+      try {
+        await r2.deleteObject(ctx, args.key);
+      } catch (err) {
+        console.error(
+          `[createUploadRecord] failed to delete over-quota upload ${args.key}:`,
+          err,
+        );
+      }
+      return;
+    }
+
     await ctx.db.insert("uploads", {
       key: args.key,
       userId: args.userId,
@@ -124,6 +202,13 @@ export const createUploadRecord = internalMutation({
       contentLength: args.contentLength,
       uploadedAt: Date.now(),
     });
+
+    if (userProfile) {
+      await ctx.db.patch(userProfile._id, {
+        storageBytesUsed: currentBytes + args.contentLength,
+        uploadCount: currentCount + 1,
+      });
+    }
   },
 });
 
@@ -160,7 +245,7 @@ export const listUserUploads = query({
             url: null,
           };
         }
-      })
+      }),
     );
   },
 });
@@ -217,5 +302,19 @@ export const deleteUpload = mutation({
 
     // Delete from database
     await ctx.db.delete(upload._id);
+
+    const userProfile = await ctx.db
+      .query("profile")
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", user._id))
+      .unique();
+    if (userProfile) {
+      await ctx.db.patch(userProfile._id, {
+        storageBytesUsed: Math.max(
+          0,
+          (userProfile.storageBytesUsed ?? 0) - upload.contentLength,
+        ),
+        uploadCount: Math.max(0, (userProfile.uploadCount ?? 0) - 1),
+      });
+    }
   },
 });
