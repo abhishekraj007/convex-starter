@@ -26,7 +26,7 @@ export const AccountActionsSheet = ({
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
-        <BottomSheet.Content snapPoints={["44%"]}>
+        <BottomSheet.Content snapPoints={["44%"]} handleComponent={null}>
           <View className="gap-4">
             <View className="gap-1">
               <Text className="text-2xl font-semibold text-foreground">

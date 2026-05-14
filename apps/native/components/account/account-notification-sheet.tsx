@@ -98,6 +98,7 @@ export const AccountNotificationSheet = ({
         <BottomSheet.Overlay />
         <BottomSheet.Content
           snapPoints={[hasPermission === false ? "52%" : "42%"]}
+          handleComponent={null}
         >
           <View className="gap-4 py-2">
             <View className="gap-1">

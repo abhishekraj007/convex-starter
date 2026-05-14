@@ -9,8 +9,8 @@ import { authComponent } from "./component";
 
 const siteUrl = process.env.SITE_URL!;
 const authBaseUrl = process.env.CONVEX_SITE_URL ?? siteUrl;
-const nativeAppUrl = process.env.NATIVE_APP_URL || "feelchat://";
-const iosAppBundleIdentifier = "com.noosperai.feelchat";
+const nativeAppUrl = process.env.NATIVE_APP_URL || "quotes://";
+const iosAppBundleIdentifier = "com.noosperai.quotes";
 const appleClientId = process.env.APPLE_CLIENT_ID || iosAppBundleIdentifier;
 // Generated via: node scripts/generate-apple-secret.mjs
 const appleClientSecret = process.env.APPLE_CLIENT_SECRET;

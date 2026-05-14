@@ -3,11 +3,12 @@ import { useAppTheme } from "@/contexts/app-theme-context";
 import { useConvexAuth, useQuery } from "convex/react";
 import { Stack } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import { Platform } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SplashScreen } from "@/components/splash-screen";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { api } from "@convex-starter/backend/convex/_generated/api";
+import { useEffect, useState } from "react";
 
 export const unstable_settings = {
   initialRouteName: "(main)",
@@ -18,6 +19,8 @@ export default function RootLayout() {
   const { isDark } = useAppTheme();
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
+  const [hasFinishedInitialBootstrap, setHasFinishedInitialBootstrap] =
+    useState(false);
 
   // Fetch user data when authenticated
   const userData = useQuery(
@@ -28,9 +31,19 @@ export default function RootLayout() {
   // Register for push notifications when user is authenticated
   usePushNotifications(userData?.userMetadata._id);
 
-  if (isLoading) {
-    return <SplashScreen />;
-  }
+  const isUserBootstrapPending = isAuthenticated && userData === undefined;
+
+  useEffect(() => {
+    if (hasFinishedInitialBootstrap) {
+      return;
+    }
+
+    if (!isLoading && !isUserBootstrapPending) {
+      setHasFinishedInitialBootstrap(true);
+    }
+  }, [hasFinishedInitialBootstrap, isLoading, isUserBootstrapPending]);
+
+  const showSplash = !hasFinishedInitialBootstrap;
 
   return (
     <>
@@ -65,7 +78,6 @@ export default function RootLayout() {
             name="(auth)"
             options={{
               headerShown: false,
-              presentation: "modal",
             }}
           />
         </Stack.Protected>
@@ -76,6 +88,16 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      {showSplash ? (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            { zIndex: 9999, backgroundColor: themeColorBackground },
+          ]}
+        >
+          <SplashScreen />
+        </View>
+      ) : null}
     </>
   );
 }

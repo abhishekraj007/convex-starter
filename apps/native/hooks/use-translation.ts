@@ -4,12 +4,17 @@ import type { Locale } from "@/lib/i18n";
 const accountTranslations: Record<string, string> = {
   "common.ok": "OK",
   "chat.clear": "Clear",
+  "tabs.home": "Home",
+  "tabs.uploads": "Uploads",
+  "tabs.notifications": "Notifications",
+  "tabs.account": "Account",
   "language.english": "English",
   "appearance.theme": "Theme",
   "appearance.light": "Light",
   "appearance.dark": "Dark",
   "appearance.color": "Color Theme",
   "nav.settings": "Settings",
+  "nav.notifications": "Notifications",
   "settings.notificationsDescription":
     "Choose whether this device receives push notifications.",
   "notifications.enable": "Enable notifications",

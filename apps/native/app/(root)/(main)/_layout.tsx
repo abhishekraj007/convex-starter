@@ -7,7 +7,13 @@ export default function MainLayout() {
   const { isDark } = useAppTheme();
 
   return (
-    <Stack>
+    <Stack initialRouteName="(tabs)">
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="index"
         options={{
@@ -24,19 +30,6 @@ export default function MainLayout() {
           presentation: "modal",
           headerTitle: "",
           headerBackTitle: "Back",
-          // headerShown: false,
-          ...standard,
-        }}
-      />
-      <Stack.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          presentation: "modal",
-          headerBackButtonDisplayMode: "generic",
-          headerBlurEffect: isDark ? "dark" : "light",
-          headerBackTitle: "Back",
-          // animation: "fade",
           // headerShown: false,
           ...standard,
         }}

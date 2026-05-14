@@ -88,7 +88,7 @@ export const AccountAppearanceSheet = ({
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
-        <BottomSheet.Content snapPoints={["72%"]}>
+        <BottomSheet.Content snapPoints={["72%"]} handleComponent={null}>
           <View className="gap-4 py-4">
             <View className="gap-2">
               <Text className="text-sm font-medium text-muted">

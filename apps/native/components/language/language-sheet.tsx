@@ -14,7 +14,7 @@ export const LanguageSheet = ({ isOpen, onOpenChange }: LanguageSheetProps) => {
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay />
-        <BottomSheet.Content snapPoints={["65%"]}>
+        <BottomSheet.Content snapPoints={["65%"]} handleComponent={null}>
           <View className="gap-4 py-4">
             <View className="gap-1">
               <Text className="text-xl font-semibold text-foreground">
