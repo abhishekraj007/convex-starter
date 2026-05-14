@@ -2,7 +2,7 @@ import { View, ScrollView, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
-import { Button, Card, Spinner, TextField } from "heroui-native";
+import { Button, Card, Input, Label, Spinner, TextField } from "heroui-native";
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
@@ -21,10 +21,10 @@ export default function NotificationsScreen() {
     limit: 20,
   });
   const sendNotification = useMutation(
-    api.pushNotifications.sendPushNotification
+    api.pushNotifications.sendPushNotification,
   );
   const recordToken = useMutation(
-    api.pushNotifications.recordPushNotificationToken
+    api.pushNotifications.recordPushNotificationToken,
   );
 
   // Set up notification listener
@@ -32,7 +32,7 @@ export default function NotificationsScreen() {
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
         console.log("Notification received:", notification);
-      }
+      },
     );
 
     const responseSubscription =
@@ -56,7 +56,7 @@ export default function NotificationsScreen() {
         Alert.alert(
           "Build Required",
           "Push notifications are not supported in Expo Go on iOS. Please create a development build using 'npx expo run:ios' or EAS Build to test push notifications.",
-          [{ text: "OK" }]
+          [{ text: "OK" }],
         );
         setRequesting(false);
         return;
@@ -67,7 +67,7 @@ export default function NotificationsScreen() {
       if (permStatus !== "granted") {
         Alert.alert(
           "Permission Denied",
-          "Please enable notifications in your device settings to receive push notifications."
+          "Please enable notifications in your device settings to receive push notifications.",
         );
       } else {
         // Get and register the token
@@ -81,7 +81,7 @@ export default function NotificationsScreen() {
           await recordToken({ token: tokenData.data });
           Alert.alert(
             "Success",
-            "Notification permissions granted and device registered!"
+            "Notification permissions granted and device registered!",
           );
           setPermissionRefresh((prev) => prev + 1); // Trigger status refetch
         } catch (error) {
@@ -94,7 +94,7 @@ export default function NotificationsScreen() {
           ) {
             Alert.alert(
               "Development Build Required",
-              "Push notifications require a development build. Run 'npx expo run:ios' or 'npx expo run:android' to create a proper build with push notification support."
+              "Push notifications require a development build. Run 'npx expo run:ios' or 'npx expo run:android' to create a proper build with push notification support.",
             );
           } else {
             Alert.alert("Error", "Failed to register device for notifications");
@@ -131,7 +131,7 @@ export default function NotificationsScreen() {
     } catch (error) {
       Alert.alert(
         "Error",
-        error instanceof Error ? error.message : "Failed to send notification"
+        error instanceof Error ? error.message : "Failed to send notification",
       );
     } finally {
       setSending(false);
@@ -190,16 +190,16 @@ export default function NotificationsScreen() {
           </Card.Header>
           <Card.Body className="gap-4">
             <TextField>
-              <TextField.Label>Title</TextField.Label>
-              <TextField.Input
+              <Label>Title</Label>
+              <Input
                 value={title}
                 onChangeText={setTitle}
                 placeholder="Notification title"
               />
             </TextField>
             <TextField>
-              <TextField.Label>Body</TextField.Label>
-              <TextField.Input
+              <Label>Body</Label>
+              <Input
                 value={body}
                 onChangeText={setBody}
                 placeholder="Notification body"

@@ -8,6 +8,10 @@
       /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
       --surface: hsl(280 20% 96%);
       --surface-foreground: hsl(280 30% 20%);
+      --surface-secondary: hsl(280 18% 94%);
+      --surface-secondary-foreground: hsl(280 30% 20%);
+      --surface-tertiary: hsl(280 16% 92%);
+      --surface-tertiary-foreground: hsl(280 30% 20%);
 
       /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
       --overlay: hsl(280 20% 96%);
@@ -44,7 +48,17 @@
       /* Misc Colors */
       --border: hsl(270 20% 88%);
       --divider: hsl(270 15% 82%);
+      --separator: var(--divider);
+      --focus: var(--accent);
       --link: hsl(270 50% 65%);
+
+      --surface-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      --overlay-shadow:
+        0 2px 8px 0 rgba(0, 0, 0, 0.02), 0 -6px 12px 0 rgba(0, 0, 0, 0.01),
+        0 14px 28px 0 rgba(0, 0, 0, 0.03);
+      --field-shadow: var(--surface-shadow);
     }
 
     @variant lavender-dark {
@@ -55,6 +69,10 @@
       /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
       --surface: hsl(280 18% 15%);
       --surface-foreground: hsl(280 10% 85%);
+      --surface-secondary: hsl(280 17% 18%);
+      --surface-secondary-foreground: hsl(280 10% 85%);
+      --surface-tertiary: hsl(280 16% 21%);
+      --surface-tertiary-foreground: hsl(280 10% 85%);
 
       /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
       --overlay: hsl(280 16% 18%);
@@ -91,7 +109,13 @@
       /* Misc Colors */
       --border: hsl(270 15% 25%);
       --divider: hsl(270 12% 30%);
+      --separator: var(--divider);
+      --focus: var(--accent);
       --link: hsl(270 45% 70%);
+
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+      --field-shadow: 0 0 0 0 transparent inset;
     }
   }
 }

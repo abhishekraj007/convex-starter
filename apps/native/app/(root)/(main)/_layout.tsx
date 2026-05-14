@@ -42,6 +42,17 @@ export default function MainLayout() {
         }}
       />
       <Stack.Screen
+        name="account"
+        options={{
+          title: "Account",
+          presentation: "modal",
+          headerBackButtonDisplayMode: "generic",
+          headerBlurEffect: isDark ? "dark" : "light",
+          headerBackTitle: "Back",
+          ...standard,
+        }}
+      />
+      <Stack.Screen
         name="uploads"
         options={{
           title: "Uploads",

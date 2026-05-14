@@ -7,20 +7,27 @@ export default defineSchema({
     name: v.optional(v.string()),
     authUserId: v.string(),
     credits: v.optional(v.number()),
+    // Admin status - can only be set manually in database
+    isAdmin: v.optional(v.boolean()),
     // Premium status - can be granted manually or via subscription
     isPremium: v.optional(v.boolean()),
     premiumGrantedBy: v.optional(
       v.union(
         v.literal("manual"), // Admin granted
         v.literal("subscription"), // From active subscription
-        v.literal("lifetime") // Lifetime access
-      )
+        v.literal("lifetime"), // Lifetime access
+      ),
     ),
     premiumGrantedAt: v.optional(v.number()),
     premiumExpiresAt: v.optional(v.number()), // null = lifetime/subscription-based
     // Active thread for English tutor (syncs across devices)
     activeTutorThreadId: v.optional(v.string()),
-  }).index("by_auth_user_id", ["authUserId"]),
+    // Storage quota tracking (enforced in upload metadata sync)
+    storageBytesUsed: v.optional(v.number()),
+    uploadCount: v.optional(v.number()),
+  })
+    .index("by_auth_user_id", ["authUserId"])
+    .index("by_email", ["email"]),
 
   // Unified subscriptions table for both Polar (web) and RevenueCat (native)
   // Single source of truth for all subscription and premium status data
@@ -39,7 +46,7 @@ export default defineSchema({
       v.literal("canceled"),
       v.literal("expired"),
       v.literal("past_due"),
-      v.literal("trialing")
+      v.literal("trialing"),
     ),
     productType: v.optional(v.string()), // e.g., "monthly", "yearly" - derived from webhook
 
@@ -80,7 +87,7 @@ export default defineSchema({
       v.literal("paid"),
       v.literal("pending"),
       v.literal("failed"),
-      v.literal("refunded")
+      v.literal("refunded"),
     ),
     createdAt: v.number(),
   })
@@ -98,4 +105,19 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_key", ["key"]),
+
+  // Runtime app configuration shared by web, admin, and native clients.
+  appConfig: defineTable({
+    key: v.string(),
+    baseWebUrl: v.optional(v.string()),
+    termsUrl: v.optional(v.string()),
+    privacyUrl: v.optional(v.string()),
+    helpCenterUrl: v.optional(v.string()),
+    supportUrl: v.optional(v.string()),
+    shareUrl: v.optional(v.string()),
+    iosAppStoreId: v.optional(v.string()),
+    androidAppId: v.optional(v.string()),
+    updatedAt: v.number(),
+    updatedBy: v.string(),
+  }).index("by_key", ["key"]),
 });

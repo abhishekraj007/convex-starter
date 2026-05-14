@@ -19,6 +19,9 @@ export default function HomeRoute() {
           <Button onPress={() => router.push("/(root)/(main)/notifications")}>
             Go to Notifications
           </Button>
+          <Button onPress={() => router.push("/(root)/(main)/account" as any)}>
+            Go to Account
+          </Button>
         </View>
       </SafeAreaView>
     </View>

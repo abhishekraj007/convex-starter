@@ -2,16 +2,19 @@ import { colorScheme } from "nativewind";
 import { useEffect, useState } from "react";
 import { useColorScheme as useRNColorScheme } from "react-native";
 
+const normalizeColorScheme = (scheme: string | null | undefined) =>
+  scheme === "light" || scheme === "dark" ? scheme : "dark";
+
 export function useColorScheme() {
   const systemColorScheme = useRNColorScheme();
   const [currentScheme, setCurrentScheme] = useState<"light" | "dark">(() => {
-    // Initialize from stored value or system preference
-    return colorScheme.get() ?? systemColorScheme ?? "dark";
+    return normalizeColorScheme(colorScheme.get() ?? systemColorScheme);
   });
 
   useEffect(() => {
-    // Listen for system color scheme changes
-    const newScheme = colorScheme.get() ?? systemColorScheme ?? "dark";
+    const newScheme = normalizeColorScheme(
+      colorScheme.get() ?? systemColorScheme,
+    );
     if (newScheme !== currentScheme) {
       setCurrentScheme(newScheme);
     }
@@ -21,7 +24,6 @@ export function useColorScheme() {
     colorScheme.set(scheme);
     setCurrentScheme(scheme);
 
-    // Force a small delay to ensure the change propagates
     setTimeout(() => {
       setCurrentScheme(scheme);
     }, 10);
