@@ -14,8 +14,8 @@ import {
 } from "react-native-reanimated";
 import { featureFlags } from "react-native-screens";
 
-const screenExperiments = featureFlags.experiment as typeof featureFlags.experiment &
-  {
+const screenExperiments =
+  featureFlags.experiment as typeof featureFlags.experiment & {
     ios26AllowInteractionsDuringTransition?: boolean;
   };
 
