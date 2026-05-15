@@ -1,13 +1,25 @@
-import { View, ScrollView, Alert, Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View, ScrollView, Alert, Platform, Text } from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
-import { Button, Card, Input, Label, Spinner, TextField } from "heroui-native";
+import {
+  Button,
+  Card,
+  Input,
+  Label,
+  Spinner,
+  TextField,
+  useThemeColor,
+} from "heroui-native";
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 
 export default function NotificationsScreen() {
+  const backgroundColor = useThemeColor("background");
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState("Test Notification");
   const [body, setBody] = useState("This is a test notification");
@@ -138,112 +150,128 @@ export default function NotificationsScreen() {
     }
   };
 
-  if (!status) {
+  const renderBody = () => {
+    if (!status) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <Text className="mb-2 text-foreground">
+            Login is required to send notifications using convex
+          </Text>
+        </View>
+      );
+    }
+
     return (
-      <View className="flex-1 items-center justify-center">
-        <Spinner size="lg" />
-      </View>
+      <>
+        {/* Status Card */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Push Notification Status</Card.Title>
+          </Card.Header>
+          <Card.Body className="gap-2">
+            <View>
+              <Card.Description>
+                {status.hasToken
+                  ? "Notifications enabled. Device registered."
+                  : "Notifications not enabled. Please allow notification permissions."}
+              </Card.Description>
+            </View>
+            {!status.hasToken && (
+              <Button
+                variant="primary"
+                onPress={handleRequestPermissions}
+                isDisabled={requesting}
+                className="mt-2"
+              >
+                {requesting ? "Requesting..." : "Enable Notifications"}
+              </Button>
+            )}
+          </Card.Body>
+        </Card>
+
+        {/* Send Test Notification */}
+        {status.hasToken && (
+          <Card>
+            <Card.Header>
+              <Card.Title>Send Test Notification</Card.Title>
+              <Card.Description>
+                Send a notification to yourself
+              </Card.Description>
+            </Card.Header>
+            <Card.Body className="gap-4">
+              <TextField>
+                <Label>Title</Label>
+                <Input
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder="Notification title"
+                />
+              </TextField>
+              <TextField>
+                <Label>Body</Label>
+                <Input
+                  value={body}
+                  onChangeText={setBody}
+                  placeholder="Notification body"
+                  numberOfLines={3}
+                  multiline
+                />
+              </TextField>
+              <Button
+                variant="primary"
+                onPress={handleSendNotification}
+                isDisabled={sending}
+              >
+                {sending ? "Sending..." : "Send Notification"}
+              </Button>
+            </Card.Body>
+          </Card>
+        )}
+
+        {/* Recent Notifications */}
+        {notifications && notifications.length > 0 && (
+          <Card>
+            <Card.Header>
+              <Card.Title>Recent Notifications</Card.Title>
+              <Card.Description>
+                {notifications.length} notification(s)
+              </Card.Description>
+            </Card.Header>
+            <Card.Body className="gap-3">
+              {notifications.map((notification, index) => (
+                <Card key={index}>
+                  <Card.Body className="gap-1">
+                    <Card.Title className="text-base">
+                      {notification.title}
+                    </Card.Title>
+                    <Card.Description>{notification.body}</Card.Description>
+                    <Card.Description className="text-xs">
+                      {new Date(notification._creationTime).toLocaleString()}
+                    </Card.Description>
+                  </Card.Body>
+                </Card>
+              ))}
+            </Card.Body>
+          </Card>
+        )}
+      </>
     );
-  }
+  };
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        paddingTop: insets.top + 60,
-        paddingBottom: insets.bottom + 20,
-        paddingHorizontal: 16,
-        gap: 16,
-      }}
-    >
-      {/* Status Card */}
-      <Card>
-        <Card.Header>
-          <Card.Title>Push Notification Status</Card.Title>
-        </Card.Header>
-        <Card.Body className="gap-2">
-          <View>
-            <Card.Description>
-              {status.hasToken
-                ? "Notifications enabled. Device registered."
-                : "Notifications not enabled. Please allow notification permissions."}
-            </Card.Description>
-          </View>
-          {!status.hasToken && (
-            <Button
-              variant="primary"
-              onPress={handleRequestPermissions}
-              isDisabled={requesting}
-              className="mt-2"
-            >
-              {requesting ? "Requesting..." : "Enable Notifications"}
-            </Button>
-          )}
-        </Card.Body>
-      </Card>
-
-      {/* Send Test Notification */}
-      {status.hasToken && (
-        <Card>
-          <Card.Header>
-            <Card.Title>Send Test Notification</Card.Title>
-            <Card.Description>Send a notification to yourself</Card.Description>
-          </Card.Header>
-          <Card.Body className="gap-4">
-            <TextField>
-              <Label>Title</Label>
-              <Input
-                value={title}
-                onChangeText={setTitle}
-                placeholder="Notification title"
-              />
-            </TextField>
-            <TextField>
-              <Label>Body</Label>
-              <Input
-                value={body}
-                onChangeText={setBody}
-                placeholder="Notification body"
-                numberOfLines={3}
-                multiline
-              />
-            </TextField>
-            <Button
-              variant="primary"
-              onPress={handleSendNotification}
-              isDisabled={sending}
-            >
-              {sending ? "Sending..." : "Send Notification"}
-            </Button>
-          </Card.Body>
-        </Card>
-      )}
-
-      {/* Recent Notifications */}
-      {notifications && notifications.length > 0 && (
-        <Card>
-          <Card.Header>
-            <Card.Title>Recent Notifications</Card.Title>
-            <Card.Description>
-              {notifications.length} notification(s)
-            </Card.Description>
-          </Card.Header>
-          <Card.Body className="gap-3">
-            {notifications.map((notification, index) => (
-              <Card key={index}>
-                <Card.Body className="gap-1">
-                  <Card.Title className="text-base">
-                    {notification.title}
-                  </Card.Title>
-                  <Card.Description>{notification.body}</Card.Description>
-                  <Card.Description className="text-xs">
-                    {new Date(notification._creationTime).toLocaleString()}
-                  </Card.Description>
-                </Card.Body>
-              </Card>
-            ))}
-          </Card.Body>
-        </Card>
-      )}
-    </ScrollView>
+    <View className="flex-1 bg-background">
+      <SafeAreaView>
+        {/* <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top + 60,
+          paddingBottom: insets.bottom + 20,
+          paddingHorizontal: 16,
+          gap: 16,
+        }}
+      > */}
+        {renderBody()}
+        {/* </ScrollView> */}
+      </SafeAreaView>
+    </View>
   );
 }

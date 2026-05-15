@@ -4,7 +4,7 @@ import {
   isGlassEffectAPIAvailable,
   isLiquidGlassAvailable,
 } from "expo-glass-effect";
-import { Button } from "heroui-native";
+import { Button, useThemeColor } from "heroui-native";
 import {
   Platform,
   Pressable,
@@ -17,18 +17,17 @@ import { useAppTheme } from "@/contexts/app-theme-context";
 import { cn } from "@/lib/utils";
 
 type HeroUIButtonProps = ComponentProps<typeof Button>;
+type Variant = NonNullable<HeroUIButtonProps["variant"]>;
 
 type LiquidGlassButtonProps = PropsWithChildren<{
   accessibilityLabel?: string;
   className?: string;
-  fallbackClassName?: string;
-  fallbackSize?: HeroUIButtonProps["size"];
-  fallbackVariant?: HeroUIButtonProps["variant"];
+  size?: HeroUIButtonProps["size"];
+  variant?: Variant;
   fullWidth?: boolean;
   isDisabled?: boolean;
   isIconOnly?: boolean;
   onPress?: PressableProps["onPress"];
-  pressableClassName?: string;
   style?: StyleProp<ViewStyle>;
   tintColor?: string;
 }>;
@@ -37,18 +36,25 @@ export function LiquidGlassButton({
   accessibilityLabel,
   children,
   className,
-  fallbackClassName,
-  fallbackSize = "md",
-  fallbackVariant = "secondary",
+  size = "md",
+  variant = "secondary",
   fullWidth = false,
   isDisabled = false,
   isIconOnly = false,
   onPress,
-  pressableClassName,
   style,
   tintColor,
 }: LiquidGlassButtonProps) {
   const { isDark } = useAppTheme();
+
+  // Resolve all variant background colors from the theme unconditionally.
+  const colorAccent = useThemeColor("accent");
+  const colorDefault = useThemeColor("default");
+  const colorSurface = useThemeColor("surface");
+  const colorDanger = useThemeColor("danger");
+  const colorDangerSoft = useThemeColor("danger-soft");
+  const colorBorder = useThemeColor("border");
+
   const canUseLiquidGlass =
     Platform.OS === "ios" &&
     isLiquidGlassAvailable() &&
@@ -58,17 +64,32 @@ export function LiquidGlassButton({
     return (
       <Button
         accessibilityLabel={accessibilityLabel}
-        className={cn(fullWidth && "w-full", fallbackClassName, className)}
+        className={cn(fullWidth && "w-full", className)}
         isDisabled={isDisabled}
         isIconOnly={isIconOnly}
         onPress={onPress}
-        size={fallbackSize}
-        variant={fallbackVariant}
+        size={size}
+        variant={variant}
       >
         {children}
       </Button>
     );
   }
+
+  // Map each variant to a theme-reactive background color for the glass overlay.
+  const bgColorByVariant: Record<Variant, string> = {
+    primary: colorAccent,
+    secondary: colorDefault,
+    tertiary: colorSurface,
+    outline: "transparent",
+    ghost: "transparent",
+    danger: colorDanger,
+    "danger-soft": colorDangerSoft,
+  };
+
+  const hasBgClass = !!className && /\bbg-\S+/.test(className);
+  const bgColor = hasBgClass ? undefined : bgColorByVariant[variant];
+  const isOutline = variant === "outline";
 
   return (
     <GlassView
@@ -79,6 +100,7 @@ export function LiquidGlassButton({
         styles.glass,
         isIconOnly ? styles.iconButton : styles.button,
         fullWidth && styles.fullWidth,
+        isOutline && { borderWidth: 1.5, borderColor: colorBorder },
         style,
       ]}
       tintColor={tintColor}
@@ -89,8 +111,9 @@ export function LiquidGlassButton({
           "flex-row items-center justify-center gap-2",
           isIconOnly ? "h-9 w-9" : "min-h-10 px-4 py-2",
           isDisabled && "opacity-disabled",
-          pressableClassName,
+          className,
         )}
+        style={hasBgClass ? {} : { backgroundColor: bgColor }}
         disabled={isDisabled}
         onPress={onPress}
       >

@@ -6,6 +6,7 @@ const accountTranslations: Record<string, string> = {
   "chat.clear": "Clear",
   "tabs.home": "Home",
   "tabs.uploads": "Uploads",
+  "tabs.features": "Features",
   "tabs.notifications": "Notifications",
   "tabs.account": "Account",
   "language.english": "English",

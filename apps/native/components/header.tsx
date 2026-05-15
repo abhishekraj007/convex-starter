@@ -27,23 +27,21 @@ export const Header = () => {
             <LiquidGlassButton
               isIconOnly
               accessibilityLabel="Open premium"
-              fallbackClassName="rounded-full bg-pink-500"
-              fallbackSize="sm"
-              fallbackVariant="tertiary"
+              className="rounded-full bg-pink-500"
+              size="sm"
+              variant="tertiary"
               onPress={presentPaywall}
-              pressableClassName="bg-pink-500/40"
             >
               <Crown size={16} color="white" />
             </LiquidGlassButton>
 
             <LiquidGlassButton
               accessibilityLabel="Buy credits"
-              fallbackSize="sm"
-              fallbackVariant="primary"
+              size="sm"
+              variant="primary"
               onPress={() => {
                 router.push("/(root)/(main)/buy-credits");
               }}
-              pressableClassName="bg-accent/35"
             >
               <Coins size={16} color="white" />
               <Text className="text-white font-medium">
@@ -54,8 +52,8 @@ export const Header = () => {
         ) : (
           <LiquidGlassButton
             accessibilityLabel="Sign in"
-            fallbackSize="sm"
-            fallbackVariant="tertiary"
+            size="sm"
+            variant="tertiary"
             onPress={() => {
               router.push("/(root)/(auth)");
             }}
