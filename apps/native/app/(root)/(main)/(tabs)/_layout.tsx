@@ -1,80 +1,91 @@
-import { Tabs } from "expo-router";
-import { Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useThemeColor } from "heroui-native";
-import { TabBarIcon } from "@/components/tabbar-icon";
+import { Platform } from "react-native";
 import { useTranslation } from "@/hooks/use-translation";
 
 export default function TabsLayout() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const accentColor = useThemeColor("accent");
+  const accentForeground = useThemeColor("accent-foreground");
   const mutedColor = useThemeColor("muted");
   const backgroundColor = useThemeColor("background");
+  const tabBackgroundColor = useThemeColor("surface");
   const borderColor = useThemeColor("border");
-  const bottomPadding =
-    Platform.OS === "android"
-      ? Math.max(insets.bottom, 8)
-      : Math.max(insets.bottom, 24);
-  const tabBarHeight = 60 + bottomPadding + 8;
+  const selectedIconColor =
+    Platform.OS === "android" ? accentForeground : accentColor;
+
+  // Android: NativeTabs global iconColor.default is not propagated to per-screen
+  // standardAppearance. Pass per-trigger appearance to get theme-reactive inactive colors.
+  // const androidTabNativeProps =
+  //   Platform.OS === "android"
+  //     ? {
+  //         android: {
+  //           standardAppearance: {
+  //             tabBarBackgroundColor: tabBackgroundColor,
+  //             tabBarItemActiveIndicatorColor: accentColor,
+  //             tabBarItemActiveIndicatorEnabled: true,
+  //             normal: {
+  //               tabBarItemIconColor: mutedColor,
+  //               tabBarItemTitleFontColor: mutedColor,
+  //             },
+  //             selected: {
+  //               tabBarItemIconColor: selectedIconColor,
+  //               tabBarItemTitleFontColor: accentColor,
+  //             },
+  //           },
+  //         },
+  //       }
+  //     : undefined;
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: accentColor,
-        tabBarInactiveTintColor: mutedColor,
-        tabBarStyle: {
-          backgroundColor,
-          borderTopColor: borderColor,
-          borderTopWidth: 1,
-          paddingTop: 8,
-          paddingBottom: bottomPadding,
-          height: tabBarHeight,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "500",
-          marginTop: 4,
-        },
-        headerShown: false,
+    <NativeTabs
+      minimizeBehavior="onScrollDown"
+      tintColor={accentColor}
+      iconColor={{ default: mutedColor, selected: selectedIconColor }}
+      labelStyle={{
+        default: { color: mutedColor, fontSize: 11, fontWeight: "500" },
+        selected: { color: accentColor, fontSize: 11, fontWeight: "600" },
       }}
+      backgroundColor={tabBackgroundColor}
+      blurEffect="systemChromeMaterial"
+      shadowColor={borderColor}
+      indicatorColor={accentColor}
+      rippleColor={selectedIconColor}
+      // disableIndicator={true}
+      // {...androidTabNativeProps}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t("tabs.home"),
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="home" color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="uploads"
-        options={{
-          title: t("tabs.uploads"),
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="uploads" color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: t("tabs.notifications"),
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="notifications" color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="account"
-        options={{
-          title: t("tabs.account"),
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="account" color={color} focused={focused} />
-          ),
-        }}
-      />
-    </Tabs>
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>{t("tabs.home")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "house", selected: "house.fill" }}
+          md="home"
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="features">
+        <NativeTabs.Trigger.Label>
+          {t("tabs.features")}
+        </NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "star", selected: "star.fill" }}
+          md="auto_awesome"
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="notifications">
+        <NativeTabs.Trigger.Label>
+          {t("tabs.notifications")}
+        </NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "bell", selected: "bell.fill" }}
+          md="notifications"
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account">
+        <NativeTabs.Trigger.Label>{t("tabs.account")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "person", selected: "person.fill" }}
+          md="person"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

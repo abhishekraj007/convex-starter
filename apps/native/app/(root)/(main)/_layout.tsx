@@ -46,6 +46,14 @@ export default function MainLayout() {
         }}
       />
       <Stack.Screen
+        name="features"
+        options={{
+          title: "Features",
+          headerBackTitle: "Back",
+          ...standard,
+        }}
+      />
+      <Stack.Screen
         name="uploads"
         options={{
           title: "Uploads",
