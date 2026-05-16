@@ -3,6 +3,7 @@ import { mutation } from "../../_generated/server";
 import { requireAdmin } from "./guards";
 import {
   APP_CONFIG_KEY,
+  normalizeRevenueCatCreditProductIds,
   normalizeAndroidAppId,
   normalizeAppStoreId,
   normalizeUrl,
@@ -18,6 +19,7 @@ export const upsertAppConfig = mutation({
     shareUrl: v.optional(v.string()),
     iosAppStoreId: v.optional(v.string()),
     androidAppId: v.optional(v.string()),
+    revenueCatCreditProductIds: v.optional(v.array(v.string())),
   },
   returns: v.object({ success: v.boolean(), updated: v.boolean() }),
   handler: async (ctx, args) => {
@@ -33,6 +35,9 @@ export const upsertAppConfig = mutation({
       shareUrl: normalizeUrl(args.shareUrl),
       iosAppStoreId: normalizeAppStoreId(args.iosAppStoreId),
       androidAppId: normalizeAndroidAppId(args.androidAppId),
+      revenueCatCreditProductIds: normalizeRevenueCatCreditProductIds(
+        args.revenueCatCreditProductIds,
+      ),
       updatedAt: Date.now(),
       updatedBy: userData.userMetadata._id,
     };
