@@ -117,6 +117,7 @@ export default defineSchema({
     shareUrl: v.optional(v.string()),
     iosAppStoreId: v.optional(v.string()),
     androidAppId: v.optional(v.string()),
+    revenueCatCreditProductIds: v.optional(v.array(v.string())),
     updatedAt: v.number(),
     updatedBy: v.string(),
   }).index("by_key", ["key"]),

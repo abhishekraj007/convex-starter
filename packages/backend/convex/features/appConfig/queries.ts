@@ -1,6 +1,10 @@
-import { v } from "convex/values";
 import { query } from "../../_generated/server";
-import { APP_CONFIG_KEY, buildUrlFromBase } from "./shared";
+import { v } from "convex/values";
+import {
+  APP_CONFIG_KEY,
+  buildUrlFromBase,
+  resolveRevenueCatCreditProductIds,
+} from "./shared";
 import { requireAdmin } from "./guards";
 
 const fallbackBaseWebUrl =
@@ -15,6 +19,7 @@ const publicAppConfigValidator = v.object({
   shareUrl: v.optional(v.string()),
   iosAppStoreId: v.optional(v.string()),
   androidAppId: v.optional(v.string()),
+  revenueCatCreditProductIds: v.array(v.string()),
   updatedAt: v.optional(v.number()),
 });
 
@@ -27,6 +32,7 @@ const adminAppConfigValidator = v.object({
   shareUrl: v.optional(v.string()),
   iosAppStoreId: v.optional(v.string()),
   androidAppId: v.optional(v.string()),
+  revenueCatCreditProductIds: v.array(v.string()),
   updatedAt: v.optional(v.number()),
   updatedBy: v.optional(v.string()),
 });
@@ -59,6 +65,9 @@ export const getPublicAppConfig = query({
       shareUrl,
       iosAppStoreId: config?.iosAppStoreId,
       androidAppId: config?.androidAppId,
+      revenueCatCreditProductIds: resolveRevenueCatCreditProductIds(
+        config?.revenueCatCreditProductIds,
+      ),
       updatedAt: config?.updatedAt,
     };
   },
@@ -84,6 +93,9 @@ export const getAdminAppConfig = query({
       shareUrl: config?.shareUrl,
       iosAppStoreId: config?.iosAppStoreId,
       androidAppId: config?.androidAppId,
+      revenueCatCreditProductIds: resolveRevenueCatCreditProductIds(
+        config?.revenueCatCreditProductIds,
+      ),
       updatedAt: config?.updatedAt,
       updatedBy: config?.updatedBy,
     };

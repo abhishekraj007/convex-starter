@@ -5,9 +5,19 @@ import Purchases, {
   PurchasesStoreProduct,
 } from "react-native-purchases";
 import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@convex-starter/backend";
 import { getAPIKey } from "@/utils/payment";
+
+const DEFAULT_CREDIT_PRODUCT_IDS: Array<string> = [
+  "credits_1000",
+  "credits_2500",
+  "credits_5000",
+];
+
+type RuntimeAppConfig = {
+  revenueCatCreditProductIds?: Array<string>;
+};
 
 interface PurchasesContextType {
   customerInfo: CustomerInfo | null;
@@ -21,7 +31,7 @@ interface PurchasesContextType {
 }
 
 const PurchasesContext = createContext<PurchasesContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function PurchasesProvider({ children }: { children: React.ReactNode }) {
@@ -31,7 +41,7 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
     PurchasesPackage[]
   >([]);
   const [creditPackages, setCreditPackages] = useState<PurchasesStoreProduct[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -39,11 +49,19 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useConvexAuth();
   const userAndProfile = useQuery(
     api.user.fetchUserAndProfile,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
+  const appConfig = useQuery(
+    api.features.appConfig.queries.getPublicAppConfig,
+    {},
+  ) as RuntimeAppConfig | undefined;
 
-  const addCredits = useMutation(api.purchases.addCredits);
-  const upgradeToPremium = useMutation(api.purchases.upgradeToPremium);
+  const configuredCreditProductIds = appConfig?.revenueCatCreditProductIds;
+  const creditProductIds =
+    configuredCreditProductIds && configuredCreditProductIds.length > 0
+      ? configuredCreditProductIds
+      : DEFAULT_CREDIT_PRODUCT_IDS;
+  const creditProductIdKey = creditProductIds.join("|");
 
   useEffect(() => {
     // console.log("customerInfo changed:", JSON.stringify(customerInfo, null, 2));
@@ -58,6 +76,10 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
 
   // Log in to RevenueCat when user authenticates
   useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+
     const loginToRevenueCat = async () => {
       if (
         isAuthenticated &&
@@ -78,11 +100,11 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    loginToRevenueCat();
-    getSubscriptions();
+    void loginToRevenueCat();
+    void getSubscriptions();
 
-    getProducts();
-  }, [isAuthenticated, userAndProfile, isInitialized]);
+    void getProducts(creditProductIds);
+  }, [isAuthenticated, userAndProfile, isInitialized, creditProductIdKey]);
 
   const initializePurchases = async () => {
     try {
@@ -121,55 +143,35 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
       const subscriptions = allPackages.filter(
         (pkg) =>
           pkg.product.productType === "AUTO_RENEWABLE_SUBSCRIPTION" ||
-          pkg.product.productCategory === "SUBSCRIPTION"
+          pkg.product.productCategory === "SUBSCRIPTION",
       );
 
       setSubscriptionPackages(subscriptions);
     }
   };
 
-  const getProducts = async () => {
+  const getProducts = async (productIds: Array<string>) => {
     console.log("fetching revenue products...");
-    const CREDIT_OPTIONS = [
-      { id: "credits_1000", amount: 1000, popular: false },
-      { id: "credits_2500", amount: 2500, popular: true },
-      { id: "credits_5000", amount: 5000, popular: false },
-    ];
 
-    const products = await Purchases.getProducts(
-      CREDIT_OPTIONS.map((option) => option.id),
-      Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION
-    );
+    try {
+      const products = await Purchases.getProducts(
+        productIds,
+        Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION,
+      );
 
-    setCreditPackages(products);
+      setCreditPackages(products);
 
-    // console.log(
-    //   "revenuecat-> Fetched products:",
-    //   JSON.stringify(products, null, 2)
-    // );
-
-    return products;
+      return products;
+    } catch (error) {
+      console.error("Error fetching credit products:", error);
+      return [];
+    }
   };
 
   const purchasePackage = async (pkg: PurchasesPackage): Promise<boolean> => {
     try {
       const { customerInfo: info } = await Purchases.purchasePackage(pkg);
       setCustomerInfo(info);
-
-      // Handle different product types
-      const productId = pkg.product.identifier;
-
-      if (productId.includes("premium")) {
-        // Premium subscription
-        const expiresAt = info.entitlements.active["premium"]?.expirationDate;
-        await upgradeToPremium({
-          expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
-        });
-      } else if (productId.includes("credits")) {
-        // Credits purchase
-        const creditsAmount = parseInt(productId.match(/\d+/)?.[0] || "0", 10);
-        await addCredits({ amount: creditsAmount });
-      }
 
       return true;
     } catch (error) {
@@ -182,14 +184,6 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
     try {
       const info = await Purchases.restorePurchases();
       setCustomerInfo(info);
-
-      // Check if user has active premium subscription
-      if (info.entitlements.active["premium"]) {
-        const expiresAt = info.entitlements.active["premium"].expirationDate;
-        await upgradeToPremium({
-          expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
-        });
-      }
     } catch (error) {
       console.error("Error restoring purchases:", error);
     }
@@ -208,7 +202,7 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
         case PAYWALL_RESULT.PURCHASED:
         case PAYWALL_RESULT.RESTORED:
           console.log(
-            "[RevenueCat] Purchase successful, refreshing customer info..."
+            "[RevenueCat] Purchase successful, refreshing customer info...",
           );
           // Refresh customer info after successful purchase
           const info = await Purchases.getCustomerInfo();
@@ -217,23 +211,6 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
             activeEntitlements: Object.keys(info.entitlements.active),
             allEntitlements: Object.keys(info.entitlements.all),
           });
-
-          // Check if user now has premium
-          if (info.entitlements.active["premium"]) {
-            const expiresAt =
-              info.entitlements.active["premium"].expirationDate;
-            console.log(
-              "[RevenueCat] Premium entitlement found, syncing with backend..."
-            );
-            await upgradeToPremium({
-              expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
-            });
-            console.log("[RevenueCat] Backend sync complete");
-          } else {
-            console.warn(
-              "[RevenueCat] No premium entitlement found after purchase"
-            );
-          }
           break;
 
         case PAYWALL_RESULT.CANCELLED:
@@ -242,7 +219,7 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
 
         case PAYWALL_RESULT.NOT_PRESENTED:
           console.warn(
-            "[RevenueCat] Paywall was not presented - user may already have access"
+            "[RevenueCat] Paywall was not presented - user may already have access",
           );
           break;
 
