@@ -8,6 +8,7 @@ import { PurchasesProvider } from "@/contexts/purchases-context";
 import { I18nProvider } from "@/contexts/i18n-context";
 import ConvexProvider from "@/providers/ConvexProvider";
 import SplashScreenProvider from "@/providers/SplashScreenProvider";
+import { useExpoUpdatesBootstrap } from "@/hooks/use-expo-updates-bootstrap";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -50,6 +51,8 @@ function ThemedLayout() {
 }
 /* ------------------------------- root layout ------------------------------ */
 export default function Layout() {
+  useExpoUpdatesBootstrap();
+
   return (
     <GestureHandlerRootView className="flex-1">
       <KeyboardProvider>

@@ -11,7 +11,6 @@ import {
 } from "react";
 import { StyleSheet } from "react-native";
 import type { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
-import { useTheme } from "@react-navigation/native";
 import { useThemeColor } from "heroui-native";
 
 interface CustomBottomSheetProps {
