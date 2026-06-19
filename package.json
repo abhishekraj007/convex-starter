@@ -15,11 +15,30 @@
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F @convex-starter/backend dev",
     "dev:setup": "turbo -F @convex-starter/backend dev:setup",
+    "ios": "pnpm -F native ios",
+    "android": "pnpm -F native android",
+    "prebuild": "pnpm -F native prebuild",
+    "build:ios:preview": "pnpm -F native build:ios:preview",
+    "build:ios": "pnpm -F native build:ios",
+    "build:ios:dev": "pnpm -F native build:ios:dev",
+    "build:android:preview": "pnpm -F native build:android:preview",
+    "build:android": "pnpm -F native build:android",
+    "build:android:apk": "pnpm -F native build:android:apk",
+    "build:android:dev": "pnpm -F native build:android:dev",
+    "build:android:remote": "pnpm -F native build:android:remote",
+    "build:web": "pnpm -F web build",
+    "start:web": "pnpm -F web start",
+    "lint:web": "pnpm -F web lint",
     "convex:deploy": "pnpm -F @convex-starter/backend exec convex deploy"
   },
   "devDependencies": {
     "@babel/traverse--for-generate-function-map": "npm:@babel/traverse@^7.29.0",
     "turbo": "^2.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "expo-constants": "~56.0.18"
+    }
   },
   "packageManager": "pnpm@10.14.0"
 }

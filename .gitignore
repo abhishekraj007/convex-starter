@@ -48,3 +48,11 @@ coverage
 .cache
 tmp
 temp
+
+.apk
+.ipa
+.aab
+*.p8
+
+native/ios
+native/android
