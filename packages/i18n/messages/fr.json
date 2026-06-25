@@ -144,6 +144,12 @@
     "noFiles": "Aucun fichier telecharge",
     "signInToView": "Connectez-vous pour voir vos fichiers"
   },
+  "updates": {
+    "title": "Mise a Jour Disponible",
+    "description": "Une nouvelle version de l'application est disponible. Relancez maintenant pour profiter des dernieres fonctionnalites et ameliorations.",
+    "relaunch": "Relancer",
+    "dismiss": "Plus Tard"
+  },
   "tutor": {
     "title": "Tuteur d'Anglais",
     "description": "Pratiquez et ameliorez vos competences en anglais avec l'aide de l'IA",
