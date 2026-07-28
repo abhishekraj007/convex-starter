@@ -2,12 +2,50 @@
 import { Webhooks } from "@polar-sh/nextjs";
 import { fetchAction, api } from "@/lib/convex-client";
 
+type PolarDateLike = string | Date | null | undefined;
+
+type PolarCustomerPayload = {
+  data?: {
+    id?: string | null;
+    customerId?: string | null;
+    customer_id?: string | null;
+    productId?: string | null;
+    product_id?: string | null;
+    status?: string | null;
+    recurringInterval?: string | null;
+    cancelAtPeriodEnd?: boolean | null;
+    canceledAt?: PolarDateLike;
+    currentPeriodStart?: PolarDateLike;
+    currentPeriodEnd?: PolarDateLike;
+    metadata?: { userId?: string | null } | null;
+    customer?: {
+      externalId?: string | null;
+      email?: string | null;
+      name?: string | null;
+    } | null;
+    customer_email?: string | null;
+    customer_name?: string | null;
+    product?: {
+      id?: string | null;
+      isRecurring?: boolean | null;
+      recurringInterval?: string | null;
+      metadata?: { credits?: string | null } | null;
+    } | null;
+  } | null;
+};
+
+function toEpochMs(value: PolarDateLike): number | undefined {
+  if (value == null) return undefined;
+  if (value instanceof Date) return value.getTime();
+  return new Date(value).getTime();
+}
+
 /**
  * Map Polar product interval to our internal productType
  * Since we fetch products dynamically, we derive the type from the recurring interval
  */
 function getProductKey(
-  recurringInterval: string | undefined
+  recurringInterval: string | undefined,
 ): string | undefined {
   if (!recurringInterval) return undefined;
 
@@ -17,11 +55,19 @@ function getProductKey(
   return undefined;
 }
 
+function requirePolarWebhookSecret(): string {
+  const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    throw new Error("POLAR_WEBHOOK_SECRET_MISSING");
+  }
+  return webhookSecret;
+}
+
 /**
  * Extract userId from Polar webhook payload
  * Polar includes customer data with externalId (our userId) and email
  */
-function getUserFromPayload(payload: any): {
+function getUserFromPayload(payload: PolarCustomerPayload): {
   userId: string | null;
   email: string | null;
   customerName: string | null;
@@ -39,42 +85,40 @@ function getUserFromPayload(payload: any): {
  * Process Polar subscription events using Convex actions
  * This is a reusable function that handles all subscription state changes
  */
-async function processPolarSubscriptionEvent(payload: any, eventType: string) {
+async function processPolarSubscriptionEvent(
+  payload: PolarCustomerPayload,
+  eventType: string,
+) {
+  const webhookSecret = requirePolarWebhookSecret();
   const data = payload?.data;
   if (!data) {
     console.error("[POLAR WEBHOOK] No data in payload");
     return;
   }
 
-  // Extract user information from customer data
   let { userId, email, customerName } = getUserFromPayload(payload);
 
-  // If userId is missing (e.g., on cancellation when Polar clears externalId),
-  // try to find it from existing subscription record
   if (!userId) {
     console.warn(
       "[POLAR WEBHOOK] No userId (externalId) in payload, attempting to find from existing subscription:",
-      { email, subscriptionId: data.id }
+      { email, subscriptionId: data.id },
     );
 
     const subscriptionId = data.id;
     if (subscriptionId) {
       try {
         const existingSubscription = await fetchAction(
-          (api as any)["features/subscriptions/actions"]
-            .getSubscriptionByPlatformId,
-          { platformSubscriptionId: subscriptionId }
+          api.features.subscriptions.actions.getSubscriptionByPlatformId,
+          { platformSubscriptionId: subscriptionId, webhookSecret },
         );
 
         if (existingSubscription) {
           userId = existingSubscription.userId;
-          console.log(
-            `[POLAR WEBHOOK] Found userId from existing subscription: ${userId}`
-          );
+          console.log("[POLAR WEBHOOK] Resolved existing subscription owner");
         } else {
           console.error(
             "[POLAR WEBHOOK] No existing subscription found for platformSubscriptionId:",
-            subscriptionId
+            subscriptionId,
           );
           return;
         }
@@ -84,13 +128,17 @@ async function processPolarSubscriptionEvent(payload: any, eventType: string) {
       }
     } else {
       console.error(
-        "[POLAR WEBHOOK] No userId and no subscriptionId to lookup"
+        "[POLAR WEBHOOK] No userId and no subscriptionId to lookup",
       );
       return;
     }
   }
 
-  console.log(`[POLAR WEBHOOK] Processing ${eventType} for user ${userId}`);
+  if (!userId) {
+    return;
+  }
+
+  console.log(`[POLAR WEBHOOK] Processing ${eventType}`);
 
   const subscriptionId = data.id;
   const customerId = data.customerId || data.customer_id;
@@ -99,13 +147,11 @@ async function processPolarSubscriptionEvent(payload: any, eventType: string) {
   const recurringInterval =
     data.recurringInterval || data.product?.recurringInterval;
 
-  // Determine if subscription is canceled but still active
   const isCanceledButActive = data.cancelAtPeriodEnd || data.canceledAt;
 
-  // Map status
   let mappedStatus: "active" | "canceled" | "expired" | "past_due" | "trialing";
   if (isCanceledButActive && status === "active") {
-    mappedStatus = "canceled"; // Will expire at period end
+    mappedStatus = "canceled";
   } else if (status === "active") {
     mappedStatus = "active";
   } else if (status === "canceled") {
@@ -115,25 +161,23 @@ async function processPolarSubscriptionEvent(payload: any, eventType: string) {
   } else if (status === "expired" || status === "incomplete_expired") {
     mappedStatus = "expired";
   } else {
-    mappedStatus = "active"; // Default fallback
+    mappedStatus = "active";
   }
 
-  const productType = getProductKey(recurringInterval);
-  const currentPeriodStart = data.currentPeriodStart
-    ? new Date(data.currentPeriodStart).getTime()
-    : undefined;
-  const currentPeriodEnd = data.currentPeriodEnd
-    ? new Date(data.currentPeriodEnd).getTime()
-    : undefined;
-  const canceledAt = data.canceledAt
-    ? new Date(data.canceledAt).getTime()
-    : undefined;
+  const productType = getProductKey(recurringInterval ?? undefined);
+  const currentPeriodStart = toEpochMs(data.currentPeriodStart);
+  const currentPeriodEnd = toEpochMs(data.currentPeriodEnd);
+  const canceledAt = toEpochMs(data.canceledAt);
 
-  // Upsert subscription via Convex action
+  if (!subscriptionId || !customerId || !productId) {
+    console.error("[POLAR WEBHOOK] Missing subscription identifiers");
+    return;
+  }
+
   const result = await fetchAction(
-    (api as any)["features/subscriptions/actions"]
-      .upsertSubscriptionFromWebhook,
+    api.features.subscriptions.actions.upsertSubscriptionFromWebhook,
     {
+      webhookSecret,
       userId,
       platform: "polar" as const,
       platformCustomerId: customerId,
@@ -146,54 +190,50 @@ async function processPolarSubscriptionEvent(payload: any, eventType: string) {
       currentPeriodStart,
       currentPeriodEnd,
       canceledAt,
-    }
+    },
   );
 
   console.log(`[POLAR WEBHOOK] Subscription upserted:`, {
-    userId,
     subscriptionId,
     status: mappedStatus,
     isNew: result.isNew,
     isRenewal: result.isRenewal,
   });
 
-  // Sync premium status based on subscription state
   const hasActiveSubscription =
     mappedStatus === "active" && !isCanceledButActive;
-  await fetchAction(
-    (api as any)["features/subscriptions/actions"].syncPremiumFromWebhook,
-    {
-      userId,
-      hasActiveSubscription,
-    }
-  );
+  await fetchAction(api.features.subscriptions.actions.syncPremiumFromWebhook, {
+    webhookSecret,
+    userId,
+    hasActiveSubscription,
+  });
 
   if (eventType === "subscription.created" && result.isNew) {
-    // New subscription - grant bonus credits
     const creditsPerCycle = recurringInterval === "year" ? 5000 : 1000;
     await fetchAction(
-      (api as any)["features/subscriptions/actions"].addBonusCreditsFromWebhook,
+      api.features.subscriptions.actions.addBonusCreditsFromWebhook,
       {
+        webhookSecret,
         userId,
         bonusCredits: creditsPerCycle,
-      }
+      },
     );
   } else if (
     eventType === "subscription.active" &&
     !result.isNew &&
     result.isRenewal
   ) {
-    // Renewal - grant renewal credits (only if period changed)
     const creditsPerCycle = recurringInterval === "year" ? 5000 : 1000;
     await fetchAction(
-      (api as any)["features/subscriptions/actions"].addBonusCreditsFromWebhook,
+      api.features.subscriptions.actions.addBonusCreditsFromWebhook,
       {
+        webhookSecret,
         userId,
         bonusCredits: creditsPerCycle,
-      }
+      },
     );
     console.log(
-      `[POLAR WEBHOOK] Added ${creditsPerCycle} credits for subscription renewal`
+      `[POLAR WEBHOOK] Added ${creditsPerCycle} credits for subscription renewal`,
     );
   }
 
@@ -203,19 +243,15 @@ async function processPolarSubscriptionEvent(payload: any, eventType: string) {
 export const POST = Webhooks({
   webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
 
-  onCustomerDeleted: async (payload: any) => {
+  onCustomerDeleted: async (_payload: PolarCustomerPayload) => {
     try {
-      console.log(
-        "Polar webhook onCustomerDeleted payload",
-        JSON.stringify(payload, null, 2)
-      );
-      // Handle customer deletion if needed
+      console.log("Polar webhook onCustomerDeleted received");
     } catch (err) {
       console.error("Polar webhook onCustomerDeleted error", err);
     }
   },
 
-  onSubscriptionCreated: async (payload: any) => {
+  onSubscriptionCreated: async (payload: PolarCustomerPayload) => {
     try {
       await processPolarSubscriptionEvent(payload, "subscription.created");
     } catch (err) {
@@ -224,7 +260,7 @@ export const POST = Webhooks({
     }
   },
 
-  onSubscriptionActive: async (payload: any) => {
+  onSubscriptionActive: async (payload: PolarCustomerPayload) => {
     try {
       await processPolarSubscriptionEvent(payload, "subscription.active");
     } catch (err) {
@@ -233,7 +269,7 @@ export const POST = Webhooks({
     }
   },
 
-  onSubscriptionUpdated: async (payload: any) => {
+  onSubscriptionUpdated: async (payload: PolarCustomerPayload) => {
     try {
       await processPolarSubscriptionEvent(payload, "subscription.updated");
     } catch (err) {
@@ -242,7 +278,7 @@ export const POST = Webhooks({
     }
   },
 
-  onSubscriptionCanceled: async (payload: any) => {
+  onSubscriptionCanceled: async (payload: PolarCustomerPayload) => {
     try {
       await processPolarSubscriptionEvent(payload, "subscription.canceled");
     } catch (err) {
@@ -251,7 +287,7 @@ export const POST = Webhooks({
     }
   },
 
-  onSubscriptionRevoked: async (payload: any) => {
+  onSubscriptionRevoked: async (payload: PolarCustomerPayload) => {
     try {
       await processPolarSubscriptionEvent(payload, "subscription.revoked");
     } catch (err) {
@@ -260,92 +296,85 @@ export const POST = Webhooks({
     }
   },
 
-  onOrderPaid: async (payload: any) => {
+  onOrderPaid: async (payload: PolarCustomerPayload) => {
     try {
+      const webhookSecret = requirePolarWebhookSecret();
       const data = payload?.data;
 
-      // Extract user information
-      const { userId, email } = getUserFromPayload(payload);
+      const { userId } = getUserFromPayload(payload);
 
       if (!userId) {
         console.error("[POLAR WEBHOOK] No userId for order:", {
-          email,
-          orderId: data.id,
+          orderId: data?.id,
         });
         return;
       }
 
-      // Check if this order already exists (idempotency)
+      if (!data?.id) {
+        console.error("[POLAR WEBHOOK] No order id in payload");
+        return;
+      }
+
       const existingOrder = await fetchAction(
-        (api as any)["features/subscriptions/actions"].getOrderByPlatformId,
-        { platformOrderId: data.id }
+        api.features.subscriptions.actions.getOrderByPlatformId,
+        { platformOrderId: data.id, webhookSecret },
       );
 
       if (existingOrder) {
         console.log(
-          `[POLAR WEBHOOK] Order ${data.id} already processed, skipping`
+          `[POLAR WEBHOOK] Order ${data.id} already processed, skipping`,
         );
         return;
       }
 
-      // Check if this is a one-time product (credit purchase)
       const product = data?.product;
       if (product?.isRecurring) {
         console.log("[POLAR WEBHOOK] Recurring product order, skipping");
         return;
       }
 
-      console.log(`[POLAR WEBHOOK] Processing paid order for user ${userId}`);
+      console.log("[POLAR WEBHOOK] Processing paid order");
 
-      // Extract credit amount from product metadata
       const creditAmount = parseInt(product?.metadata?.credits || "0");
 
       if (!creditAmount || creditAmount <= 0) {
         console.error(
           "[POLAR WEBHOOK] Invalid or missing credit amount in product metadata:",
-          product
+          product?.id,
         );
         return;
       }
 
       console.log(
-        `[POLAR WEBHOOK] Extracted ${creditAmount} credits from product metadata`
+        `[POLAR WEBHOOK] Extracted ${creditAmount} credits from product metadata`,
       );
 
-      // Record the order first (for idempotency)
       await fetchAction(
-        (api as any)["features/subscriptions/actions"].insertOrderFromWebhook,
+        api.features.subscriptions.actions.insertOrderFromWebhook,
         {
+          webhookSecret,
           userId,
           platform: "polar",
           platformOrderId: data.id,
-          platformProductId: product?.id || data.productId,
+          platformProductId: product?.id || data.productId || "",
           amount: creditAmount,
           status: "paid",
-        }
+        },
       );
 
-      // Grant credits to user
       const result = await fetchAction(
-        (api as any)["features/subscriptions/actions"].addCreditsFromWebhook,
+        api.features.subscriptions.actions.addCreditsFromWebhook,
         {
+          webhookSecret,
           userId,
           amount: creditAmount,
-        }
+        },
       );
 
-      console.log(
-        `[POLAR WEBHOOK] Added ${creditAmount} credits to user ${userId}`,
-        result
-      );
+      console.log(`[POLAR WEBHOOK] Added ${creditAmount} credits`, result);
     } catch (err) {
       console.error("Polar webhook onOrderPaid error", err);
       throw err;
     }
   },
 });
-
-interface PolarPayload {
-  data?: any; // raw Polar event payload (simplified)
-  [k: string]: any;
-}

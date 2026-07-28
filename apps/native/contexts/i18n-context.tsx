@@ -1,10 +1,14 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import i18n, { locales, type Locale } from "@/lib/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { localeNames, isRTL } from "@convex-starter/i18n";
 import { I18nManager } from "react-native";
 
 const I18N_STORAGE_KEY = "app_locale";
+
+function isLocale(value: string | null): value is Locale {
+  return value !== null && locales.includes(value as Locale);
+}
 
 type I18nContextValue = {
   locale: Locale;
@@ -20,12 +24,22 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(i18n.locale as Locale);
 
+  useEffect(() => {
+    void AsyncStorage.getItem(I18N_STORAGE_KEY).then((storedLocale) => {
+      if (!isLocale(storedLocale)) {
+        return;
+      }
+
+      i18n.locale = storedLocale;
+      setLocaleState(storedLocale);
+    });
+  }, []);
+
   const setLocale = async (newLocale: Locale) => {
     i18n.locale = newLocale;
     setLocaleState(newLocale);
     await AsyncStorage.setItem(I18N_STORAGE_KEY, newLocale);
 
-    // Handle RTL
     const shouldBeRTL = isRTL(newLocale);
     if (I18nManager.isRTL !== shouldBeRTL) {
       I18nManager.forceRTL(shouldBeRTL);
@@ -33,7 +47,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (scope: string, options?: Record<string, string | number>) => {
-    return i18n.t(scope, options);
+    return i18n.t(scope, { locale, ...options });
   };
 
   return (

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { action } from "../../_generated/server";
 import { internal } from "../../_generated/api";
 import type { Id } from "../../_generated/dataModel";
+import { assertPolarWebhookSecret } from "../../lib/polarWebhookAuth";
 
 /**
  * Server-side actions for webhook handlers
@@ -15,6 +16,7 @@ import type { Id } from "../../_generated/dataModel";
  */
 export const upsertSubscriptionFromWebhook = action({
   args: {
+    webhookSecret: v.string(),
     userId: v.string(),
     platform: v.union(v.literal("polar"), v.literal("revenuecat")),
     platformCustomerId: v.string(),
@@ -47,14 +49,15 @@ export const upsertSubscriptionFromWebhook = action({
     isNew: boolean;
     isRenewal: boolean;
   }> => {
-    // Call internal mutation - this is secure and can't be called from browser
+    assertPolarWebhookSecret(args.webhookSecret);
+    const { webhookSecret: _webhookSecret, ...mutationArgs } = args;
     const result: {
       subscriptionId: Id<"subscriptions">;
       isNew: boolean;
       isRenewal: boolean;
     } = await ctx.runMutation(
       internal.features.subscriptions.mutations.upsertSubscription,
-      args,
+      mutationArgs,
     );
     return result;
   },
@@ -65,6 +68,7 @@ export const upsertSubscriptionFromWebhook = action({
  */
 export const syncPremiumFromWebhook = action({
   args: {
+    webhookSecret: v.string(),
     userId: v.string(),
     hasActiveSubscription: v.boolean(),
   },
@@ -72,9 +76,13 @@ export const syncPremiumFromWebhook = action({
     success: v.boolean(),
   }),
   handler: async (ctx, args): Promise<{ success: boolean }> => {
+    assertPolarWebhookSecret(args.webhookSecret);
     const result: { success: boolean } = await ctx.runMutation(
       internal.features.premium.mutations.syncPremiumFromSubscription,
-      args,
+      {
+        userId: args.userId,
+        hasActiveSubscription: args.hasActiveSubscription,
+      },
     );
     return result;
   },
@@ -85,6 +93,7 @@ export const syncPremiumFromWebhook = action({
  */
 export const addBonusCreditsFromWebhook = action({
   args: {
+    webhookSecret: v.string(),
     userId: v.string(),
     bonusCredits: v.number(),
   },
@@ -96,12 +105,14 @@ export const addBonusCreditsFromWebhook = action({
     ctx,
     args,
   ): Promise<{ success: boolean; newCredits: number }> => {
-    console.log("addBonusCreditsFromWebhook called with args:", args);
-
+    assertPolarWebhookSecret(args.webhookSecret);
     const result: { success: boolean; newCredits: number } =
       await ctx.runMutation(
         internal.features.credits.mutations.addBonusCredits,
-        args,
+        {
+          userId: args.userId,
+          bonusCredits: args.bonusCredits,
+        },
       );
     return result;
   },
@@ -112,6 +123,7 @@ export const addBonusCreditsFromWebhook = action({
  */
 export const addCreditsFromWebhook = action({
   args: {
+    webhookSecret: v.string(),
     userId: v.string(),
     amount: v.number(),
   },
@@ -123,11 +135,14 @@ export const addCreditsFromWebhook = action({
     ctx,
     args,
   ): Promise<{ success: boolean; newCredits: number }> => {
-    console.log("addCreditsFromWebhook called with args:", args);
+    assertPolarWebhookSecret(args.webhookSecret);
     const result: { success: boolean; newCredits: number } =
       await ctx.runMutation(
         internal.features.credits.mutations.addCreditsToUser,
-        args,
+        {
+          userId: args.userId,
+          amount: args.amount,
+        },
       );
     return result;
   },
@@ -138,6 +153,7 @@ export const addCreditsFromWebhook = action({
  */
 export const insertOrderFromWebhook = action({
   args: {
+    webhookSecret: v.string(),
     userId: v.string(),
     platform: v.union(v.literal("polar"), v.literal("revenuecat")),
     platformOrderId: v.string(),
@@ -152,10 +168,11 @@ export const insertOrderFromWebhook = action({
   },
   returns: v.id("orders"),
   handler: async (ctx, args): Promise<Id<"orders">> => {
-    console.log("insertOrderFromWebhook called with args:", args);
+    assertPolarWebhookSecret(args.webhookSecret);
+    const { webhookSecret: _webhookSecret, ...mutationArgs } = args;
     const result: Id<"orders"> = await ctx.runMutation(
       internal.features.subscriptions.mutations.insertOrder,
-      args,
+      mutationArgs,
     );
     return result;
   },
@@ -166,6 +183,7 @@ export const insertOrderFromWebhook = action({
  */
 export const getSubscriptionByPlatformId = action({
   args: {
+    webhookSecret: v.string(),
     platformSubscriptionId: v.string(),
   },
   returns: v.union(
@@ -216,10 +234,11 @@ export const getSubscriptionByPlatformId = action({
     createdAt: number;
     updatedAt: number;
   } | null> => {
+    assertPolarWebhookSecret(args.webhookSecret);
     const result = await ctx.runQuery(
       internal.features.subscriptions.queries
         .getSubscriptionByPlatformSubscriptionId,
-      args,
+      { platformSubscriptionId: args.platformSubscriptionId },
     );
     return result;
   },
@@ -230,6 +249,7 @@ export const getSubscriptionByPlatformId = action({
  */
 export const getOrderByPlatformId = action({
   args: {
+    webhookSecret: v.string(),
     platformOrderId: v.string(),
   },
   returns: v.union(
@@ -265,9 +285,10 @@ export const getOrderByPlatformId = action({
     status: "paid" | "pending" | "failed" | "refunded";
     createdAt: number;
   } | null> => {
+    assertPolarWebhookSecret(args.webhookSecret);
     const result = await ctx.runQuery(
       internal.features.subscriptions.queries.getOrderByPlatformOrderId,
-      args,
+      { platformOrderId: args.platformOrderId },
     );
     return result;
   },
