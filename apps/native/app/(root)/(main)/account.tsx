@@ -28,7 +28,8 @@ export default function AccountScreen() {
   const { t } = useTranslation();
   const mutedColor = useThemeColor("muted");
   const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
-  const { presentPaywall } = usePurchases();
+  const { presentPaywall, logOutPurchases, resumePurchasesIdentity } =
+    usePurchases();
   const { clearAppCache, isClearingCache } = useClearAppCache();
   const [isAppearanceOpen, setIsAppearanceOpen] = useState(false);
   const [isNotificationSheetOpen, setIsNotificationSheetOpen] = useState(false);
@@ -49,24 +50,48 @@ export default function AccountScreen() {
   );
 
   const handleSignOut = async () => {
-    await authClient.signOut(
-      {},
-      {
-        onRequest: () => {
-          setIsSigningOut(true);
-        },
-        onSuccess: () => {
-          setIsSigningOut(false);
-        },
-        onError: (ctx) => {
-          setIsSigningOut(false);
-          Alert.alert(
-            t("alerts.error"),
-            ctx.error.message || "Failed to sign out",
+    setIsSigningOut(true);
+
+    try {
+      try {
+        await logOutPurchases();
+      } catch (error) {
+        console.error("[Sign out] Failed to detach RevenueCat:", error);
+      }
+
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        try {
+          await resumePurchasesIdentity();
+        } catch (resumeError) {
+          console.error(
+            "[Sign out] Failed to restore RevenueCat identity:",
+            resumeError,
           );
-        },
-      },
-    );
+        }
+        Alert.alert(
+          t("alerts.error"),
+          error.message || "Failed to sign out",
+        );
+        return;
+      }
+
+      router.replace("/(root)/(auth)");
+    } catch (error) {
+      console.error("[Sign out] Failed to log out:", error);
+      try {
+        await resumePurchasesIdentity();
+      } catch (resumeError) {
+        console.error(
+          "[Sign out] Failed to restore RevenueCat identity:",
+          resumeError,
+        );
+      }
+      Alert.alert(t("alerts.error"), "Failed to sign out");
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   const handleClearCache = async () => {
@@ -82,24 +107,48 @@ export default function AccountScreen() {
   };
 
   const handleDeleteUser = async () => {
-    await authClient.deleteUser(
-      {},
-      {
-        onRequest: () => {
-          setIsDeletingUser(true);
-        },
-        onSuccess: () => {
-          setIsDeletingUser(false);
-        },
-        onError: (ctx) => {
-          setIsDeletingUser(false);
-          Alert.alert(
-            t("alerts.error"),
-            ctx.error.message || "Failed to delete user",
+    setIsDeletingUser(true);
+
+    try {
+      try {
+        await logOutPurchases();
+      } catch (error) {
+        console.error("[Delete user] Failed to detach RevenueCat:", error);
+      }
+
+      const { error } = await authClient.deleteUser();
+
+      if (error) {
+        try {
+          await resumePurchasesIdentity();
+        } catch (resumeError) {
+          console.error(
+            "[Delete user] Failed to restore RevenueCat identity:",
+            resumeError,
           );
-        },
-      },
-    );
+        }
+        Alert.alert(
+          t("alerts.error"),
+          error.message || "Failed to delete user",
+        );
+        return;
+      }
+
+      router.replace("/(root)/(auth)");
+    } catch (error) {
+      console.error("[Delete user] Failed to delete user:", error);
+      try {
+        await resumePurchasesIdentity();
+      } catch (resumeError) {
+        console.error(
+          "[Delete user] Failed to restore RevenueCat identity:",
+          resumeError,
+        );
+      }
+      Alert.alert(t("alerts.error"), "Failed to delete user");
+    } finally {
+      setIsDeletingUser(false);
+    }
   };
 
   if (isAuthLoading || (isAuthenticated && userData === undefined)) {

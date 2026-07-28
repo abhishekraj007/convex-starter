@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Purchases, {
   CustomerInfo,
   PurchasesPackage,
@@ -37,6 +43,8 @@ interface PurchasesContextType {
   purchaseStoreProduct: (product: PurchasesStoreProduct) => Promise<boolean>;
   restorePurchases: () => Promise<boolean>;
   presentPaywall: () => Promise<void>;
+  logOutPurchases: () => Promise<void>;
+  resumePurchasesIdentity: () => Promise<void>;
 }
 
 const PurchasesContext = createContext<PurchasesContextType | undefined>(
@@ -54,6 +62,10 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const skipIdentifyRef = useRef(false);
+  const didLogOutRef = useRef(false);
+  const didObserveSignedOutRef = useRef(false);
+  const identityOperationRef = useRef<Promise<void>>(Promise.resolve());
 
   const { isAuthenticated } = useConvexAuth();
   const userAndProfile = useQuery(
@@ -72,6 +84,7 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
   const authenticatedUserName = isAuthenticated
     ? userAndProfile?.userMetadata?.name
     : undefined;
+  const isAuthenticatedRef = useRef(isAuthenticated);
 
   const configuredCreditProductIds = appConfig?.revenueCatCreditProductIds;
 
@@ -83,43 +96,58 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
   const creditProductIdKey = creditProductIds.join("|");
 
   useEffect(() => {
-    // console.log("customerInfo changed:", JSON.stringify(customerInfo, null, 2));
-  }, [customerInfo]);
+    isAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
 
-  // Initialize RevenueCat once on mount (anonymously)
   useEffect(() => {
     if (!isInitialized) {
-      initializePurchases();
+      void initializePurchases();
     }
   }, [isInitialized]);
 
-  // Log in to RevenueCat when user authenticates
   useEffect(() => {
     if (!isInitialized) {
       return;
     }
 
-    const loginToRevenueCat = async () => {
-      if (authenticatedUserId) {
-        try {
-          await identifyRevenueCatUser("auth effect");
-        } catch (error) {
-          console.error("Error logging in to RevenueCat:", error);
-        }
+    if (!isAuthenticated) {
+      didObserveSignedOutRef.current = skipIdentifyRef.current;
+      if (didLogOutRef.current) {
+        skipIdentifyRef.current = false;
+        didLogOutRef.current = false;
+        didObserveSignedOutRef.current = false;
       }
-    };
+    } else if (authenticatedUserId) {
+      if (didLogOutRef.current && didObserveSignedOutRef.current) {
+        skipIdentifyRef.current = false;
+        didLogOutRef.current = false;
+        didObserveSignedOutRef.current = false;
+      }
 
-    void loginToRevenueCat();
+      if (!skipIdentifyRef.current) {
+        const loginToRevenueCat = async () => {
+          try {
+            await identifyRevenueCatUser("auth effect");
+          } catch (error) {
+            console.error("Error logging in to RevenueCat:", error);
+          }
+        };
+        void loginToRevenueCat();
+      }
+    }
+
     void getSubscriptions();
-
     void getProducts(creditProductIds);
-  }, [authenticatedUserId, isInitialized, creditProductIdKey]);
+  }, [
+    authenticatedUserId,
+    isAuthenticated,
+    isInitialized,
+    creditProductIdKey,
+  ]);
 
   const initializePurchases = async () => {
     try {
       const apiKey = getAPIKey();
-
-      // Configure RevenueCat without a user ID (creates anonymous ID)
 
       Purchases.setLogLevel(Purchases.LOG_LEVEL.ERROR);
 
@@ -140,16 +168,10 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
   const getSubscriptions = async () => {
     const offerings = await Purchases.getOfferings();
 
-    // console.log(
-    //   "revenuecat-> Fetched offerings:",
-    //   JSON.stringify(offerings, null, 2)
-    // );
-
     if (offerings.current) {
       const allPackages = offerings.current.availablePackages;
       setPackages(allPackages);
 
-      // Separate subscription packages from consumable (credit) packages
       const subscriptions = allPackages.filter(
         (pkg) =>
           pkg.product.productType === "AUTO_RENEWABLE_SUBSCRIPTION" ||
@@ -190,34 +212,52 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const runIdentityOperation = async <T,>(
+    operation: () => Promise<T>,
+  ): Promise<T> => {
+    const result = identityOperationRef.current.then(operation);
+    identityOperationRef.current = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return await result;
+  };
+
   const identifyRevenueCatUser = async (source: string) => {
-    if (!authenticatedUserId) {
-      console.warn(
-        `[RevenueCat] Cannot ${source}: authenticated user is not ready`,
-      );
-      return false;
-    }
+    return await runIdentityOperation(async () => {
+      if (skipIdentifyRef.current) {
+        return false;
+      }
 
-    const isConfigured = await Purchases.isConfigured();
+      if (!authenticatedUserId) {
+        console.warn(
+          `[RevenueCat] Cannot ${source}: authenticated user is not ready`,
+        );
+        return false;
+      }
 
-    if (!isConfigured) {
-      console.warn(`[RevenueCat] Cannot ${source}: purchases is not ready`);
-      return false;
-    }
+      const isConfigured = await Purchases.isConfigured();
 
-    const currentAppUserId = await Purchases.getAppUserID();
+      if (!isConfigured) {
+        console.warn(`[RevenueCat] Cannot ${source}: purchases is not ready`);
+        return false;
+      }
 
-    if (currentAppUserId !== authenticatedUserId) {
-      console.log("revenuecat-> Logging in user:", authenticatedUserId);
+      const currentAppUserId = await Purchases.getAppUserID();
 
-      const { customerInfo: info } = await Purchases.logIn(authenticatedUserId);
-      setCustomerInfo(info);
+      if (currentAppUserId !== authenticatedUserId) {
+        console.log("revenuecat-> Logging in authenticated user");
 
-      console.log("revenuecat-> User logged in successfully");
-    }
+        const { customerInfo: info } =
+          await Purchases.logIn(authenticatedUserId);
+        setCustomerInfo(info);
 
-    await syncRevenueCatAttributes(authenticatedUserId);
-    return true;
+        console.log("revenuecat-> User logged in successfully");
+      }
+
+      await syncRevenueCatAttributes(authenticatedUserId);
+      return true;
+    });
   };
 
   const purchasePackage = async (pkg: PurchasesPackage): Promise<boolean> => {
@@ -274,6 +314,44 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const logOutPurchases = async () => {
+    skipIdentifyRef.current = true;
+    didLogOutRef.current = false;
+    didObserveSignedOutRef.current = false;
+    try {
+      await runIdentityOperation(async () => {
+        const isConfigured = await Purchases.isConfigured();
+        if (!isConfigured) {
+          setCustomerInfo(null);
+          return;
+        }
+
+        const currentAppUserId = await Purchases.getAppUserID();
+        if (currentAppUserId.startsWith("$RCAnonymousID:")) {
+          setCustomerInfo(null);
+          return;
+        }
+
+        const info = await Purchases.logOut();
+        setCustomerInfo(info);
+      });
+    } finally {
+      didLogOutRef.current = true;
+      if (!isAuthenticatedRef.current || didObserveSignedOutRef.current) {
+        skipIdentifyRef.current = false;
+        didLogOutRef.current = false;
+        didObserveSignedOutRef.current = false;
+      }
+    }
+  };
+
+  const resumePurchasesIdentity = async () => {
+    skipIdentifyRef.current = false;
+    didLogOutRef.current = false;
+    didObserveSignedOutRef.current = false;
+    await identifyRevenueCatUser("resume after failed sign out");
+  };
+
   const presentPaywall = async () => {
     try {
       console.log("[RevenueCat] Presenting paywall...");
@@ -284,7 +362,6 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Present RevenueCat's native paywall UI
       const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
 
       console.log("[RevenueCat] Paywall result:", paywallResult);
@@ -355,6 +432,8 @@ export function PurchasesProvider({ children }: { children: React.ReactNode }) {
         purchaseStoreProduct,
         restorePurchases,
         presentPaywall,
+        logOutPurchases,
+        resumePurchasesIdentity,
       }}
     >
       {children}
