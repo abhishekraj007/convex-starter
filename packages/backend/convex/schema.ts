@@ -1,5 +1,10 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import {
+  orderStatusValidator,
+  subscriptionPlatformValidator,
+  subscriptionStatusValidator,
+} from "./lib/subscriptionValidators";
 
 export default defineSchema({
   profile: defineTable({
@@ -29,25 +34,19 @@ export default defineSchema({
     .index("by_auth_user_id", ["authUserId"])
     .index("by_email", ["email"]),
 
-  // Unified subscriptions table for both Polar (web) and RevenueCat (native)
+  // Unified subscriptions table for Polar/Dodo (web) and RevenueCat (native)
   // Single source of truth for all subscription and premium status data
   subscriptions: defineTable({
     userId: v.string(), // Better Auth user ID (stored as string)
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: subscriptionPlatformValidator,
 
     // Customer and subscription identifiers (required for tracking)
-    platformCustomerId: v.string(), // Polar/RevenueCat customer ID
-    platformSubscriptionId: v.string(), // Polar/RevenueCat subscription ID
+    platformCustomerId: v.string(), // Polar/Dodo/RevenueCat customer ID
+    platformSubscriptionId: v.string(), // Polar/Dodo/RevenueCat subscription ID
     platformProductId: v.string(), // Product ID from platform
 
     // Subscription details
-    status: v.union(
-      v.literal("active"),
-      v.literal("canceled"),
-      v.literal("expired"),
-      v.literal("past_due"),
-      v.literal("trialing"),
-    ),
+    status: subscriptionStatusValidator,
     productType: v.optional(v.string()), // e.g., "monthly", "yearly" - derived from webhook
 
     // Customer info (denormalized for convenience)
@@ -79,16 +78,11 @@ export default defineSchema({
   // Orders table for tracking one-time purchases (credit purchases)
   orders: defineTable({
     userId: v.string(), // Better Auth user ID (stored as string)
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: subscriptionPlatformValidator,
     platformOrderId: v.string(), // Unique order ID from platform
     platformProductId: v.string(), // Product ID that was purchased
     amount: v.number(), // Credit amount purchased
-    status: v.union(
-      v.literal("paid"),
-      v.literal("pending"),
-      v.literal("failed"),
-      v.literal("refunded"),
-    ),
+    status: orderStatusValidator,
     createdAt: v.number(),
   })
     .index("by_platform_order_id", ["platformOrderId"])

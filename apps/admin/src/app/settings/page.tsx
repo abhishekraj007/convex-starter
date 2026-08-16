@@ -25,6 +25,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getBillingPlatformLabel } from "@/lib/payment-provider";
+import { usePaymentPortal } from "@/hooks/use-payment-portal";
 import {
   Dialog,
   DialogContent,
@@ -45,19 +47,15 @@ export default function SettingsPage() {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const customerId = subscriptions?.subscriptions?.[0]?.platformCustomerId;
+  const { openPortal } = usePaymentPortal();
 
   // Check if user has a canceled subscription
   const hasCanceledSubscription = subscriptions?.subscriptions?.some(
     (sub) => sub.status === "canceled" && sub.canceledAt,
   );
 
-  const goToPortal = async () => {
-    // find the customer id associated with this user
-    if (!customerId) {
-      console.error("No customer ID found");
-      return;
-    }
-    router.push(`/portal?userId=${customerId}` as any);
+  const goToPortal = () => {
+    void openPortal(customerId);
   };
 
   const handleSignOut = async () => {
@@ -203,9 +201,9 @@ export default function SettingsPage() {
                       {subscriptions?.subscriptions?.[0] && (
                         <p className="text-xs text-muted-foreground mt-1">
                           Platform:{" "}
-                          {subscriptions.subscriptions[0].platform === "polar"
-                            ? "Web"
-                            : "Mobile"}
+                          {getBillingPlatformLabel(
+                            subscriptions.subscriptions[0].platform,
+                          )}
                         </p>
                       )}
                     </div>

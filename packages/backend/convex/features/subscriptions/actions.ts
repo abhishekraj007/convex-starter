@@ -1,8 +1,15 @@
 import { v } from "convex/values";
 import { action } from "../../_generated/server";
 import { internal } from "../../_generated/api";
-import type { Id } from "../../_generated/dataModel";
+import type { Doc, Id } from "../../_generated/dataModel";
 import { assertPolarWebhookSecret } from "../../lib/polarWebhookAuth";
+import {
+  orderDocValidator,
+  orderStatusValidator,
+  subscriptionDocValidator,
+  subscriptionPlatformValidator,
+  subscriptionStatusValidator,
+} from "../../lib/subscriptionValidators";
 
 /**
  * Server-side actions for webhook handlers
@@ -18,19 +25,13 @@ export const upsertSubscriptionFromWebhook = action({
   args: {
     webhookSecret: v.string(),
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: subscriptionPlatformValidator,
     platformCustomerId: v.string(),
     platformSubscriptionId: v.string(),
     platformProductId: v.string(),
     customerEmail: v.string(),
     customerName: v.optional(v.string()),
-    status: v.union(
-      v.literal("active"),
-      v.literal("canceled"),
-      v.literal("expired"),
-      v.literal("past_due"),
-      v.literal("trialing"),
-    ),
+    status: subscriptionStatusValidator,
     productType: v.optional(v.string()),
     currentPeriodStart: v.optional(v.number()),
     currentPeriodEnd: v.optional(v.number()),
@@ -155,16 +156,11 @@ export const insertOrderFromWebhook = action({
   args: {
     webhookSecret: v.string(),
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: subscriptionPlatformValidator,
     platformOrderId: v.string(),
     platformProductId: v.string(),
     amount: v.number(),
-    status: v.union(
-      v.literal("paid"),
-      v.literal("pending"),
-      v.literal("failed"),
-      v.literal("refunded"),
-    ),
+    status: orderStatusValidator,
   },
   returns: v.id("orders"),
   handler: async (ctx, args): Promise<Id<"orders">> => {
@@ -186,56 +182,10 @@ export const getSubscriptionByPlatformId = action({
     webhookSecret: v.string(),
     platformSubscriptionId: v.string(),
   },
-  returns: v.union(
-    v.object({
-      _id: v.id("subscriptions"),
-      _creationTime: v.number(),
-      userId: v.string(),
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
-      platformCustomerId: v.string(),
-      platformSubscriptionId: v.string(),
-      platformProductId: v.string(),
-      customerEmail: v.string(),
-      customerName: v.optional(v.string()),
-      status: v.union(
-        v.literal("active"),
-        v.literal("canceled"),
-        v.literal("expired"),
-        v.literal("past_due"),
-        v.literal("trialing"),
-      ),
-      productType: v.optional(v.string()),
-      currentPeriodStart: v.optional(v.number()),
-      currentPeriodEnd: v.optional(v.number()),
-      canceledAt: v.optional(v.number()),
-      createdAt: v.number(),
-      updatedAt: v.number(),
-    }),
-    v.null(),
-  ),
-  handler: async (
-    ctx,
-    args,
-  ): Promise<{
-    _id: Id<"subscriptions">;
-    _creationTime: number;
-    userId: string;
-    platform: "polar" | "revenuecat";
-    platformCustomerId: string;
-    platformSubscriptionId: string;
-    platformProductId: string;
-    customerEmail: string;
-    customerName?: string;
-    status: "active" | "canceled" | "expired" | "past_due" | "trialing";
-    productType?: string;
-    currentPeriodStart?: number;
-    currentPeriodEnd?: number;
-    canceledAt?: number;
-    createdAt: number;
-    updatedAt: number;
-  } | null> => {
+  returns: v.union(subscriptionDocValidator, v.null()),
+  handler: async (ctx, args): Promise<Doc<"subscriptions"> | null> => {
     assertPolarWebhookSecret(args.webhookSecret);
-    const result = await ctx.runQuery(
+    const result: Doc<"subscriptions"> | null = await ctx.runQuery(
       internal.features.subscriptions.queries
         .getSubscriptionByPlatformSubscriptionId,
       { platformSubscriptionId: args.platformSubscriptionId },
@@ -252,41 +202,10 @@ export const getOrderByPlatformId = action({
     webhookSecret: v.string(),
     platformOrderId: v.string(),
   },
-  returns: v.union(
-    v.object({
-      _id: v.id("orders"),
-      _creationTime: v.number(),
-      userId: v.string(),
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
-      platformOrderId: v.string(),
-      platformProductId: v.string(),
-      amount: v.number(),
-      status: v.union(
-        v.literal("paid"),
-        v.literal("pending"),
-        v.literal("failed"),
-        v.literal("refunded"),
-      ),
-      createdAt: v.number(),
-    }),
-    v.null(),
-  ),
-  handler: async (
-    ctx,
-    args,
-  ): Promise<{
-    _id: Id<"orders">;
-    _creationTime: number;
-    userId: string;
-    platform: "polar" | "revenuecat";
-    platformOrderId: string;
-    platformProductId: string;
-    amount: number;
-    status: "paid" | "pending" | "failed" | "refunded";
-    createdAt: number;
-  } | null> => {
+  returns: v.union(orderDocValidator, v.null()),
+  handler: async (ctx, args): Promise<Doc<"orders"> | null> => {
     assertPolarWebhookSecret(args.webhookSecret);
-    const result = await ctx.runQuery(
+    const result: Doc<"orders"> | null = await ctx.runQuery(
       internal.features.subscriptions.queries.getOrderByPlatformOrderId,
       { platformOrderId: args.platformOrderId },
     );

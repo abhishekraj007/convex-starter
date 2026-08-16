@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery as useConvexQuery } from "convex/react";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import {
   Card,
@@ -15,43 +14,22 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { LoginModal } from "@/components/login-modal";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { POLAR_PRICES, type PolarTier } from "../contstants/pricing";
+import { findCatalogProductByInterval } from "@/lib/billing-catalog";
+import { useSubscriptionProductsQuery } from "@/hooks/use-payment-catalog";
+import { usePaymentCheckout } from "@/hooks/use-payment-checkout";
+import { usePaymentPortal } from "@/hooks/use-payment-portal";
 
 export default function PricingPage() {
-  const router = useRouter();
-
   const userData = useConvexQuery(api.user.fetchUserAndProfile);
   const userSubscriptions = useConvexQuery(
     api.features.subscriptions.queries.getUserSubscriptions
   );
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-
-  // Fetch subscription products using react-query for caching
-  const { data: polarProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ["polar-subscriptions"],
-    queryFn: async () => {
-      const response = await fetch("/api/polar/subscriptions");
-      if (!response.ok) {
-        throw new Error("Failed to fetch subscription products");
-      }
-      return response.json() as Promise<
-        Array<{
-          id: string;
-          name: string;
-          description?: string;
-          prices?: Array<{
-            type: string;
-            priceAmount: number;
-            priceCurrency: string;
-            recurringInterval?: string;
-          }>;
-        }>
-      >;
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  });
+  const { data: catalogProducts = [], isLoading: productsLoading } =
+    useSubscriptionProductsQuery(true);
+  const { openCheckout, loadingProductId } = usePaymentCheckout();
+  const { openPortal } = usePaymentPortal();
 
   const isLoading =
     userData === undefined ||
@@ -69,30 +47,20 @@ export default function PricingPage() {
 
     if (!productId) return;
 
-    setCheckoutLoading(productId);
-
     const userId = userData!.profile?.authUserId || "";
     const userEmail = userData!.userMetadata.email || "";
     const userName = userData!.profile?.name || userData!.userMetadata.name;
 
-    const params = new URLSearchParams({
-      products: productId,
-      customerEmail: userEmail,
+    void openCheckout({
+      productId,
       customerExternalId: userId,
+      customerEmail: userEmail,
       customerName: userName,
     });
-
-    const url = `/checkout?${params.toString()}` as any;
-    router.push(url);
   };
 
-  const goToPortal = async () => {
-    // find the customer id associated with this user
-    if (!customerId) {
-      console.error("No customer ID found");
-      return;
-    }
-    router.push(`/portal?userId=${customerId}` as any);
+  const goToPortal = () => {
+    void openPortal(customerId);
   };
 
   if (isLoading) {
@@ -122,13 +90,8 @@ export default function PricingPage() {
   // Get free tier from constants
   const freeTier = POLAR_PRICES.find((p) => p.id === "free")!;
 
-  // Map Polar products to pricing tiers
-  const monthlyProduct = polarProducts.find((p) =>
-    p.prices?.some((price) => price.recurringInterval === "month")
-  );
-  const yearlyProduct = polarProducts.find((p) =>
-    p.prices?.some((price) => price.recurringInterval === "year")
-  );
+  const monthlyProduct = findCatalogProductByInterval(catalogProducts, "month");
+  const yearlyProduct = findCatalogProductByInterval(catalogProducts, "year");
 
   const monthlyTier: PolarTier = monthlyProduct
     ? {
@@ -244,9 +207,9 @@ export default function PricingPage() {
                 onClick={() =>
                   handleCheckout(monthlyTier.productId || undefined)
                 }
-                disabled={checkoutLoading === monthlyTier.productId}
+                disabled={loadingProductId === monthlyTier.productId}
               >
-                {checkoutLoading === monthlyTier.productId
+                {loadingProductId === monthlyTier.productId
                   ? "Loading..."
                   : "Get Started"}
               </Button>
@@ -302,9 +265,9 @@ export default function PricingPage() {
                 onClick={() =>
                   handleCheckout(yearlyTier.productId || undefined)
                 }
-                disabled={checkoutLoading === yearlyTier.productId}
+                disabled={loadingProductId === yearlyTier.productId}
               >
-                {checkoutLoading === yearlyTier.productId
+                {loadingProductId === yearlyTier.productId
                   ? "Loading..."
                   : "Get Started"}
               </Button>
