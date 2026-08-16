@@ -1,23 +1,18 @@
 import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./lib/betterAuth";
-// import * as PolarWebhooks from "./lib/polarWebhooks";
+import { dodoWebhookHandler } from "./lib/dodoWebhooks";
 import { handleRevenueCatWebhook } from "./lib/revenuecatWebhooks";
 
 const http = httpRouter();
 
-// Register Better Auth routes
 authComponent.registerRoutes(http, createAuth, { cors: true });
 
-// Register Polar webhook routes
-// polar.registerRoutes(http, {
-//   onSubscriptionCreated: PolarWebhooks.handleSubscriptionCreated,
-//   onSubscriptionUpdated: PolarWebhooks.handleSubscriptionUpdated,
-//   onProductCreated: PolarWebhooks.handleProductCreated,
-//   onProductUpdated: PolarWebhooks.handleProductUpdated,
-// });
+http.route({
+  path: "/dodopayments-webhook",
+  method: "POST",
+  handler: dodoWebhookHandler,
+});
 
-// Register RevenueCat webhook route
 http.route({
   path: "/revenuecat/webhooks",
   method: "POST",

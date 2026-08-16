@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery as useConvexQuery } from "convex/react";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import {
   Dialog,
@@ -12,68 +11,36 @@ import {
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Coins, Sparkles, Zap } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { getCatalogCreditAmount } from "@/lib/billing-catalog";
+import { useCreditProductsQuery } from "@/hooks/use-payment-catalog";
+import { usePaymentCheckout } from "@/hooks/use-payment-checkout";
 
 interface CreditsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface PolarProduct {
-  id: string;
-  name: string;
-  description?: string;
-  prices?: Array<{
-    priceAmount: number;
-    priceCurrency: string;
-  }>;
-  metadata?: {
-    credits?: string;
-    credtis?: string; // Handle typo
-  };
-}
-
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
-  const router = useRouter();
   const userData = useConvexQuery(api.user.fetchUserAndProfile);
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const { data: catalogProducts = [], isLoading } = useCreditProductsQuery(open);
+  const { openCheckout, loadingProductId } = usePaymentCheckout();
 
-  // Fetch products using react-query for caching
-  const { data: polarProducts = [], isLoading } = useQuery({
-    queryKey: ["polar-products"],
-    queryFn: async () => {
-      const response = await fetch("/api/polar/products");
-      if (!response.ok) {
-        throw new Error("Failed to fetch products");
-      }
-      return response.json() as Promise<PolarProduct[]>;
-    },
-    enabled: open, // Only fetch when modal is open
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  });
-
-  const handleCheckout = async (productId: string | undefined) => {
+  const handleCheckout = (productId: string | undefined) => {
     if (!productId) {
       console.error("No product ID provided");
       return;
     }
 
-    setCheckoutLoading(productId);
+    const userId = userData?.profile?.authUserId || "";
+    const userEmail = userData?.userMetadata.email || "";
+    const userName = userData?.profile?.name || userData?.userMetadata.name;
 
-    const userId = userData!.profile?.authUserId || "";
-    const userEmail = userData!.userMetadata.email || "";
-    const userName = userData!.profile?.name || userData!.userMetadata.name;
-
-    const params = new URLSearchParams({
-      products: productId,
-      customerEmail: userEmail,
+    void openCheckout({
+      productId,
       customerExternalId: userId,
+      customerEmail: userEmail,
       customerName: userName,
     });
-
-    const url = `/checkout?${params.toString()}` as any;
-    router.push(url);
   };
 
   const getIcon = (index: number) => {
@@ -89,41 +56,21 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
     }
   };
 
-  // Extract credit amount from product name or metadata
-  const getCreditAmount = (product: PolarProduct) => {
-    // Try metadata first
-    const metadata = (product as any).metadata;
-    if (metadata?.credits) {
-      return parseInt(metadata.credits);
-    }
-    if (metadata?.credtis) {
-      // Handle typo in your data
-      return parseInt(metadata.credtis);
-    }
-
-    // Fallback to parsing from name
-    const match = product.name?.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 0;
-  };
-
-  // Get badge for product
   const getBadge = (credits: number) => {
     if (credits === 2500) return "Popular";
     return undefined;
   };
 
-  // Convert products object to sorted array
-  const creditProducts = polarProducts
-    .filter((product): product is PolarProduct => !!product)
+  const creditProducts = catalogProducts
     .map((product) => {
-      const credits = getCreditAmount(product);
+      const credits = getCatalogCreditAmount(product);
       return {
         product,
         credits,
         badge: getBadge(credits),
       };
     })
-    .sort((a, b) => a.credits - b.credits); // Sort by credit amount ascending
+    .sort((a, b) => a.credits - b.credits);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -141,8 +88,8 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {creditProducts?.map((item, index: number) => {
-              const price = item.product?.prices?.[0]?.priceAmount
+            {creditProducts.map((item, index: number) => {
+              const price = item.product.prices[0]?.priceAmount
                 ? (item.product.prices[0].priceAmount / 100).toFixed(2)
                 : "0.00";
 
@@ -155,7 +102,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                       : "relative"
                   }
                 >
-                  {item.badge && (
+                  {item.badge ? (
                     <div className="absolute top-[-16px] left-3">
                       <span
                         className={`px-2 py-1 rounded-md text-xs font-semibold ${
@@ -167,7 +114,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                         {item.badge}
                       </span>
                     </div>
-                  )}
+                  ) : null}
                   <CardHeader>
                     <div className="flex flex-row justify-between items-center gap-4">
                       <div className="flex items-center gap-4">
@@ -175,17 +122,16 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                         <div className="flex flex-col">
                           <span className="text-lg">{item.product.name}</span>
                           <span className="text-xl font-bold">${price}</span>
-                          {/* <CardDescription className="text-sm">{item.product.description}</CardDescription> */}
                         </div>
                       </div>
                       <div>
-                        {item.product?.id ? (
+                        {item.product.id ? (
                           <Button
                             className="w-full"
-                            onClick={() => handleCheckout(item.product?.id)}
-                            disabled={checkoutLoading === item.product.id}
+                            onClick={() => handleCheckout(item.product.id)}
+                            disabled={loadingProductId === item.product.id}
                           >
-                            {checkoutLoading === item.product.id
+                            {loadingProductId === item.product.id
                               ? "Processing..."
                               : "Buy Now"}
                           </Button>

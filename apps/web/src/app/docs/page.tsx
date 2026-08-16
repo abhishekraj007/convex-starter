@@ -199,6 +199,12 @@ npx convex env set GOOGLE_CLIENT_SECRET your_client_secret
 npx convex env set POLAR_ORGANIZATION_TOKEN your_token
 npx convex env set POLAR_WEBHOOK_SECRET your_webhook_secret
 
+# Optional: switch web payments to Dodo
+# npx convex env set PAYMENT_PROVIDER dodo
+# npx convex env set DODO_PAYMENTS_API_KEY your_api_key
+# npx convex env set DODO_PAYMENTS_ENVIRONMENT test_mode
+# npx convex env set DODO_PAYMENTS_WEBHOOK_SECRET your_webhook_secret
+
 # AI Gateway (from Vercel dashboard)
 npx convex env set AI_GATEWAY_API_KEY your_api_key
 
@@ -455,7 +461,13 @@ eas submit --platform android`}</CodeBlock>
                     <li>
                       <strong className="text-foreground">Polar:</strong> Set webhook URL to{" "}
                       <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                        https://your-convex.site/api/webhook/polar
+                        https://your-domain.com/api/webhook/polar
+                      </code>
+                    </li>
+                    <li>
+                      <strong className="text-foreground">Dodo:</strong> Set webhook URL to{" "}
+                      <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                        https://your-convex.site/dodopayments-webhook
                       </code>
                     </li>
                     <li>
@@ -568,23 +580,46 @@ eas submit --platform android`}</CodeBlock>
                   <div>
                     <CardTitle>Payments</CardTitle>
                     <CardDescription>
-                      Polar for web, RevenueCat for mobile
+                      Polar or Dodo for web, RevenueCat for mobile
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Web Payments (Polar)</h4>
+                  <h4 className="font-semibold text-sm">Web Payments</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Polar handles web subscriptions and one-time purchases.
-                    Products are configured in the Polar dashboard and
-                    referenced by slug. Webhooks sync subscription status to
-                    the Convex database.
+                    Switch the web provider with{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      PAYMENT_PROVIDER
+                    </code>{" "}
+                    and{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      NEXT_PUBLIC_PAYMENT_PROVIDER
+                    </code>
+                    . Use{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      polar
+                    </code>{" "}
+                    (default) or{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      dodo
+                    </code>
+                    . Native stays on RevenueCat.
                   </p>
-                  <CodeBlock>{`# Set Polar env vars on Convex
+                  <CodeBlock>{`# Polar (default)
+npx convex env set PAYMENT_PROVIDER polar
 npx convex env set POLAR_ORGANIZATION_TOKEN your_token
-npx convex env set POLAR_WEBHOOK_SECRET your_secret`}</CodeBlock>
+npx convex env set POLAR_WEBHOOK_SECRET your_secret
+
+# Dodo
+npx convex env set PAYMENT_PROVIDER dodo
+npx convex env set DODO_PAYMENTS_API_KEY your_api_key
+npx convex env set DODO_PAYMENTS_ENVIRONMENT test_mode
+npx convex env set DODO_PAYMENTS_WEBHOOK_SECRET your_webhook_secret
+
+# Web/admin .env.local
+NEXT_PUBLIC_PAYMENT_PROVIDER=dodo`}</CodeBlock>
                 </div>
 
                 <Separator />
