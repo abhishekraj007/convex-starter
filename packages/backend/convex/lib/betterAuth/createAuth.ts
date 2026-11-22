@@ -29,8 +29,9 @@ const trustedOrigins = Array.from(
     authBaseUrl,
     nativeAppUrl,
     // Local development
-    "http://localhost:3004", // admin local
-    "http://localhost:3005", // web local
+    "http://localhost:3004", // web local
+    "http://localhost:3005", // admin local (legacy port)
+    "http://localhost:3015", // admin local
     // Production (Railway)
     "https://dating-ai.up.railway.app",
     "https://admin-dating.up.railway.app",
