@@ -1,10 +1,7 @@
 // src/lib/polar-client.ts
-import { createPolar } from "@polar-sh/sdk/2026-10";
+import { Polar } from "@polar-sh/sdk";
 
-const environment =
-  process.env.POLAR_SERVER === "production" ? "production" : "sandbox";
-
-export const api = createPolar({
+export const api = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
-  environment,
+  server: process.env.POLAR_SERVER === "production" ? "production" : "sandbox",
 });
