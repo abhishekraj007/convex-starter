@@ -19,9 +19,7 @@
   - For building visually polished web interfaces, landing pages, or dashboards: check `frontend-design`
   - For upgrading Expo SDK or fixing dependency issues: check `upgrading-expo`
   - Read the SKILL.md file for each relevant skill before implementing
-- **ALWAYS check heroui-react MCP server for available components before using shadcn-ui components**
-- use heroui-react and shadcn-ui for web components and screens development
-- use Use shadcn CLI for installing any new web components
+- **Web UI uses Vercel ui-sdk (`@ui-sdk/react` + `@ui-sdk/core`) in `apps/web` and `apps/admin`.** Before using ui-sdk, follow the ui-sdk skill if installed and read node_modules/@ui-sdk/react/docs/llms.txt. To build a new component, also search node_modules/@ui-sdk/react/docs/core.md by heading and read rendering.md next to it.
 - never create markdown (`.md`) files after you're done unless it's a big feature and planning is required. NEVER!
 - never user emojis in your replies.
 - check convex rules and docs if you're working on convex based projects and not sure about something. For complex convex bugs/implementation, use convex MCP or exa search tool to access latest docs.
