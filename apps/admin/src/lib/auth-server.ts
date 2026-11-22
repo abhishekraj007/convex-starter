@@ -1,6 +1,6 @@
-import { createAuth } from "@convex-starter/backend/convex/lib/betterAuth";
-import { getToken as getTokenNextjs } from "@convex-dev/better-auth/nextjs";
+import { convexBetterAuthNextJs } from "@convex-dev/better-auth/nextjs";
 
-export const getToken = () => {
-  return getTokenNextjs(createAuth);
-};
+export const { handler, getToken, isAuthenticated } = convexBetterAuthNextJs({
+  convexUrl: process.env.NEXT_PUBLIC_CONVEX_URL!,
+  convexSiteUrl: process.env.NEXT_PUBLIC_CONVEX_SITE_URL!,
+});

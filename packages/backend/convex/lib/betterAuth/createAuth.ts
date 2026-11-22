@@ -2,6 +2,7 @@ import { type GenericCtx } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
 import { expo } from "@better-auth/expo";
 import type { DataModel } from "../../_generated/dataModel";
+import authConfig from "../../auth.config";
 import { betterAuth } from "better-auth";
 import { authComponent } from "./component";
 
@@ -40,14 +41,8 @@ const trustedOrigins = Array.from(
   ]),
 );
 
-export function createAuth(
-  ctx: GenericCtx<DataModel>,
-  { optionsOnly }: { optionsOnly?: boolean } = { optionsOnly: false },
-) {
+export function createAuth(ctx: GenericCtx<DataModel>) {
   return betterAuth({
-    logger: {
-      disabled: optionsOnly,
-    },
     baseURL: authBaseUrl,
     trustedOrigins,
     database: authComponent.adapter(ctx),
@@ -74,6 +69,10 @@ export function createAuth(
       },
     },
     // crossDomain plugin enables multi-app OAuth by skipping state cookie check
-    plugins: [expo(), convex(), crossDomain({ siteUrl })],
+    plugins: [
+      expo(),
+      convex({ authConfig, jwksRotateOnTokenGenerationError: true }),
+      crossDomain({ siteUrl }),
+    ],
   });
 }
