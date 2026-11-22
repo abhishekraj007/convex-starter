@@ -9,10 +9,6 @@ export function CustomerPortal() {
   const [customerState, setCustomerState] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadCustomerState();
-  }, []);
-
   const loadCustomerState = async () => {
     try {
       const { data } = await authClient.customer.state();
@@ -23,6 +19,10 @@ export function CustomerPortal() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCustomerState();
+  }, []);
 
   const openPortal = async () => {
     try {

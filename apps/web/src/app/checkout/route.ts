@@ -5,5 +5,6 @@ export const GET = Checkout({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
   returnUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3004"}/dashboard`,
   successUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3004"}/dashboard?checkout_id={CHECKOUT_ID}`,
-  server: (process.env.POLAR_SERVER as "sandbox" | "production") || "sandbox",
+  environment:
+    process.env.POLAR_SERVER === "production" ? "production" : "sandbox",
 });

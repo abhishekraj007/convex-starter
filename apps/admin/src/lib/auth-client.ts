@@ -3,7 +3,7 @@ import {
   convexClient,
   crossDomainClient,
 } from "@convex-dev/better-auth/client/plugins";
-import { polarClient } from "@polar-sh/better-auth";
+import { polarClient } from "@polar-sh/better-auth/client";
 
 // Use crossDomainClient plugin for multi-app OAuth (handles cross-domain cookie storage)
 // baseURL points to Convex site where auth API is hosted

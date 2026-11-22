@@ -4,13 +4,11 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const result = await api.products.list({
-      organizationId: process.env.POLAR_ORGANIZATION_ID!,
-      isRecurring: true,
+      organization_id: process.env.POLAR_ORGANIZATION_ID!,
+      is_recurring: true,
     });
 
-    const products = result.result?.items || [];
-
-    return NextResponse.json(products);
+    return NextResponse.json(result.items);
   } catch (error) {
     console.error("Error fetching Polar subscription products:", error);
     return NextResponse.json(
