@@ -5,18 +5,23 @@ import { AuthenticatedLayout } from "@/components/authenticated-layout";
 import Header from "@/components/header";
 import { usePathname } from "next/navigation";
 
-const publicRoutes = ["/", "/pricing", "/docs", "/auth/sign-in", "/auth/sign-up"];
+const publicRoutes = ["/", "/pricing", "/docs", "/components", "/auth/sign-in", "/auth/sign-up"];
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const pathname = usePathname();
+  // Design-preview of the signed-in shell, viewable without a session.
+  if (pathname?.startsWith("/preview")) {
+    return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+  }
+
   const isPublicRoute =
     publicRoutes.includes(pathname) || pathname?.startsWith("/auth/") || pathname?.startsWith("/docs");
 
   // Show traditional header for public routes
   if (isPublicRoute) {
     return (
-      <div className="grid grid-rows-[auto_1fr] h-svh">
+      <div className="flex min-h-svh flex-col">
         <Header />
         {children}
       </div>
@@ -31,7 +36,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
 
   // Not authenticated and not loading -- show public header
   return (
-    <div className="grid grid-rows-[auto_1fr] h-svh">
+    <div className="flex min-h-svh flex-col">
       <Header />
       {children}
     </div>

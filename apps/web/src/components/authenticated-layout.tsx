@@ -15,6 +15,8 @@ import { CreditsModal } from "@/components/credits-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Coins } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -31,55 +33,55 @@ export function AuthenticatedLayout({
   const router = useRouter();
   const t = useTranslations("common");
 
-  const isLoading = userData === undefined;
+  const pathname = usePathname();
+  const isLoading = userData === undefined && !pathname?.startsWith("/preview");
+  const segment = pathname?.split("/").filter(Boolean)[0] ?? "home";
+  const pageTitle = segment === "preview" ? "Dashboard" : segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 
   return (
     <>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <div className="flex flex-1 items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Convex Starter</span>
+          <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-3 backdrop-blur-xl md:px-4">
+            <SidebarTrigger className="-ml-1 text-muted-foreground" />
+            <Separator orientation="vertical" className="mr-1 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden sm:inline-flex">
+                  <BreadcrumbLink href="/">Convex Starter</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden sm:inline-flex" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="ml-auto flex items-center gap-1.5">
+              <div className="hidden lg:block">
+                <LocaleSwitcher compact />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:block">
-                  <LocaleSwitcher />
-                </div>
-                <ModeToggle />
-                {isLoading ? (
-                  <Skeleton className="hidden sm:block h-8 w-20 rounded-md" />
-                ) : (
-                  !premiumStatus?.isPremium && (
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => router.push("/pricing")}
-                      className="hidden sm:flex"
-                    >
-                      {t("upgrade")}
-                    </Button>
-                  )
-                )}
-                {isLoading ? (
-                  <Skeleton className="h-8 w-16 rounded-md" />
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCreditsModalOpen(true)}
-                  >
-                    <Coins className="h-4 w-4 mr-2" />
-                    {userCredits?.credits ?? 0}
+              <ModeToggle />
+              {isLoading ? (
+                <Skeleton className="hidden h-8 w-24 rounded-full sm:block" />
+              ) : (
+                !premiumStatus?.isPremium && (
+                  <Button variant="brand" size="sm" shape="pill" onClick={() => router.push("/pricing")} className="hidden sm:inline-flex">
+                    {t("upgrade")}
                   </Button>
-                )}
-              </div>
+                )
+              )}
+              {isLoading ? (
+                <Skeleton className="h-8 w-16 rounded-full" />
+              ) : (
+                <Button variant="secondary" size="sm" shape="pill" onClick={() => setCreditsModalOpen(true)}>
+                  <Coins />
+                  <span className="tabular-nums">{userCredits?.credits ?? 0}</span>
+                </Button>
+              )}
             </div>
           </header>
-          <div className="flex flex-1 flex-col overflow-auto">{children}</div>
+          <div className="flex flex-1 flex-col">{children}</div>
         </SidebarInset>
       </SidebarProvider>
       <CreditsModal
