@@ -41,10 +41,10 @@ function DialogContent({
 }) {
   return (
     <>
-      <DialogBackdrop className="bg-[oklch(0.2_0.02_255/0.4)] backdrop-blur-[2px] dark:bg-[oklch(0.06_0.01_255/0.7)]" />
+      <DialogBackdrop className="bg-[oklch(0.18_0.006_285/0.35)] backdrop-blur-[3px] dark:bg-[oklch(0.05_0_0/0.6)]" />
       <UiDialogContent
         className={cn(
-          "gap-5 rounded-xl border-border bg-popover text-popover-foreground p-6 shadow-lg sm:max-w-lg",
+          "surface-float gap-4 rounded-2xl p-6 sm:max-w-lg",
           className
         )}
         {...props}
@@ -53,7 +53,7 @@ function DialogContent({
         {showCloseButton ? (
           <UiDialogClose
             aria-label="Close"
-            className="absolute top-4 right-4 size-7 rounded-full border-0 bg-transparent p-0 opacity-70 transition-opacity hover:bg-muted hover:opacity-100"
+            className="absolute top-4 right-4 size-7 rounded-xs border-0 bg-transparent p-0 opacity-70 transition-opacity hover:bg-accent hover:opacity-100"
           >
             <XIcon className="size-4" />
           </UiDialogClose>

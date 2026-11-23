@@ -34,13 +34,13 @@ function TooltipContent({
   return (
     <UiTooltipContent
       className={cn(
-        "z-50 w-fit rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background",
+        "z-50 flex w-fit items-center gap-2 rounded-md border-0 bg-primary px-2 py-1 text-xs font-medium text-balance text-primary-foreground shadow-md",
         className
       )}
       {...props}
     >
       {children}
-      <TooltipArrow className="z-50 size-2.5 rounded-[2px] bg-foreground fill-foreground" />
+      <TooltipArrow className="z-50 size-2.5 rounded-[2px] bg-primary fill-primary" />
     </UiTooltipContent>
   );
 }

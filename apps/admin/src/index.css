@@ -5,123 +5,187 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Admin design system v2 — "Console · Cobalt"
+ * A dense operator console in the spirit of the Vercel and Supabase dashboards.
+ * Cool zinc neutrals (hue 255, chroma ≈ 0.004), Inter at 13–14px with tabular
+ * numbers, tighter radii (8px). Unlike the marketing site, the cobalt accent IS the
+ * primary action color: solid, top-lit blue buttons, blue focus and selection.
+ * Dark mode is near-black (not navy) with stepped surfaces and inset highlights.
+ */
+
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale (rem / line-height / tracking) */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-sm--letter-spacing: -0.035em;
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.045em;
+  --text-display-lg: 4.5rem;
+  --text-display-lg--line-height: 1;
+  --text-display-lg--letter-spacing: -0.05em;
+
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --animate-fade-up: fade-up 0.6s var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes spinner-fade {
+    from { opacity: 1; }
+    to { opacity: 0.15; }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
 }
 
-/*
- * Admin theme: "Slate & Teal" console.
- * Cool slate neutrals (hue ~250) keep dense tables and forms calm; a teal
- * accent (hue ~190) marks actions and selection without competing with
- * the semantic status colors. Dark mode is a deep blue-slate with stepped
- * surfaces (background < card < popover).
- */
-:root {
+:root,
+.light {
   --radius: 0.5rem;
 
-  --background: oklch(0.979 0.003 250);
-  --foreground: oklch(0.21 0.017 255);
-  --card: oklch(0.995 0.0015 250);
-  --card-foreground: oklch(0.21 0.017 255);
+  --background: oklch(0.985 0.002 255);
+  --foreground: oklch(0.19 0.012 258);
+  --subtle: oklch(0.97 0.003 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.012 258);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.017 255);
+  --popover-foreground: oklch(0.19 0.012 258);
 
-  --primary: oklch(0.5 0.095 195);
-  --primary-foreground: oklch(0.985 0.008 195);
-  --secondary: oklch(0.955 0.006 250);
-  --secondary-foreground: oklch(0.27 0.02 255);
-  --muted: oklch(0.958 0.005 250);
-  --muted-foreground: oklch(0.48 0.02 255);
-  --accent: oklch(0.948 0.018 195);
-  --accent-foreground: oklch(0.3 0.06 200);
+  --primary: oklch(0.53 0.2 260);
+  --primary-foreground: oklch(0.99 0.005 260);
+  --secondary: oklch(0.96 0.004 255);
+  --secondary-foreground: oklch(0.22 0.012 258);
+  --muted: oklch(0.955 0.004 255);
+  --muted-foreground: oklch(0.48 0.016 258);
+  --faint-foreground: oklch(0.55 0.014 258);
+  --accent: oklch(0.95 0.006 255);
+  --accent-foreground: oklch(0.19 0.012 258);
+
+  --brand: oklch(0.53 0.2 260);
+  --brand-foreground: oklch(0.99 0.005 260);
+  --brand-soft: oklch(0.95 0.03 258);
 
   --destructive: oklch(0.55 0.21 25);
   --destructive-foreground: oklch(0.985 0.005 25);
-  --success: oklch(0.52 0.13 155);
-  --success-foreground: oklch(0.985 0.01 155);
-  --warning: oklch(0.65 0.15 60);
+  --success: oklch(0.52 0.13 158);
+  --success-foreground: oklch(0.985 0.01 158);
+  --warning: oklch(0.67 0.15 65);
   --warning-foreground: oklch(0.2 0.04 60);
-  --info: oklch(0.53 0.15 250);
-  --info-foreground: oklch(0.985 0.008 250);
+  --info: oklch(0.52 0.13 225);
+  --info-foreground: oklch(0.985 0.008 220);
 
-  --border: oklch(0.905 0.007 250);
-  --input: oklch(0.64 0.02 255);
-  --ring: oklch(0.5 0.095 195);
+  --border: oklch(0.915 0.005 255);
+  --border-strong: oklch(0.85 0.007 255);
+  --input: oklch(0.86 0.007 255);
+  --ring: oklch(0.53 0.2 260);
 
-  --chart-1: oklch(0.55 0.1 195);
-  --chart-2: oklch(0.55 0.14 255);
-  --chart-3: oklch(0.7 0.14 75);
-  --chart-4: oklch(0.6 0.15 300);
-  --chart-5: oklch(0.62 0.17 25);
+  --chart-1: oklch(0.55 0.2 260);
+  --chart-2: oklch(0.7 0.14 175);
+  --chart-3: oklch(0.65 0.18 300);
+  --chart-4: oklch(0.76 0.15 75);
+  --chart-5: oklch(0.6 0.02 255);
 
-  --sidebar: oklch(0.965 0.005 250);
-  --sidebar-foreground: oklch(0.26 0.018 255);
-  --sidebar-primary: oklch(0.5 0.095 195);
-  --sidebar-primary-foreground: oklch(0.985 0.008 195);
-  --sidebar-accent: oklch(0.925 0.012 230);
-  --sidebar-accent-foreground: oklch(0.21 0.02 255);
-  --sidebar-border: oklch(0.9 0.008 250);
-  --sidebar-ring: oklch(0.5 0.095 195);
+  --sidebar: oklch(0.975 0.003 255);
+  --sidebar-foreground: oklch(0.3 0.014 258);
+  --sidebar-primary: oklch(0.53 0.2 260);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.935 0.006 255);
+  --sidebar-accent-foreground: oklch(0.19 0.012 258);
+  --sidebar-border: oklch(0.915 0.005 255);
+  --sidebar-ring: oklch(0.53 0.2 260);
 
-  --shadow-color: oklch(0.3 0.03 255);
+  --highlight: oklch(1 0 0 / 0.7);
+  --shadow-color: oklch(0.22 0.02 258);
+  --elev-1: 0 1px 2px color-mix(in oklab, var(--shadow-color) 7%, transparent);
+  --elev-2: 0 1px 2px color-mix(in oklab, var(--shadow-color) 6%, transparent), 0 3px 10px -2px color-mix(in oklab, var(--shadow-color) 6%, transparent);
+  --elev-3: 0 2px 4px color-mix(in oklab, var(--shadow-color) 5%, transparent), 0 12px 28px -8px color-mix(in oklab, var(--shadow-color) 12%, transparent);
+  --elev-4: 0 4px 8px color-mix(in oklab, var(--shadow-color) 6%, transparent), 0 20px 56px -16px color-mix(in oklab, var(--shadow-color) 22%, transparent);
 }
 
 .dark {
-  --background: oklch(0.16 0.01 255);
-  --foreground: oklch(0.94 0.006 250);
-  --card: oklch(0.195 0.012 255);
-  --card-foreground: oklch(0.94 0.006 250);
-  --popover: oklch(0.23 0.014 255);
-  --popover-foreground: oklch(0.95 0.006 250);
+  --background: oklch(0.13 0.004 258);
+  --foreground: oklch(0.96 0.003 255);
+  --subtle: oklch(0.15 0.004 258);
+  --card: oklch(0.168 0.005 258);
+  --card-foreground: oklch(0.96 0.003 255);
+  --popover: oklch(0.195 0.006 258);
+  --popover-foreground: oklch(0.97 0.003 255);
 
-  --primary: oklch(0.74 0.1 190);
-  --primary-foreground: oklch(0.18 0.03 200);
-  --secondary: oklch(0.255 0.014 255);
-  --secondary-foreground: oklch(0.92 0.008 250);
-  --muted: oklch(0.23 0.012 255);
-  --muted-foreground: oklch(0.72 0.016 250);
-  --accent: oklch(0.27 0.03 210);
-  --accent-foreground: oklch(0.95 0.01 200);
+  --primary: oklch(0.555 0.2 260);
+  --primary-foreground: oklch(0.99 0.005 260);
+  --secondary: oklch(0.21 0.006 258);
+  --secondary-foreground: oklch(0.94 0.003 255);
+  --muted: oklch(0.2 0.006 258);
+  --muted-foreground: oklch(0.71 0.012 258);
+  --faint-foreground: oklch(0.6 0.012 258);
+  --accent: oklch(0.22 0.007 258);
+  --accent-foreground: oklch(0.97 0.003 255);
 
-  --destructive: oklch(0.7 0.18 22);
+  --brand: oklch(0.72 0.15 255);
+  --brand-foreground: oklch(0.16 0.03 260);
+  --brand-soft: oklch(0.24 0.05 260);
+
+  --destructive: oklch(0.69 0.18 22);
   --destructive-foreground: oklch(0.17 0.03 22);
-  --success: oklch(0.74 0.15 155);
-  --success-foreground: oklch(0.17 0.03 155);
+  --success: oklch(0.74 0.15 158);
+  --success-foreground: oklch(0.17 0.03 158);
   --warning: oklch(0.82 0.14 78);
   --warning-foreground: oklch(0.2 0.04 70);
-  --info: oklch(0.74 0.12 245);
-  --info-foreground: oklch(0.17 0.03 245);
+  --info: oklch(0.76 0.11 220);
+  --info-foreground: oklch(0.17 0.03 220);
 
-  --border: oklch(0.29 0.014 255);
-  --input: oklch(0.5 0.02 255);
-  --ring: oklch(0.74 0.1 190);
+  --border: oklch(1 0 0 / 0.085);
+  --border-strong: oklch(1 0 0 / 0.14);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: oklch(0.68 0.17 257);
 
-  --chart-1: oklch(0.74 0.1 190);
-  --chart-2: oklch(0.7 0.13 255);
-  --chart-3: oklch(0.8 0.13 78);
-  --chart-4: oklch(0.72 0.13 300);
-  --chart-5: oklch(0.7 0.16 25);
+  --chart-1: oklch(0.68 0.17 257);
+  --chart-2: oklch(0.76 0.12 175);
+  --chart-3: oklch(0.72 0.15 300);
+  --chart-4: oklch(0.8 0.13 75);
+  --chart-5: oklch(0.55 0.015 258);
 
-  --sidebar: oklch(0.18 0.011 255);
-  --sidebar-foreground: oklch(0.9 0.008 250);
-  --sidebar-primary: oklch(0.74 0.1 190);
-  --sidebar-primary-foreground: oklch(0.18 0.03 200);
-  --sidebar-accent: oklch(0.26 0.02 240);
-  --sidebar-accent-foreground: oklch(0.96 0.006 250);
-  --sidebar-border: oklch(0.27 0.013 255);
-  --sidebar-ring: oklch(0.74 0.1 190);
+  --sidebar: oklch(0.14 0.004 258);
+  --sidebar-foreground: oklch(0.8 0.008 258);
+  --sidebar-primary: oklch(0.555 0.2 260);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.21 0.007 258);
+  --sidebar-accent-foreground: oklch(0.97 0.003 255);
+  --sidebar-border: oklch(1 0 0 / 0.07);
+  --sidebar-ring: oklch(0.68 0.17 257);
 
-  --shadow-color: oklch(0.05 0.01 255);
+  --highlight: oklch(1 0 0 / 0.06);
+  --shadow-color: oklch(0 0 0);
+  --elev-1: 0 1px 2px oklch(0 0 0 / 0.4);
+  --elev-2: 0 1px 2px oklch(0 0 0 / 0.4), 0 4px 12px -2px oklch(0 0 0 / 0.35);
+  --elev-3: 0 2px 4px oklch(0 0 0 / 0.35), 0 12px 32px -8px oklch(0 0 0 / 0.55);
+  --elev-4: 0 4px 8px oklch(0 0 0 / 0.4), 0 24px 64px -16px oklch(0 0 0 / 0.7);
 }
 
 @theme inline {
+  --radius-xs: calc(var(--radius) - 6px);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 14px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-subtle: var(--subtle);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -132,8 +196,12 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-faint-foreground: var(--faint-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
@@ -147,7 +215,9 @@
   --color-warning-text: color-mix(in oklab, var(--warning) 62%, var(--foreground));
   --color-info-text: color-mix(in oklab, var(--info) 70%, var(--foreground));
   --color-destructive-text: color-mix(in oklab, var(--destructive) 80%, var(--foreground));
+  --color-brand-text: color-mix(in oklab, var(--brand) 85%, var(--foreground));
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -163,14 +233,61 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-heading: var(--font-sans);
-  --shadow-xs: 0 1px 2px 0 color-mix(in oklab, var(--shadow-color) 6%, transparent);
-  --shadow-sm: 0 1px 3px 0 color-mix(in oklab, var(--shadow-color) 8%, transparent), 0 1px 2px -1px color-mix(in oklab, var(--shadow-color) 6%, transparent);
-  --shadow-md: 0 4px 12px -2px color-mix(in oklab, var(--shadow-color) 10%, transparent), 0 2px 4px -2px color-mix(in oklab, var(--shadow-color) 6%, transparent);
-  --shadow-lg: 0 12px 32px -8px color-mix(in oklab, var(--shadow-color) 16%, transparent), 0 4px 8px -4px color-mix(in oklab, var(--shadow-color) 8%, transparent);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-heading: var(--font-display);
+  --shadow-xs: var(--elev-1);
+  --shadow-sm: var(--elev-2);
+  --shadow-md: var(--elev-3);
+  --shadow-lg: var(--elev-4);
+}
+
+/* ---------- Surface utilities ---------- */
+
+/* Raised card: hairline + soft layered shadow + inset top highlight. */
+@utility surface {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--highlight), var(--elev-2);
+}
+@utility surface-flat {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--highlight);
+}
+@utility surface-float {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--highlight), var(--elev-4);
+}
+/* Fine film grain, for large hero / CTA areas. */
+@utility noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+/* Faint line grid that fades out from the top. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+/* Hairline gradient border (for hero frames): put on a wrapper with p-px. */
+@utility frame-glow {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--foreground) 16%, transparent), color-mix(in oklab, var(--foreground) 4%, transparent) 40%, transparent);
+}
+@utility text-balance-tight {
+  text-wrap: balance;
+  letter-spacing: -0.03em;
+}
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
 @layer base {
@@ -180,57 +297,39 @@
   html {
     font-family: var(--font-sans);
     -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 5rem;
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     line-height: 1.55;
-    letter-spacing: -0.005em;
-    /* Inter: tabular digits so numbers line up in tables, stats and IDs; open digits, disambiguated l/I. */
-    font-feature-settings: "tnum", "cv01", "cv05", "cv11", "ss03";
-    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.006em;
+    font-feature-settings: "cv11", "ss01", "tnum" 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-semibold;
-    letter-spacing: -0.018em;
-    line-height: 1.25;
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    line-height: 1.2;
     text-wrap: balance;
   }
+  h1, h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+  }
+  p { text-wrap: pretty; }
   code, kbd, pre, samp {
     font-family: var(--font-mono);
     font-size: 0.9em;
   }
-  table {
-    font-variant-numeric: tabular-nums;
-  }
-  th {
-    @apply text-xs font-medium tracking-wide text-muted-foreground;
-  }
   ::selection {
-    background: color-mix(in oklab, var(--primary) 24%, transparent);
+    background: color-mix(in oklab, var(--brand) 25%, transparent);
   }
-
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     @apply cursor-pointer;
-  }
-
-  @media (hover: none) and (pointer: coarse) {
-    input,
-    textarea,
-    select,
-    [data-slot="input"],
-    [data-slot="textarea"],
-    [data-slot="select-trigger"] {
-      font-size: 16px;
-    }
   }
 }
 
@@ -245,60 +344,52 @@
     --ui-primary: var(--primary);
     --ui-primary-foreground: var(--primary-foreground);
     --ui-destructive: var(--destructive);
-    --ui-ring: color-mix(in oklab, var(--ring) 32%, transparent);
+    --ui-ring: color-mix(in oklab, var(--ring) 28%, transparent);
     --ui-ring-border: var(--ring);
-    --ui-overlay: color-mix(in oklab, oklch(0.2 0.02 255) 40%, transparent);
-    --ui-shadow:
-      0 1px 2px color-mix(in oklab, var(--shadow-color) 8%, transparent),
-      0 12px 32px -10px color-mix(in oklab, var(--shadow-color) 22%, transparent);
+    --ui-overlay: color-mix(in oklab, oklch(0.18 0.006 285) 35%, transparent);
+    --ui-shadow: inset 0 1px 0 var(--highlight), var(--elev-4);
     --ui-line-height: 1.5;
-    --ui-radius: var(--radius);
+    --ui-radius: var(--radius-md);
     --ui-spacing: 0.25rem;
     --ui-font-size: 0.875rem;
     --ui-font-sans: var(--font-sans);
     --ui-font-mono: var(--font-mono);
   }
 
-  html {
-    color-scheme: light;
-  }
-
+  html { color-scheme: light; }
   html.dark {
     color-scheme: dark;
-    --ui-overlay: oklch(0.08 0.01 255 / 0.65);
-    --ui-shadow:
-      0 1px 2px oklch(0 0 0 / 0.4),
-      0 16px 40px -12px oklch(0 0 0 / 0.7);
+    --ui-overlay: oklch(0.05 0 0 / 0.6);
   }
 
-  /* Floating surfaces (menus, selects, popovers, dialogs, drawers, toasts) sit on
-     --popover so they read as a raised layer, most visibly in dark mode. */
+  /* Floating surfaces sit on --popover so they read as a raised layer. */
   :where(
-    [data-slot="select-content"],
-    [data-slot="combobox-content"],
-    [data-slot="autocomplete-content"],
-    [data-slot="trigger-menu-content"],
-    [data-slot="menu-content"],
-    [data-slot="menubar-content"],
-    [data-slot="popover-content"],
-    [data-slot="hover-card-content"],
-    [data-slot="navigation-menu-viewport"],
-    [data-slot="navigation-menu-content"],
-    [data-slot="date-picker-content"],
-    [data-slot="dialog-content"],
-    [data-slot="alert-dialog-content"],
-    [data-slot="drawer-content"],
-    [data-slot="toast"]
+    [data-slot="select-content"], [data-slot="combobox-content"], [data-slot="autocomplete-content"],
+    [data-slot="trigger-menu-content"], [data-slot="menu-content"], [data-slot="menubar-content"],
+    [data-slot="popover-content"], [data-slot="hover-card-content"], [data-slot="navigation-menu-viewport"],
+    [data-slot="navigation-menu-content"], [data-slot="date-picker-content"], [data-slot="dialog-content"],
+    [data-slot="alert-dialog-content"], [data-slot="drawer-content"], [data-slot="toast"]
   ) {
     --ui-background: var(--popover);
     --ui-foreground: var(--popover-foreground);
-    --ui-muted: color-mix(in oklab, var(--popover-foreground) 7%, var(--popover));
-    --ui-border: color-mix(in oklab, var(--popover-foreground) 12%, var(--popover));
+    --ui-muted: color-mix(in oklab, var(--popover-foreground) 6%, var(--popover));
+    --ui-border: var(--border);
   }
 
-  a {
-    text-decoration: none;
+  /* Popup motion: quick fade + scale from the anchor. */
+  :where([data-slot$="-content"][popover], [data-slot="tooltip-content"]) {
+    transition: opacity 0.14s var(--ease-out-soft), transform 0.14s var(--ease-out-soft), overlay 0.14s allow-discrete, display 0.14s allow-discrete;
+    @starting-style { opacity: 0; transform: scale(0.97); }
   }
+
+  /* ui-sdk component polish shared by every demo. */
+  [data-slot="tabs-list"] { gap: 0.25rem; }
+  [data-slot="switch"][data-checked] { background: var(--brand); border-color: var(--brand); }
+  [data-slot="slider-indicator"], [data-slot="progress-indicator"], [data-slot="meter-indicator"] { background: var(--brand); }
+  [data-slot="radio"][data-checked], [data-slot="checkbox"][data-checked] { border-color: var(--primary); }
+  [data-slot="segmented-control-indicator"] { box-shadow: inset 0 1px 0 var(--highlight), var(--elev-1); }
+
+  a { text-decoration: none; }
 
   :is(a, summary):focus-visible,
   :where([data-slot]):focus-visible {

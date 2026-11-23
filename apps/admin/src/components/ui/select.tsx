@@ -49,7 +49,7 @@ function SelectTrigger({
   return (
     <UiSelectTrigger
       className={cn(
-        "flex h-9 w-fit items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 shadow-xs text-sm whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-9 w-fit items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 py-2 text-sm whitespace-nowrap shadow-[inset_0_1px_0_var(--highlight),var(--elev-1)] transition-[border-color,box-shadow,background-color] hover:border-border-strong data-open:border-ring data-open:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_20%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/[0.03]",
         className
       )}
       {...props}
@@ -68,7 +68,7 @@ function SelectContent({
   return (
     <UiSelectContent
       className={cn(
-        "z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md",
+        "surface-float z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-xl p-1",
         className
       )}
       {...props}
@@ -98,7 +98,7 @@ function SelectItem({
   return (
     <UiSelectItem
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-full py-1.5 pr-8 pl-2 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-[13px] outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
         className
       )}
       {...props}

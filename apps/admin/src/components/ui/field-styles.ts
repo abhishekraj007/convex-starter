@@ -1,0 +1,3 @@
+/** Shared look for text-entry controls: hairline, card fill, xs inner shadow, brand focus ring. */
+export const fieldStyles =
+  "w-full min-w-0 rounded-lg border border-input bg-card text-sm text-foreground shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--shadow-color)_4%,transparent)] transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-faint-foreground hover:border-border-strong dark:bg-white/[0.03] focus-visible:border-ring focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_22%,transparent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:shadow-[0_0_0_3px_color-mix(in_oklab,var(--destructive)_18%,transparent)] data-invalid:border-destructive";
