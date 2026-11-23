@@ -5,7 +5,7 @@ import { api } from "@convex-starter/backend/convex/_generated/api";
 import { AuthenticatedLayout } from "@/components/authenticated-layout";
 import { usePathname } from "next/navigation";
 
-const publicRoutes = ["/", "/auth"];
+const publicRoutes = ["/", "/auth", "/components"];
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
@@ -16,6 +16,11 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPublicRoute =
     publicRoutes.includes(pathname) || pathname?.startsWith("/auth/");
+
+  // Design preview of the console shell (static demo data, no session required).
+  if (pathname?.startsWith("/preview")) {
+    return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
+  }
 
   // Public routes - show without layout
   if (isPublicRoute) {

@@ -44,11 +44,11 @@ export default function AuthScreen({
 
   return (
     <AdminAuthShell
-      title="Admin Portal"
-      description="Sign in with an account that has admin access"
+      title="Sign in to Console"
+      description="Use an account with the admin role. Everyone else is signed out automatically."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -63,7 +63,7 @@ export default function AuthScreen({
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-2">
             <Label htmlFor="password">Password</Label>
             <Link
@@ -86,24 +86,24 @@ export default function AuthScreen({
 
         <AdminFormError message={errorMessage} />
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign In"}
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Signing in…" : "Continue"}
         </Button>
       </form>
 
       {pendingMessage && !errorMessage ? (
         <p
           role="status"
-          className="rounded-md bg-muted/60 px-3 py-2 text-center text-sm text-muted-foreground"
+          className="flex items-center justify-center gap-2 rounded-lg border border-border bg-subtle px-3 py-2 text-center text-[13px] text-muted-foreground"
         >
           {pendingMessage}
         </p>
       ) : null}
 
-      <p className="text-center text-sm">
+      <p className="border-t border-border pt-5 text-sm text-muted-foreground">
         <Link
           href={"/auth/sign-up" as never}
-          className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="font-medium text-brand-text underline-offset-4 hover:underline"
         >
           Need an account? Sign up
         </Link>
