@@ -127,7 +127,7 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
                   render={
                     <SidebarMenuButton
                       size="lg"
-                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                      className="data-[open]:bg-sidebar-accent data-[open]:text-sidebar-accent-foreground"
                     />
                   }
                 >
