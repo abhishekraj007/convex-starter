@@ -123,6 +123,7 @@ export default function AuthScreen() {
             ) : null}
           </div>
           <PasswordInput
+            controlId="password"
             name="password"
             autoComplete={isSignIn ? "current-password" : "new-password"}
             required

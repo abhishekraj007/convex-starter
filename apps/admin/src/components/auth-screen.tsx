@@ -74,6 +74,7 @@ export default function AuthScreen({
             </Link>
           </div>
           <PasswordInput
+            controlId="password"
             name="password"
             autoComplete="current-password"
             required

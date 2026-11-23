@@ -112,6 +112,7 @@ export function ResetPasswordForm() {
         <div className="space-y-2">
           <Label htmlFor="new-password">New password</Label>
           <PasswordInput
+            controlId="new-password"
             name="new-password"
             autoComplete="new-password"
             required
@@ -123,6 +124,7 @@ export function ResetPasswordForm() {
         <div className="space-y-2">
           <Label htmlFor="confirm-password">Confirm password</Label>
           <PasswordInput
+            controlId="confirm-password"
             name="confirm-password"
             autoComplete="new-password"
             required

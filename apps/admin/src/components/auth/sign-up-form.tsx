@@ -74,6 +74,7 @@ export function SignUpForm() {
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <PasswordInput
+            controlId="password"
             name="password"
             autoComplete="new-password"
             required
