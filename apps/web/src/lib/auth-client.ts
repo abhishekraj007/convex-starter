@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { emailOTPClient } from "better-auth/client/plugins";
 import {
   convexClient,
   crossDomainClient,
@@ -9,7 +10,7 @@ import { polarClient } from "@polar-sh/better-auth/client";
 // baseURL points to Convex site where auth API is hosted
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_CONVEX_SITE_URL,
-  plugins: [convexClient(), crossDomainClient(), polarClient()],
+  plugins: [convexClient(), crossDomainClient(), polarClient(), emailOTPClient()],
 });
 
 export type AuthClient = typeof authClient;

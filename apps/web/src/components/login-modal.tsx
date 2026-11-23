@@ -91,28 +91,14 @@ export function LoginModal({ open, onOpenChange, returnUrl }: LoginModalProps) {
             name: value.name || "",
           },
           {
-            onSuccess: async () => {
-              // Auto-login after successful sign up
-              await authClient.signIn.email(
-                {
-                  email: value.email,
-                  password: value.password,
-                },
-                {
-                  onSuccess: () => {
-                    onOpenChange(false);
-                    router.push(callbackURL as any);
-                    router.refresh();
-                    toast.success("Account created successfully!");
-                  },
-                  onError: (error) => {
-                    toast.error(
-                      "Account created but failed to sign in. Please sign in manually.",
-                    );
-                    setIsSignIn(true);
-                  },
-                },
-              );
+            onSuccess: () => {
+              onOpenChange(false);
+              const params = new URLSearchParams({
+                email: value.email,
+                type: "email-verification",
+              });
+              router.push(`/auth/verify-otp?${params.toString()}` as never);
+              toast.success("Check your email for a verification code");
             },
             onError: (error) => {
               toast.error(error.error.message || "Failed to create account");
