@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
 
 export function AuthShell({
   title,
@@ -15,11 +16,14 @@ export function AuthShell({
   className?: string;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <Card className={cn("w-full max-w-md", className)}>
-        <CardContent className="space-y-6 p-6 sm:p-8">
-          <header className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+    <div className="relative isolate flex min-h-[calc(100svh-3.5rem)] items-center justify-center overflow-hidden px-4 py-16">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-grid [mask-image:radial-gradient(50%_50%_at_50%_40%,black,transparent)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute top-[-200px] left-1/2 -z-10 h-[460px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--brand)_14%,transparent),transparent)]" />
+      <Card className={cn("w-full max-w-[400px] rounded-2xl py-0 shadow-[inset_0_1px_0_var(--highlight),var(--elev-3)]", className)}>
+        <CardContent className="space-y-6 p-7 sm:p-8">
+          <header className="space-y-2 text-center">
+            <BrandMark className="mx-auto mb-4 size-9 rounded-xl [&>svg]:size-5" />
+            <h1 className="text-[1.625rem] leading-tight font-semibold tracking-[-0.035em]">
               {title}
             </h1>
             <p className="text-sm text-muted-foreground">{description}</p>
@@ -36,7 +40,7 @@ export function FormError({ message }: { message: string | null }) {
   return (
     <p
       role="alert"
-      className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      className="rounded-lg border border-destructive/25 bg-destructive/[0.07] px-3 py-2 text-[13px] text-destructive-text"
     >
       {message}
     </p>
