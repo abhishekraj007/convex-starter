@@ -4,18 +4,22 @@ import {
   internalAction,
   mutation,
   query,
-  httpAction,
+  type ActionCtx,
+  type MutationCtx,
+  type QueryCtx,
 } from "./_generated/server";
-import { components, internal, api } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import {
   Agent,
   createThread,
+  getThreadMetadata,
   saveMessage,
   listUIMessages,
   vStreamArgs,
   syncStreams,
 } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
+import { getUser } from "./model/user";
 
 // Define the English tutor agent
 const englishTutor = new Agent(components.agent, {
@@ -44,13 +48,32 @@ Always be encouraging and remember that making mistakes is part of the learning 
   },
 });
 
+async function requireUserId(
+  ctx: QueryCtx | MutationCtx | ActionCtx
+): Promise<string> {
+  const user = await getUser(ctx);
+  return user._id;
+}
+
+async function assertThreadOwner(
+  ctx: QueryCtx | MutationCtx | ActionCtx,
+  threadId: string,
+  userId: string
+) {
+  const thread = await getThreadMetadata(ctx, components.agent, { threadId });
+  if (thread.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+  return thread;
+}
+
 // Create a new thread for a user
 export const createTutorThread = mutation({
   args: {
-    userId: v.string(),
     title: v.optional(v.string()),
   },
-  handler: async (ctx, { userId, title }) => {
+  handler: async (ctx, { title }) => {
+    const userId = await requireUserId(ctx);
     const threadId = await createThread(ctx, components.agent, {
       userId,
       title: title || "English Learning Session",
@@ -73,10 +96,9 @@ export const createTutorThread = mutation({
 
 // Get the user's active thread
 export const getActiveThread = query({
-  args: {
-    userId: v.string(),
-  },
-  handler: async (ctx, { userId }) => {
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireUserId(ctx);
     const profile = await ctx.db
       .query("profile")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", userId))
@@ -89,10 +111,11 @@ export const getActiveThread = query({
 // Set the user's active thread
 export const setActiveThread = mutation({
   args: {
-    userId: v.string(),
     threadId: v.string(),
   },
-  handler: async (ctx, { userId, threadId }) => {
+  handler: async (ctx, { threadId }) => {
+    const userId = await requireUserId(ctx);
+    await assertThreadOwner(ctx, threadId, userId);
     const profile = await ctx.db
       .query("profile")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", userId))
@@ -107,10 +130,10 @@ export const setActiveThread = mutation({
 // List all threads for a user
 export const listUserThreads = query({
   args: {
-    userId: v.string(),
     paginationOpts: paginationOptsValidator,
   },
-  handler: async (ctx, { userId, paginationOpts }) => {
+  handler: async (ctx, { paginationOpts }) => {
+    const userId = await requireUserId(ctx);
     return await ctx.runQuery(components.agent.threads.listThreadsByUserId, {
       userId,
       paginationOpts,
@@ -122,10 +145,12 @@ export const listUserThreads = query({
 export const sendMessage = mutation({
   args: {
     threadId: v.string(),
-    userId: v.string(),
     prompt: v.string(),
   },
-  handler: async (ctx, { threadId, userId, prompt }) => {
+  handler: async (ctx, { threadId, prompt }) => {
+    const userId = await requireUserId(ctx);
+    await assertThreadOwner(ctx, threadId, userId);
+
     // Save the user's message
     const { messageId } = await saveMessage(ctx, components.agent, {
       threadId,
@@ -173,6 +198,9 @@ export const listThreadMessages = query({
     streamArgs: vStreamArgs,
   },
   handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx);
+    await assertThreadOwner(ctx, args.threadId, userId);
+
     // Fetch regular messages
     const paginated = await listUIMessages(ctx, components.agent, args);
 
@@ -189,6 +217,8 @@ export const deleteThread = action({
     threadId: v.string(),
   },
   handler: async (ctx, { threadId }) => {
+    const userId = await requireUserId(ctx);
+    await assertThreadOwner(ctx, threadId, userId);
     await englishTutor.deleteThreadAsync(ctx, { threadId });
   },
 });
@@ -201,6 +231,8 @@ export const updateThreadMetadata = mutation({
     summary: v.optional(v.string()),
   },
   handler: async (ctx, { threadId, title, summary }) => {
+    const userId = await requireUserId(ctx);
+    await assertThreadOwner(ctx, threadId, userId);
     await ctx.runMutation(components.agent.threads.updateThread, {
       threadId,
       patch: { title, summary },

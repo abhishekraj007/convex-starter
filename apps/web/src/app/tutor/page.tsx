@@ -30,18 +30,19 @@ export default function EnglishTutorPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const userData = useQuery(api.user.fetchUserAndProfile);
-  const userId = userData?.userMetadata?._id;
 
   // Load user's active thread from database
   const activeThreadFromDb = useQuery(
     api.englishTutor.getActiveThread,
-    userId ? { userId } : "skip"
+    userData ? {} : "skip"
   );
 
   // Load user's threads
   const userThreads = useQuery(
     api.englishTutor.listUserThreads,
-    userId ? { userId, paginationOpts: { numItems: 1, cursor: null } } : "skip"
+    userData
+      ? { paginationOpts: { numItems: 1, cursor: null } }
+      : "skip"
   );
 
   const createThread = useMutation(api.englishTutor.createTutorThread);
@@ -62,7 +63,7 @@ export default function EnglishTutorPage() {
 
   // Load or create thread
   useEffect(() => {
-    if (!userId || threadId) return;
+    if (!userData || threadId) return;
 
     // Load active thread from database
     if (activeThreadFromDb) {
@@ -74,15 +75,15 @@ export default function EnglishTutorPage() {
     if (userThreads?.page && userThreads.page.length > 0) {
       const mostRecentThread = userThreads.page[0]._id;
       setThreadId(mostRecentThread);
-      setActiveThread({ userId, threadId: mostRecentThread });
+      setActiveThread({ threadId: mostRecentThread });
     } else if (userThreads?.page) {
       // No existing threads, create new one
-      createThread({ userId }).then((newThreadId) => {
+      createThread({}).then((newThreadId) => {
         setThreadId(newThreadId);
       });
     }
   }, [
-    userId,
+    userData,
     threadId,
     activeThreadFromDb,
     userThreads,
@@ -94,7 +95,7 @@ export default function EnglishTutorPage() {
   useEffect(() => {
     if (scrollAreaRef.current) {
       const viewport = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
+        '[data-slot="scroll-area-viewport"]'
       );
       if (viewport) {
         viewport.scrollTop = viewport.scrollHeight;
@@ -104,21 +105,20 @@ export default function EnglishTutorPage() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !threadId || !userId) return;
+    if (!message.trim() || !threadId) return;
 
     const userMessage = message;
     setMessage("");
 
     await sendMessageMutation({
       threadId,
-      userId,
       prompt: userMessage,
     });
   };
 
   const handleNewConversation = async () => {
-    if (!userId) return;
-    const newThreadId = await createThread({ userId });
+    if (!userData) return;
+    const newThreadId = await createThread({});
     setThreadId(newThreadId);
   };
 
@@ -209,10 +209,8 @@ export default function EnglishTutorPage() {
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-            <ScrollArea
-              ref={scrollAreaRef}
-              className="flex-1 p-4 overflow-y-auto"
-            >
+            <div ref={scrollAreaRef} className="min-h-0 flex-1">
+              <ScrollArea className="h-full p-4">
               {!threadId || status === "LoadingFirstPage" ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin" />
@@ -231,7 +229,8 @@ export default function EnglishTutorPage() {
                   </p>
                 </div>
               )}
-            </ScrollArea>
+              </ScrollArea>
+            </div>
 
             <form
               onSubmit={handleSend}
