@@ -160,6 +160,16 @@ export default function Landing() {
               )}
               <Text className="text-white">{t("auth.apple")}</Text>
             </Button>
+            <Button
+              size="md"
+              className="overflow-hidden rounded-full bg-white/20"
+              variant="ghost"
+              onPress={() => router.push("/(root)/(auth)/email" as never)}
+              isDisabled={isLoading}
+            >
+              <Ionicons name="mail-outline" size={20} color="white" />
+              <Text className="text-white">Continue with Email</Text>
+            </Button>
           </View>
           <View className="justify-center gap-1 flex-row flex-wrap items-center ">
             <Text className="text-white/50 text-sm">
