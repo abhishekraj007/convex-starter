@@ -40,7 +40,7 @@ function DropdownMenuContent({
     <MenuContent
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[8rem] rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md",
+        "surface-float z-50 min-w-[10rem] rounded-xl p-1",
         className
       )}
       {...props}
@@ -67,7 +67,7 @@ function DropdownMenuItem({
     <MenuItem
       destructive={variant === "destructive"}
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground data-destructive:text-destructive data-destructive:data-highlighted:bg-destructive/10 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+        "relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-[13px] outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground data-destructive:text-destructive data-destructive:data-highlighted:bg-destructive/10 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         inset && "pl-8",
         className
       )}
@@ -86,7 +86,7 @@ function DropdownMenuCheckboxItem({
   return (
     <MenuCheckboxItem
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+        "relative flex cursor-default items-center gap-2 rounded-md py-1.5 pr-2 pl-8 text-[13px] outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         className
       )}
       {...props}
@@ -115,7 +115,7 @@ function DropdownMenuRadioItem({
   return (
     <MenuRadioItem
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+        "relative flex cursor-default items-center gap-2 rounded-md py-1.5 pr-2 pl-8 text-[13px] outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         className
       )}
       {...props}
@@ -141,7 +141,7 @@ function DropdownMenuLabel({
     <div
       data-slot="menu-label"
       className={cn(
-        "px-2 py-1.5 text-sm font-medium",
+        "px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground",
         inset && "pl-8",
         className
       )}
@@ -168,7 +168,7 @@ function DropdownMenuShortcut({
 }: React.ComponentProps<typeof MenuShortcut>) {
   return (
     <MenuShortcut
-      className={cn("ml-auto text-xs tracking-widest text-muted-foreground", className)}
+      className={cn("ml-auto font-mono text-[11px] tracking-wide text-faint-foreground", className)}
       {...props}
     />
   );
@@ -188,7 +188,7 @@ function DropdownMenuSubTrigger({
   return (
     <MenuSubTrigger
       className={cn(
-        "flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground",
+        "flex cursor-default items-center rounded-md px-2 py-1.5 text-[13px] outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-open:bg-accent data-open:text-accent-foreground",
         inset && "pl-8",
         className
       )}
@@ -204,7 +204,7 @@ function DropdownMenuSubContent({
   return (
     <MenuSubContent
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg",
+        "surface-float z-50 min-w-[10rem] overflow-hidden rounded-xl p-1",
         className
       )}
       {...props}

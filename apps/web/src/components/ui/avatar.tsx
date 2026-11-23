@@ -13,7 +13,7 @@ function Avatar({ className, ...props }: React.ComponentProps<typeof UiAvatar>) 
   return (
     <UiAvatar
       className={cn(
-        "relative flex size-8 shrink-0 overflow-hidden rounded-full",
+        "relative flex size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-border",
         className
       )}
       {...props}
@@ -40,7 +40,7 @@ function AvatarFallback({
   return (
     <UiAvatarFallback
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted",
+        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground",
         className
       )}
       {...props}

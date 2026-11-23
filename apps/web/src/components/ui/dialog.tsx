@@ -41,10 +41,10 @@ function DialogContent({
 }) {
   return (
     <>
-      <DialogBackdrop className="bg-[oklch(0.22_0.03_278/0.4)] backdrop-blur-[2px] dark:bg-[oklch(0.06_0.02_278/0.7)]" />
+      <DialogBackdrop className="bg-[oklch(0.18_0.006_285/0.35)] backdrop-blur-[3px] dark:bg-[oklch(0.05_0_0/0.6)]" />
       <UiDialogContent
         className={cn(
-          "gap-4 rounded-xl border-border bg-popover text-popover-foreground p-6 shadow-lg sm:max-w-lg",
+          "surface-float gap-4 rounded-2xl p-6 sm:max-w-lg",
           className
         )}
         {...props}

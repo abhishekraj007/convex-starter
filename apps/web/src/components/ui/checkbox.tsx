@@ -13,13 +13,13 @@ function Checkbox({
   return (
     <UiCheckbox
       className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "peer size-4 shrink-0 rounded-[5px] border border-input bg-card shadow-xs transition-[background-color,border-color] outline-none data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground data-indeterminate:border-primary data-indeterminate:bg-primary data-indeterminate:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
     >
       <CheckboxIndicator className="flex size-full items-center justify-center">
-        <CheckIcon className="size-3.5" />
+        <CheckIcon className="size-3" strokeWidth={3} />
       </CheckboxIndicator>
     </UiCheckbox>
   );
