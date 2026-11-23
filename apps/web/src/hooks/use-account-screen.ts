@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { useTheme } from "next-themes";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
 import { getSiteUrl } from "@/lib/site";

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 
 type EmbedCheckoutOptions = {
   productId: string;

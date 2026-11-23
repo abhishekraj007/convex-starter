@@ -118,14 +118,12 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-2">
-            <Button size="lg" asChild>
-              <Link href="/auth">
-                Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button size="lg" render={<Link href="/auth" />}>
+              Get Started Free
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/pricing">View Pricing</Link>
+            <Button size="lg" variant="outline" render={<Link href="/pricing" />}>
+              View Pricing
             </Button>
           </div>
         </div>
@@ -267,11 +265,9 @@ export default function Home() {
               Our starter kit includes everything you need to launch a
               production-ready SaaS application.
             </p>
-            <Button asChild>
-              <Link href="/dashboard">
-                Explore Dashboard
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button render={<Link href="/dashboard" />}>
+              Explore Dashboard
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
@@ -299,14 +295,12 @@ export default function Home() {
             starter kit.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link href="/auth">
-                Start Building Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+            <Button size="lg" render={<Link href="/auth" />}>
+              Start Building Now
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/docs">Read the Docs</Link>
+            <Button size="lg" variant="outline" render={<Link href="/docs" />}>
+              Read the Docs
             </Button>
           </div>
         </div>

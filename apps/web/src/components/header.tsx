@@ -43,14 +43,16 @@ export default function Header() {
       <div className="flex flex-row items-center justify-between px-4 py-3 border-b border-border">
         {/* Mobile Menu Toggle */}
         <div className="flex items-center gap-4">
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} side="left">
+            <SheetTrigger
+              render={
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              }
+            />
+            <SheetContent>
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>

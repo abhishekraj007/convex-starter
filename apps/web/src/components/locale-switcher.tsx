@@ -25,7 +25,7 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <Select value={locale} onValueChange={handleChange} disabled={isPending}>
+    <Select value={locale} onValueChange={(value) => value && handleChange(value)} disabled={isPending}>
       <SelectTrigger className="w-auto gap-2 h-9 px-3">
         <Globe className="h-4 w-4" />
         <SelectValue />
