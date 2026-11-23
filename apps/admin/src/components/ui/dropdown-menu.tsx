@@ -6,7 +6,6 @@ import {
   MenuCheckboxItem,
   MenuContent,
   MenuGroup,
-  MenuGroupLabel,
   MenuItem,
   MenuItemIndicator,
   MenuRadioGroup,
@@ -135,11 +134,12 @@ function DropdownMenuLabel({
   className,
   inset,
   ...props
-}: React.ComponentProps<typeof MenuGroupLabel> & {
+}: React.ComponentProps<"div"> & {
   inset?: boolean;
 }) {
   return (
-    <MenuGroupLabel
+    <div
+      data-slot="menu-label"
       className={cn(
         "px-2 py-1.5 text-sm font-medium",
         inset && "pl-8",
