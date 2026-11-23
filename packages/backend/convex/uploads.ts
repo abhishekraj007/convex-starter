@@ -1,9 +1,19 @@
 import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
+import type { DataModel } from "./_generated/dataModel";
 import { components, internal } from "./_generated/api";
 import { R2, type R2Callbacks } from "@convex-dev/r2";
 import { authComponent } from "./lib/betterAuth";
 import { rateLimiter } from "./lib/rateLimit";
+import {
+  DEFAULT_SIGNED_URL_TTL_SECONDS,
+  getSignedStorageUrl,
+} from "./lib/signedStorageUrls";
+import {
+  assertUserScopedStorageKey,
+  buildUserUploadKey,
+  isUserScopedStorageKey,
+} from "./lib/storageOwnership";
 import {
   MAX_UPLOADS_PER_USER,
   getUserStorageQuota,
@@ -28,78 +38,103 @@ export const generateUploadUrlWithUser = mutation({
       key: user._id,
       throws: true,
     });
-    // Create a key with userId prefix so we can extract it later
-    const key = `${user._id}/${crypto.randomUUID()}`;
+    // The key prefix is the auth user id, which lets every later read and
+    // delete prove ownership without trusting a client-supplied user id.
+    const key = buildUserUploadKey(user._id, crypto.randomUUID());
     return await r2.generateUploadUrl(key);
   },
 });
 
-// Generate the client API with upload callbacks
-export const { generateUploadUrl, syncMetadata, onSyncMetadata } = r2.clientApi(
-  {
-    callbacks,
-    checkUpload: async (ctx, _bucket) => {
-      // Verify the user is authenticated before allowing upload
-      const user = await authComponent.safeGetAuthUser(ctx as any);
-      if (!user) {
-        throw new Error("Not authenticated");
-      }
-      await rateLimiter.limit(ctx as any, "uploadUrlMint", {
-        key: user._id,
-        throws: true,
-      });
-    },
-    onSyncMetadata: async (ctx, args) => {
-      // This runs after metadata sync, so r2.getMetadata will work
-      // args: { bucket: string; key: string; isNew: boolean }
-      const metadata = await r2.getMetadata(ctx, args.key);
-
-      if (!metadata) {
-        console.error("No metadata found for key:", args.key);
-        return;
-      }
-
-      const invalidReason = validateUploadMetadata(
-        metadata.contentType,
-        metadata.size,
-      );
-      if (invalidReason) {
-        console.warn(
-          `[onSyncMetadata] rejecting upload ${args.key}: ${invalidReason}`,
-        );
-        try {
-          await r2.deleteObject(ctx, args.key);
-        } catch (err) {
-          console.error(
-            `[onSyncMetadata] failed to delete invalid upload ${args.key}:`,
-            err,
-          );
-        }
-        return;
-      }
-
-      // Extract userId from key (format: userId/uuid)
-      const userId = args.key.split("/")[0];
-      if (!userId) {
-        console.error("No userId found in key:", args.key);
-        try {
-          await r2.deleteObject(ctx, args.key);
-        } catch {
-          // Object may already be gone.
-        }
-        return;
-      }
-
-      // Create the upload record
-      await ctx.runMutation(internal.uploads.createUploadRecord, {
-        key: args.key,
-        userId,
-        contentType: metadata.contentType || "application/octet-stream",
-        contentLength: metadata.size || 0,
-      });
-    },
+// Generate the client API with upload callbacks.
+// Only the functions we export here are part of the public API; the raw
+// generated upload/delete helpers are intentionally not exported.
+export const { syncMetadata, onSyncMetadata } = r2.clientApi<DataModel>({
+  callbacks,
+  checkUpload: async (ctx) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
   },
-);
+  onUpload: async (ctx, _bucket, key) => {
+    // syncMetadata takes a client-provided key, so reject anything outside
+    // the caller's own namespace before any metadata work happens.
+    const user = await authComponent.safeGetAuthUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+    assertUserScopedStorageKey(key, user._id);
+  },
+  checkReadKey: async (ctx, _bucket, key) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+    assertUserScopedStorageKey(key, user._id);
+  },
+  checkReadBucket: async (ctx) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+  },
+  checkDelete: async (ctx, _bucket, key) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+    if (!user) {
+      throw new Error("Not authenticated");
+    }
+    assertUserScopedStorageKey(key, user._id);
+  },
+  onSyncMetadata: async (ctx, args) => {
+    // This runs after metadata sync, so r2.getMetadata will work
+    // args: { bucket: string; key: string; isNew: boolean }
+    const metadata = await r2.getMetadata(ctx, args.key);
+
+    if (!metadata) {
+      console.error("No metadata found for key:", args.key);
+      return;
+    }
+
+    const invalidReason = validateUploadMetadata(
+      metadata.contentType,
+      metadata.size,
+    );
+    if (invalidReason) {
+      console.warn(
+        `[onSyncMetadata] rejecting upload ${args.key}: ${invalidReason}`,
+      );
+      try {
+        await r2.deleteObject(ctx, args.key);
+      } catch (err) {
+        console.error(
+          `[onSyncMetadata] failed to delete invalid upload ${args.key}:`,
+          err,
+        );
+      }
+      return;
+    }
+
+    // Extract userId from key (format: userId/uuid)
+    const userId = args.key.split("/")[0];
+    if (!userId || !isUserScopedStorageKey(args.key, userId)) {
+      console.error("No valid userId found in key:", args.key);
+      try {
+        await r2.deleteObject(ctx, args.key);
+      } catch {
+        // Object may already be gone.
+      }
+      return;
+    }
+
+    // Create the upload record
+    await ctx.runMutation(internal.uploads.createUploadRecord, {
+      key: args.key,
+      userId,
+      contentType: metadata.contentType || "application/octet-stream",
+      contentLength: metadata.size || 0,
+    });
+  },
+});
 
 // Mutation to associate an upload with the current user
 export const associateUpload = mutation({
@@ -112,7 +147,7 @@ export const associateUpload = mutation({
       throw new Error("Not authenticated");
     }
 
-    if (!args.key.startsWith(`${user._id}/`)) {
+    if (!isUserScopedStorageKey(args.key, user._id)) {
       throw new Error("Not authorized for this key");
     }
 
@@ -160,6 +195,16 @@ export const createUploadRecord = internalMutation({
     isNew: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    // Defense in depth: this mutation is internal, but it must still refuse a
+    // key that is not namespaced under the claimed owner.
+    if (!isUserScopedStorageKey(args.key, args.userId)) {
+      console.error("[createUploadRecord] key/user mismatch", {
+        key: args.key,
+        userId: args.userId,
+      });
+      return;
+    }
+
     const existing = await ctx.db
       .query("uploads")
       .withIndex("by_key", (q) => q.eq("key", args.key))
@@ -173,7 +218,24 @@ export const createUploadRecord = internalMutation({
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", args.userId))
       .unique();
 
-    const quota = getUserStorageQuota(userProfile?.isPremium);
+    // Uploads belong to an existing account. Without a profile we cannot
+    // enforce a quota, so remove the object instead of accepting it.
+    if (!userProfile) {
+      console.warn(
+        `[createUploadRecord] no profile for user ${args.userId}; rejecting ${args.key}`,
+      );
+      try {
+        await r2.deleteObject(ctx, args.key);
+      } catch (err) {
+        console.error(
+          `[createUploadRecord] failed to delete unowned upload ${args.key}:`,
+          err,
+        );
+      }
+      return;
+    }
+
+    const quota = getUserStorageQuota(userProfile.isPremium);
     const currentBytes = userProfile?.storageBytesUsed ?? 0;
     const currentCount = userProfile?.uploadCount ?? 0;
 
@@ -203,12 +265,10 @@ export const createUploadRecord = internalMutation({
       uploadedAt: Date.now(),
     });
 
-    if (userProfile) {
-      await ctx.db.patch(userProfile._id, {
-        storageBytesUsed: currentBytes + args.contentLength,
-        uploadCount: currentCount + 1,
-      });
-    }
+    await ctx.db.patch(userProfile._id, {
+      storageBytesUsed: currentBytes + args.contentLength,
+      uploadCount: currentCount + 1,
+    });
   },
 });
 
@@ -229,11 +289,17 @@ export const listUserUploads = query({
       .order("desc")
       .take(args.limit ?? 50);
 
-    // Generate URLs for each upload
+    // Generate short-lived signed URLs for each upload.
     return Promise.all(
       uploads.map(async (upload) => {
         try {
-          const url = upload.key ? await r2.getUrl(upload.key) : null;
+          const { url } = upload.key
+            ? await getSignedStorageUrl(
+                (key, options) => r2.getUrl(key, options),
+                upload.key,
+                DEFAULT_SIGNED_URL_TTL_SECONDS,
+              )
+            : { url: null };
           return {
             ...upload,
             url,
@@ -272,7 +338,13 @@ export const getUpload = query({
 
     return {
       ...upload,
-      url: await r2.getUrl(upload.key),
+      url: (
+        await getSignedStorageUrl(
+          (key, options) => r2.getUrl(key, options),
+          upload.key,
+          DEFAULT_SIGNED_URL_TTL_SECONDS,
+        )
+      ).url,
     };
   },
 });
@@ -296,6 +368,7 @@ export const deleteUpload = mutation({
     if (!upload || upload.userId !== user._id) {
       throw new Error("Upload not found");
     }
+    assertUserScopedStorageKey(args.key, user._id);
 
     // Delete from R2
     await r2.deleteObject(ctx, args.key);
