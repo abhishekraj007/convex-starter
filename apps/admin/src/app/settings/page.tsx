@@ -311,15 +311,17 @@ export default function SettingsPage() {
                 </p>
 
                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      className="w-full justify-start"
-                      disabled={isDeletingAccount}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      {isDeletingAccount ? "Deleting..." : "Delete Account"}
-                    </Button>
+                  <DialogTrigger
+                    render={
+                      <Button
+                        variant="destructive"
+                        className="w-full justify-start"
+                        disabled={isDeletingAccount}
+                      />
+                    }
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {isDeletingAccount ? "Deleting..." : "Delete Account"}
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>

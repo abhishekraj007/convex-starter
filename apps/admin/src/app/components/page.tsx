@@ -304,8 +304,8 @@ import { Label } from "@/components/ui/label";
 } from "@/components/ui/dialog";
 
 <Dialog>
-  <DialogTrigger asChild>
-    <Button>Open Dialog</Button>
+  <DialogTrigger render={<Button />}>
+    Open Dialog
   </DialogTrigger>
   <DialogContent>
     <DialogHeader>
@@ -323,9 +323,7 @@ import { Label } from "@/components/ui/label";
 </Dialog>`}
 			>
 				<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-					<DialogTrigger asChild>
-						<Button>Open Dialog</Button>
-					</DialogTrigger>
+					<DialogTrigger render={<Button />}>Open Dialog</DialogTrigger>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Dialog Title</DialogTitle>
@@ -362,8 +360,8 @@ import { Label } from "@/components/ui/label";
 } from "@/components/ui/dropdown-menu";
 
 <DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="outline">Open Menu</Button>
+  <DropdownMenuTrigger render={<Button variant="outline" />}>
+    Open Menu
   </DropdownMenuTrigger>
   <DropdownMenuContent>
     <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -376,8 +374,8 @@ import { Label } from "@/components/ui/label";
 			>
 				<div className="flex flex-wrap gap-4">
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline">Open Menu</Button>
+						<DropdownMenuTrigger render={<Button variant="outline" />}>
+							Open Menu
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
 							<DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -394,30 +392,30 @@ import { Label } from "@/components/ui/label";
 					</DropdownMenu>
 
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline">With Checkbox</Button>
+						<DropdownMenuTrigger render={<Button variant="outline" />}>
+							With Checkbox
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
-							<DropdownMenuCheckboxItem checked>
+							<DropdownMenuCheckboxItem value="status" defaultChecked>
 								Show status
 							</DropdownMenuCheckboxItem>
-							<DropdownMenuCheckboxItem>Show sidebar</DropdownMenuCheckboxItem>
+							<DropdownMenuCheckboxItem value="sidebar">Show sidebar</DropdownMenuCheckboxItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuLabel>Settings</DropdownMenuLabel>
-							<DropdownMenuCheckboxItem checked>
+							<DropdownMenuCheckboxItem value="autosave" defaultChecked>
 								Auto-save
 							</DropdownMenuCheckboxItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
 
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline">With Radio</Button>
+						<DropdownMenuTrigger render={<Button variant="outline" />}>
+							With Radio
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
 							<DropdownMenuLabel>Theme</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuRadioGroup value="light">
+							<DropdownMenuRadioGroup defaultValue="light">
 								<DropdownMenuRadioItem value="light">
 									Light
 								</DropdownMenuRadioItem>
@@ -428,8 +426,8 @@ import { Label } from "@/components/ui/label";
 					</DropdownMenu>
 
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="outline">With Submenu</Button>
+						<DropdownMenuTrigger render={<Button variant="outline" />}>
+							With Submenu
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
 							<DropdownMenuItem>New Tab</DropdownMenuItem>

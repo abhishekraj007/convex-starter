@@ -35,7 +35,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 const menuItems = [
@@ -98,14 +97,12 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
-                    asChild
                     isActive={pathname === item.url}
                     tooltip={item.title}
+                    render={<a href={item.url} />}
                   >
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                    <item.icon />
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -126,11 +123,14 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
               </div>
             ) : (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  >
+                <DropdownMenuTrigger
+                  render={
+                    <SidebarMenuButton
+                      size="lg"
+                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    />
+                  }
+                >
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
                         src={userImage || undefined}
@@ -147,37 +147,32 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
                       </span>
                     </div>
                     <ChevronUp className="ml-auto size-4 shrink-0" />
-                  </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                  className="min-w-56 rounded-2xl"
                   side="top"
                   align="end"
                   sideOffset={4}
                 >
-                  <DropdownMenuItem asChild>
-                    <a href="/settings">
-                      <Settings />
-                      Settings
-                    </a>
+                  <DropdownMenuItem
+                    onSelect={() => router.push("/settings" as any)}
+                  >
+                    <Settings />
+                    Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Button
-                      onClick={() => {
-                        authClient.signOut({
-                          fetchOptions: {
-                            onSuccess: () => {
-                              router.replace("/");
-                            },
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      authClient.signOut({
+                        fetchOptions: {
+                          onSuccess: () => {
+                            router.replace("/");
                           },
-                        });
-                      }}
-                      variant={"link"}
-                      className="w-full justify-start"
-                    >
-                      <LogOut />
-                      Log out
-                    </Button>
+                        },
+                      });
+                    }}
+                  >
+                    <LogOut />
+                    Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

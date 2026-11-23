@@ -1,6 +1,7 @@
+@layer ui-sdk;
+
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "@ui-sdk/core/web.css" layer(components);
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -171,5 +172,45 @@ body {
     [data-slot="select-trigger"] {
       font-size: 16px;
     }
+  }
+}
+
+@layer components {
+  :root {
+    --ui-background: var(--background);
+    --ui-foreground: var(--foreground);
+    --ui-muted: var(--muted);
+    --ui-muted-foreground: var(--muted-foreground);
+    --ui-border: var(--border);
+    --ui-input: var(--input);
+    --ui-primary: var(--primary);
+    --ui-primary-foreground: var(--primary-foreground);
+    --ui-destructive: var(--destructive);
+    --ui-ring: var(--ring);
+    --ui-ring-border: var(--ring);
+    --ui-overlay: color-mix(in oklab, var(--foreground) 45%, transparent);
+    --ui-radius: var(--radius);
+    --ui-spacing: 0.25rem;
+    --ui-font-size: 0.875rem;
+    --ui-font-sans: var(--font-sans);
+    --ui-font-mono: var(--font-mono);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  :is(a, summary):focus-visible,
+  :where([data-slot]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }

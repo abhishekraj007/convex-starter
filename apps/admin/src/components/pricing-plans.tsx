@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 
 const SUBSCRIPTION_PLANS = [
   {

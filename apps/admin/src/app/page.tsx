@@ -6,7 +6,7 @@ import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 
 export default function LoginPage() {
   const router = useRouter();

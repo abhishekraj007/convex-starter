@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import z from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
