@@ -49,7 +49,7 @@ const features = [
     icon: Code,
     title: "Developer Friendly",
     description:
-      "TypeScript-first with shadcn/ui for web and NativeWind for mobile, ready to customize.",
+      "TypeScript-first with Vercel ui-sdk for web and NativeWind for mobile, ready to customize.",
   },
   {
     icon: Rocket,
@@ -69,7 +69,7 @@ const benefits = [
   "Credit/token system included",
   "Shared backend logic across platforms",
   "NativeWind styling for mobile",
-  "Responsive web design with shadcn/ui",
+  "Responsive web design with Vercel ui-sdk",
   "Dark mode support everywhere",
   "SEO optimized web pages",
 ];
@@ -185,7 +185,7 @@ export default function Home() {
                 <div>
                   <h4 className="font-semibold mb-1">Web with Next.js</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Server-side rendering, API routes, and shadcn/ui components
+                    Server-side rendering, API routes, and Vercel ui-sdk components
                     for a beautiful web experience.
                   </p>
                 </div>
@@ -213,7 +213,7 @@ export default function Home() {
                   label: "Web",
                   techs: [
                     "Next.js",
-                    "shadcn/ui",
+                    "ui-sdk",
                     "Tailwind CSS",
                     "Polar Payments",
                   ],

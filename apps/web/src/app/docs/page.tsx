@@ -112,7 +112,7 @@ export default function DocsPage() {
 ├── apps/
 │   ├── web/                # Next.js web application
 │   │   ├── src/app/        # App Router pages
-│   │   ├── src/components/ # React components (shadcn/ui)
+│   │   ├── src/components/ # React components (ui-sdk)
 │   │   └── src/lib/        # Utilities and auth client
 │   └── native/             # Expo React Native app
 │       ├── app/            # Expo Router screens
@@ -129,7 +129,7 @@ export default function DocsPage() {
                   <h4 className="font-semibold text-sm">Key Technologies</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
                     <li>
-                      <strong className="text-foreground">Web:</strong> Next.js 16, React 19, shadcn/ui,
+                      <strong className="text-foreground">Web:</strong> Next.js 16, React 19, Vercel ui-sdk,
                       Tailwind CSS 4, TanStack Query
                     </li>
                     <li>
