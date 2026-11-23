@@ -98,7 +98,16 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
+      <section className="relative isolate overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_55%_at_50%_0%,color-mix(in_oklab,var(--primary)_14%,transparent),transparent_70%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklab,var(--foreground)_5%,transparent)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(70%_60%_at_50%_0%,black,transparent)]"
+        />
+      <div className="container mx-auto px-4 py-20 md:py-32">
         <div className="flex flex-col items-center text-center space-y-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary">
             <Star className="h-4 w-4 fill-current" />
@@ -107,8 +116,11 @@ export default function Home() {
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-            The Complete SaaS Starter Kit
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight max-w-4xl">
+            The Complete{" "}
+            <span className="bg-gradient-to-r from-primary to-chart-4 bg-clip-text text-transparent">
+              SaaS Starter Kit
+            </span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
@@ -127,6 +139,7 @@ export default function Home() {
             </Button>
           </div>
         </div>
+      </div>
       </section>
 
       {/* Features Section */}
@@ -145,7 +158,7 @@ export default function Home() {
           {features.map((feature, index) => (
             <Card
               key={index}
-              className="border-border/60 bg-card/50 hover:bg-card transition-colors"
+              className="bg-card transition-[box-shadow,border-color] hover:border-primary/30 hover:shadow-md"
             >
               <CardContent className="pt-6">
                 <div className="mb-4 inline-flex items-center justify-center w-11 h-11 rounded-lg bg-primary/10 text-primary">

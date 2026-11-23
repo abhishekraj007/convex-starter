@@ -41,10 +41,10 @@ function DialogContent({
 }) {
   return (
     <>
-      <DialogBackdrop className="bg-black/50" />
+      <DialogBackdrop className="bg-[oklch(0.22_0.03_278/0.4)] backdrop-blur-[2px] dark:bg-[oklch(0.06_0.02_278/0.7)]" />
       <UiDialogContent
         className={cn(
-          "gap-4 rounded-lg border-border bg-background p-6 shadow-lg sm:max-w-lg",
+          "gap-4 rounded-xl border-border bg-popover text-popover-foreground p-6 shadow-lg sm:max-w-lg",
           className
         )}
         {...props}
@@ -67,7 +67,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn("flex flex-col gap-2 pe-8 text-center sm:text-left", className)}
       {...props}
     />
   );
@@ -92,7 +92,7 @@ function DialogTitle({
 }: React.ComponentProps<typeof UiDialogTitle>) {
   return (
     <UiDialogTitle
-      className={cn("text-lg leading-none font-semibold", className)}
+      className={cn("text-lg leading-tight font-semibold", className)}
       {...props}
     />
   );
@@ -104,7 +104,7 @@ function DialogDescription({
 }: React.ComponentProps<typeof UiDialogDescription>) {
   return (
     <UiDialogDescription
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("mt-0 text-sm leading-relaxed text-muted-foreground", className)}
       {...props}
     />
   );

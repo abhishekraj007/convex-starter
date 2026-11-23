@@ -9,3 +9,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 <!-- END:nextjs-agent-rules -->
 
 Before using ui-sdk, follow the ui-sdk skill if installed and read node_modules/@ui-sdk/react/docs/llms.txt. To build a new component, also search node_modules/@ui-sdk/react/docs/core.md by heading and read rendering.md next to it.
+
+## Theme
+
+- All colors are OKLCH tokens in `src/index.css` (`:root` = light, `.dark` = dark); ui-sdk `--ui-*` vars are mapped onto them, and floating surfaces (menus, selects, dialogs, drawers, toasts) use `--popover`.
+- Use semantic utilities, never raw palette colors: `bg-primary`, `text-muted-foreground`, `bg-success`/`text-success-foreground` for solid fills, and `bg-success/10 text-success-text` (also `warning`, `info`, `destructive`) for tinted status messages.
+- Theme switching is next-themes with the `class` strategy and `system` default; toggle from `resolvedTheme`.

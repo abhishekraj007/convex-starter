@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { isRTL } from "@convex-starter/i18n";
@@ -15,6 +15,14 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Display face for page titles and section headings only; Geist carries UI and body text.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  display: "swap",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://convex-starter.app";
@@ -79,10 +87,13 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={isRTL(locale) ? "rtl" : "ltr"} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
+    <html
+      lang={locale}
+      dir={isRTL(locale) ? "rtl" : "ltr"}
+      className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <LayoutContent>{children}</LayoutContent>

@@ -56,10 +56,10 @@ function SheetContent({
 
   return (
     <>
-      <DrawerBackdrop className="bg-black/50" />
+      <DrawerBackdrop className="bg-[oklch(0.22_0.03_278/0.4)] backdrop-blur-[2px] dark:bg-[oklch(0.06_0.02_278/0.7)]" />
       <DrawerContent
         className={cn(
-          "gap-4 border-border bg-background p-0 shadow-lg",
+          "gap-4 border-border bg-popover text-popover-foreground p-0 shadow-lg",
           resolvedSide === "left" || resolvedSide === "right" ? "sm:max-w-sm" : "",
           className
         )}
