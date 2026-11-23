@@ -49,7 +49,7 @@ function SelectTrigger({
   return (
     <UiSelectTrigger
       className={cn(
-        "flex h-9 w-fit items-center justify-between gap-2 rounded-4xl border border-input bg-input/30 px-3 py-2 text-sm whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-9 w-fit items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 shadow-xs text-sm whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
@@ -68,7 +68,7 @@ function SelectContent({
   return (
     <UiSelectContent
       className={cn(
-        "z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-2xl border border-border bg-popover p-1 text-popover-foreground shadow-md",
+        "z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md",
         className
       )}
       {...props}

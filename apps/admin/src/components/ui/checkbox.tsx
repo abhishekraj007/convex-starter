@@ -13,7 +13,7 @@ function Checkbox({
   return (
     <UiCheckbox
       className={cn(
-        "peer size-4 shrink-0 rounded-full border border-input shadow-xs transition-shadow outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}

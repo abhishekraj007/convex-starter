@@ -42,7 +42,7 @@ function Slider({
           <SliderThumb
             key={index}
             index={index}
-            className="block size-4 shrink-0 rounded-4xl border border-primary bg-white shadow-sm transition-colors select-none hover:ring-4 hover:ring-ring/50 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
+            className="block size-4 shrink-0 rounded-full border border-primary bg-background shadow-sm transition-colors select-none hover:ring-4 hover:ring-ring/50 focus-visible:outline-hidden focus-visible:ring-4 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
           />
         ))}
       </SliderControl>

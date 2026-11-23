@@ -6,92 +6,113 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans:
-    "Geist Mono", ui-monospace, "SF Mono", "Monaco", "Cascadia Code",
-    "Roboto Mono", monospace;
-  --font-mono:
-    "Geist Mono", ui-monospace, "SF Mono", "Monaco", "Cascadia Code",
-    "Roboto Mono", monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", monospace;
 }
 
-html,
-body {
-  font-family: var(--font-mono);
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
-}
-
+/*
+ * Admin theme: "Slate & Teal" console.
+ * Cool slate neutrals (hue ~250) keep dense tables and forms calm; a teal
+ * accent (hue ~190) marks actions and selection without competing with
+ * the semantic status colors. Dark mode is a deep blue-slate with stepped
+ * surfaces (background < card < popover).
+ */
 :root {
-  --radius: 0.625rem;
-  /* Light theme: Luxury cream and champagne tones */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --radius: 0.5rem;
+
+  --background: oklch(0.979 0.003 250);
+  --foreground: oklch(0.21 0.017 255);
+  --card: oklch(0.995 0.0015 250);
+  --card-foreground: oklch(0.21 0.017 255);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.21 0.017 255);
+
+  --primary: oklch(0.5 0.095 195);
+  --primary-foreground: oklch(0.985 0.008 195);
+  --secondary: oklch(0.955 0.006 250);
+  --secondary-foreground: oklch(0.27 0.02 255);
+  --muted: oklch(0.958 0.005 250);
+  --muted-foreground: oklch(0.48 0.02 255);
+  --accent: oklch(0.948 0.018 195);
+  --accent-foreground: oklch(0.3 0.06 200);
+
+  --destructive: oklch(0.55 0.21 25);
+  --destructive-foreground: oklch(0.985 0.005 25);
+  --success: oklch(0.52 0.13 155);
+  --success-foreground: oklch(0.985 0.01 155);
+  --warning: oklch(0.65 0.15 60);
+  --warning-foreground: oklch(0.2 0.04 60);
+  --info: oklch(0.53 0.15 250);
+  --info-foreground: oklch(0.985 0.008 250);
+
+  --border: oklch(0.905 0.007 250);
+  --input: oklch(0.64 0.02 255);
+  --ring: oklch(0.5 0.095 195);
+
+  --chart-1: oklch(0.55 0.1 195);
+  --chart-2: oklch(0.55 0.14 255);
+  --chart-3: oklch(0.7 0.14 75);
+  --chart-4: oklch(0.6 0.15 300);
+  --chart-5: oklch(0.62 0.17 25);
+
+  --sidebar: oklch(0.965 0.005 250);
+  --sidebar-foreground: oklch(0.26 0.018 255);
+  --sidebar-primary: oklch(0.5 0.095 195);
+  --sidebar-primary-foreground: oklch(0.985 0.008 195);
+  --sidebar-accent: oklch(0.925 0.012 230);
+  --sidebar-accent-foreground: oklch(0.21 0.02 255);
+  --sidebar-border: oklch(0.9 0.008 250);
+  --sidebar-ring: oklch(0.5 0.095 195);
+
+  --shadow-color: oklch(0.3 0.03 255);
 }
 
 .dark {
-  /* Dark theme: Luxury rich brown and burgundy with gold accents */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.922 0 0);
-  --sidebar-primary-foreground: oklch(0.205 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.16 0.01 255);
+  --foreground: oklch(0.94 0.006 250);
+  --card: oklch(0.195 0.012 255);
+  --card-foreground: oklch(0.94 0.006 250);
+  --popover: oklch(0.23 0.014 255);
+  --popover-foreground: oklch(0.95 0.006 250);
+
+  --primary: oklch(0.74 0.1 190);
+  --primary-foreground: oklch(0.18 0.03 200);
+  --secondary: oklch(0.255 0.014 255);
+  --secondary-foreground: oklch(0.92 0.008 250);
+  --muted: oklch(0.23 0.012 255);
+  --muted-foreground: oklch(0.72 0.016 250);
+  --accent: oklch(0.27 0.03 210);
+  --accent-foreground: oklch(0.95 0.01 200);
+
+  --destructive: oklch(0.7 0.18 22);
+  --destructive-foreground: oklch(0.17 0.03 22);
+  --success: oklch(0.74 0.15 155);
+  --success-foreground: oklch(0.17 0.03 155);
+  --warning: oklch(0.82 0.14 78);
+  --warning-foreground: oklch(0.2 0.04 70);
+  --info: oklch(0.74 0.12 245);
+  --info-foreground: oklch(0.17 0.03 245);
+
+  --border: oklch(0.29 0.014 255);
+  --input: oklch(0.5 0.02 255);
+  --ring: oklch(0.74 0.1 190);
+
+  --chart-1: oklch(0.74 0.1 190);
+  --chart-2: oklch(0.7 0.13 255);
+  --chart-3: oklch(0.8 0.13 78);
+  --chart-4: oklch(0.72 0.13 300);
+  --chart-5: oklch(0.7 0.16 25);
+
+  --sidebar: oklch(0.18 0.011 255);
+  --sidebar-foreground: oklch(0.9 0.008 250);
+  --sidebar-primary: oklch(0.74 0.1 190);
+  --sidebar-primary-foreground: oklch(0.18 0.03 200);
+  --sidebar-accent: oklch(0.26 0.02 240);
+  --sidebar-accent-foreground: oklch(0.96 0.006 250);
+  --sidebar-border: oklch(0.27 0.013 255);
+  --sidebar-ring: oklch(0.74 0.1 190);
+
+  --shadow-color: oklch(0.05 0.01 255);
 }
 
 @theme inline {
@@ -114,6 +135,18 @@ body {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  /* Readable status text on tinted status surfaces (10-15% fills); mixing toward --foreground darkens in light mode and lightens in dark. */
+  --color-success-text: color-mix(in oklab, var(--success) 70%, var(--foreground));
+  --color-warning-text: color-mix(in oklab, var(--warning) 62%, var(--foreground));
+  --color-info-text: color-mix(in oklab, var(--info) 70%, var(--foreground));
+  --color-destructive-text: color-mix(in oklab, var(--destructive) 80%, var(--foreground));
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -131,7 +164,10 @@ body {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
+  --shadow-xs: 0 1px 2px 0 color-mix(in oklab, var(--shadow-color) 6%, transparent);
+  --shadow-sm: 0 1px 3px 0 color-mix(in oklab, var(--shadow-color) 8%, transparent), 0 1px 2px -1px color-mix(in oklab, var(--shadow-color) 6%, transparent);
+  --shadow-md: 0 4px 12px -2px color-mix(in oklab, var(--shadow-color) 10%, transparent), 0 2px 4px -2px color-mix(in oklab, var(--shadow-color) 6%, transparent);
+  --shadow-lg: 0 12px 32px -8px color-mix(in oklab, var(--shadow-color) 16%, transparent), 0 4px 8px -4px color-mix(in oklab, var(--shadow-color) 8%, transparent);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -141,9 +177,20 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
-    letter-spacing: -0.01em;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+    /* Inter: tabular digits so numbers line up in tables, stats and IDs; open digits, disambiguated l/I. */
+    font-feature-settings: "tnum", "cv01", "cv05", "cv11", "ss03";
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1,
   h2,
@@ -151,11 +198,23 @@ body {
   h4,
   h5,
   h6 {
-    @apply font-medium;
-    letter-spacing: -0.02em;
+    @apply font-semibold;
+    letter-spacing: -0.018em;
+    line-height: 1.25;
+    text-wrap: balance;
   }
-  html {
-    @apply font-sans;
+  code, kbd, pre, samp {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+  th {
+    @apply text-xs font-medium tracking-wide text-muted-foreground;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 24%, transparent);
   }
 
   button:not(:disabled),
@@ -186,9 +245,13 @@ body {
     --ui-primary: var(--primary);
     --ui-primary-foreground: var(--primary-foreground);
     --ui-destructive: var(--destructive);
-    --ui-ring: var(--ring);
+    --ui-ring: color-mix(in oklab, var(--ring) 32%, transparent);
     --ui-ring-border: var(--ring);
-    --ui-overlay: color-mix(in oklab, var(--foreground) 45%, transparent);
+    --ui-overlay: color-mix(in oklab, oklch(0.2 0.02 255) 40%, transparent);
+    --ui-shadow:
+      0 1px 2px color-mix(in oklab, var(--shadow-color) 8%, transparent),
+      0 12px 32px -10px color-mix(in oklab, var(--shadow-color) 22%, transparent);
+    --ui-line-height: 1.5;
     --ui-radius: var(--radius);
     --ui-spacing: 0.25rem;
     --ui-font-size: 0.875rem;
@@ -202,6 +265,35 @@ body {
 
   html.dark {
     color-scheme: dark;
+    --ui-overlay: oklch(0.08 0.01 255 / 0.65);
+    --ui-shadow:
+      0 1px 2px oklch(0 0 0 / 0.4),
+      0 16px 40px -12px oklch(0 0 0 / 0.7);
+  }
+
+  /* Floating surfaces (menus, selects, popovers, dialogs, drawers, toasts) sit on
+     --popover so they read as a raised layer, most visibly in dark mode. */
+  :where(
+    [data-slot="select-content"],
+    [data-slot="combobox-content"],
+    [data-slot="autocomplete-content"],
+    [data-slot="trigger-menu-content"],
+    [data-slot="menu-content"],
+    [data-slot="menubar-content"],
+    [data-slot="popover-content"],
+    [data-slot="hover-card-content"],
+    [data-slot="navigation-menu-viewport"],
+    [data-slot="navigation-menu-content"],
+    [data-slot="date-picker-content"],
+    [data-slot="dialog-content"],
+    [data-slot="alert-dialog-content"],
+    [data-slot="drawer-content"],
+    [data-slot="toast"]
+  ) {
+    --ui-background: var(--popover);
+    --ui-foreground: var(--popover-foreground);
+    --ui-muted: color-mix(in oklab, var(--popover-foreground) 7%, var(--popover));
+    --ui-border: color-mix(in oklab, var(--popover-foreground) 12%, var(--popover));
   }
 
   a {
@@ -213,4 +305,8 @@ body {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+
+  [data-slot="toast"][data-type="success"] { border-color: color-mix(in oklab, var(--success) 45%, var(--border)); }
+  [data-slot="toast"][data-type="warning"] { border-color: color-mix(in oklab, var(--warning) 50%, var(--border)); }
+  [data-slot="toast"][data-type="info"] { border-color: color-mix(in oklab, var(--info) 45%, var(--border)); }
 }

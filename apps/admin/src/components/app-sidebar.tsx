@@ -149,7 +149,7 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
                     <ChevronUp className="ml-auto size-4 shrink-0" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="min-w-56 rounded-2xl"
+                  className="min-w-56 rounded-lg"
                   side="top"
                   align="end"
                   sideOffset={4}
