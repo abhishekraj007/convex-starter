@@ -48,10 +48,18 @@ Your app will connect to the Convex cloud backend automatically.
 convex-starter/
 ├── apps/
 │   ├── web/         # Frontend application (Next.js)
+│   ├── admin/       # Admin application (Next.js)
 │   ├── native/      # Mobile application (React Native, Expo)
 ├── packages/
 │   ├── backend/     # Convex backend functions and schema
 ```
+
+## Auth email and R2 storage
+
+Email OTP sign-in, email verification, password reset, and Cloudflare R2
+uploads are documented in [docs/auth-and-storage.md](docs/auth-and-storage.md).
+It covers Cloudflare Email Sending onboarding, API token scopes, R2 bucket and
+CORS setup, and the `npx convex env set` commands.
 
 ## Available Scripts
 
