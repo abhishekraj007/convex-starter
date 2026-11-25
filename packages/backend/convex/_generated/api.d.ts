@@ -8,8 +8,9 @@
  * @module
  */
 
+import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
-import type * as englishTutor from "../englishTutor.js";
+import type * as cleanDb from "../cleanDb.js";
 import type * as features_appConfig_guards from "../features/appConfig/guards.js";
 import type * as features_appConfig_index from "../features/appConfig/index.js";
 import type * as features_appConfig_mutations from "../features/appConfig/mutations.js";
@@ -30,6 +31,7 @@ import type * as features_subscriptions_mutations from "../features/subscription
 import type * as features_subscriptions_queries from "../features/subscriptions/queries.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
+import type * as lib_aiModels from "../lib/aiModels.js";
 import type * as lib_betterAuth_component from "../lib/betterAuth/component.js";
 import type * as lib_betterAuth_createAuth from "../lib/betterAuth/createAuth.js";
 import type * as lib_betterAuth_index from "../lib/betterAuth/index.js";
@@ -50,7 +52,6 @@ import type * as model_user from "../model/user.js";
 import type * as privateData from "../privateData.js";
 import type * as purchases from "../purchases.js";
 import type * as pushNotifications from "../pushNotifications.js";
-import type * as todos from "../todos.js";
 import type * as uploads from "../uploads.js";
 import type * as user from "../user.js";
 import type * as util from "../util.js";
@@ -62,8 +63,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  assistant: typeof assistant;
   auth: typeof auth;
-  englishTutor: typeof englishTutor;
+  cleanDb: typeof cleanDb;
   "features/appConfig/guards": typeof features_appConfig_guards;
   "features/appConfig/index": typeof features_appConfig_index;
   "features/appConfig/mutations": typeof features_appConfig_mutations;
@@ -84,6 +86,7 @@ declare const fullApi: ApiFromModules<{
   "features/subscriptions/queries": typeof features_subscriptions_queries;
   healthCheck: typeof healthCheck;
   http: typeof http;
+  "lib/aiModels": typeof lib_aiModels;
   "lib/betterAuth/component": typeof lib_betterAuth_component;
   "lib/betterAuth/createAuth": typeof lib_betterAuth_createAuth;
   "lib/betterAuth/index": typeof lib_betterAuth_index;
@@ -104,7 +107,6 @@ declare const fullApi: ApiFromModules<{
   privateData: typeof privateData;
   purchases: typeof purchases;
   pushNotifications: typeof pushNotifications;
-  todos: typeof todos;
   uploads: typeof uploads;
   user: typeof user;
   util: typeof util;

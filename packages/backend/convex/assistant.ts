@@ -20,23 +20,24 @@ import {
 } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
 import { getUser } from "./model/user";
+import { getChatModel, getEmbeddingModel } from "./lib/aiModels";
 
-// Define the English tutor agent
-const englishTutor = new Agent(components.agent, {
-  name: "English Tutor",
-  languageModel: "openai/gpt-5.1-instant",
-  textEmbeddingModel: "openai/text-embedding-3-small",
-  instructions: `You are a friendly and patient English tutor. Your role is to:
-- Help students improve their English skills (grammar, vocabulary, pronunciation, writing, speaking)
-- Provide constructive feedback and corrections in a supportive manner
-- Adapt your teaching style to the student's level
-- Use examples and explanations that are clear and easy to understand
-- Remember previous conversations to provide personalized learning experiences
-- Encourage practice and engagement
-- Answer questions about English language usage, idioms, and cultural context
-- Provide exercises and practice opportunities when appropriate
+// Define the general-purpose assistant agent
+const assistant = new Agent(components.agent, {
+  name: "Assistant",
+  languageModel: getChatModel(),
+  embeddingModel: getEmbeddingModel(),
+  instructions: `You are a helpful general-purpose AI assistant. You can help with anything the user asks, including:
+- Answering questions on any topic
+- Writing, editing, and improving text of any kind
+- Brainstorming ideas and solving problems
+- Explaining concepts at any level of depth
+- Helping with code, debugging, and technical questions
+- Summarizing, translating, and analyzing content
+- Planning, organizing, and productivity advice
 
-Always be encouraging and remember that making mistakes is part of the learning process.`,
+Remember previous conversations to provide personalized, context-aware responses.
+Be direct, accurate, and helpful. If you don't know something, say so.`,
   maxSteps: 5,
   contextOptions: {
     recentMessages: 50,
@@ -68,7 +69,7 @@ async function assertThreadOwner(
 }
 
 // Create a new thread for a user
-export const createTutorThread = mutation({
+export const createAssistantThread = mutation({
   args: {
     title: v.optional(v.string()),
   },
@@ -76,8 +77,8 @@ export const createTutorThread = mutation({
     const userId = await requireUserId(ctx);
     const threadId = await createThread(ctx, components.agent, {
       userId,
-      title: title || "English Learning Session",
-      summary: "A conversation with the English tutor",
+      title: title || "New conversation",
+      summary: "A conversation with the AI assistant",
     });
 
     // Set as active thread in user profile
@@ -87,7 +88,7 @@ export const createTutorThread = mutation({
       .first();
 
     if (profile) {
-      await ctx.db.patch(profile._id, { activeTutorThreadId: threadId });
+      await ctx.db.patch(profile._id, { activeAssistantThreadId: threadId });
     }
 
     return threadId;
@@ -104,7 +105,7 @@ export const getActiveThread = query({
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", userId))
       .first();
 
-    return profile?.activeTutorThreadId;
+    return profile?.activeAssistantThreadId;
   },
 });
 
@@ -122,7 +123,7 @@ export const setActiveThread = mutation({
       .first();
 
     if (profile) {
-      await ctx.db.patch(profile._id, { activeTutorThreadId: threadId });
+      await ctx.db.patch(profile._id, { activeAssistantThreadId: threadId });
     }
   },
 });
@@ -161,7 +162,7 @@ export const sendMessage = mutation({
     // Schedule async response generation with streaming
     await ctx.scheduler.runAfter(
       0,
-      internal.englishTutor.generateResponseAsync,
+      internal.assistant.generateResponseAsync,
       {
         threadId,
         userId,
@@ -181,7 +182,7 @@ export const generateResponseAsync = internalAction({
     promptMessageId: v.string(),
   },
   handler: async (ctx, { threadId, userId, promptMessageId }) => {
-    await englishTutor.streamText(
+    await assistant.streamText(
       ctx,
       { threadId, userId },
       { promptMessageId },
@@ -219,23 +220,6 @@ export const deleteThread = action({
   handler: async (ctx, { threadId }) => {
     const userId = await requireUserId(ctx);
     await assertThreadOwner(ctx, threadId, userId);
-    await englishTutor.deleteThreadAsync(ctx, { threadId });
-  },
-});
-
-// Update thread metadata
-export const updateThreadMetadata = mutation({
-  args: {
-    threadId: v.id("threads"),
-    title: v.optional(v.string()),
-    summary: v.optional(v.string()),
-  },
-  handler: async (ctx, { threadId, title, summary }) => {
-    const userId = await requireUserId(ctx);
-    await assertThreadOwner(ctx, threadId, userId);
-    await ctx.runMutation(components.agent.threads.updateThread, {
-      threadId,
-      patch: { title, summary },
-    });
+    await assistant.deleteThreadAsync(ctx, { threadId });
   },
 });

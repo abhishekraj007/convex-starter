@@ -1,7 +1,7 @@
 import {
   ArrowUpRight,
   Bell,
-  CheckSquare,
+  Sparkles,
   ChevronDown,
   CreditCard,
   Home,
@@ -58,10 +58,10 @@ export function ProductPreview({ className }: { className?: string }) {
               {[
                 { icon: Home, label: "Home" },
                 { icon: LayoutDashboard, label: "Dashboard", active: true },
-                { icon: CheckSquare, label: "Todos", count: "12" },
+                { icon: Sparkles, label: "AI Assistant" },
                 { icon: Upload, label: "Uploads" },
                 { icon: CreditCard, label: "Billing" },
-              ].map(({ icon: Icon, label, active, count }) => (
+              ].map(({ icon: Icon, label, active }) => (
                 <div
                   key={label}
                   className={cn(
@@ -72,7 +72,6 @@ export function ProductPreview({ className }: { className?: string }) {
                   {active ? <span className="absolute top-1.5 bottom-1.5 -left-3 w-0.5 rounded-full bg-brand" /> : null}
                   <Icon className={cn("size-3.5", active ? "text-brand" : "text-faint-foreground")} />
                   {label}
-                  {count ? <span className="ml-auto font-mono text-[10.5px] text-faint-foreground">{count}</span> : null}
                 </div>
               ))}
             </div>

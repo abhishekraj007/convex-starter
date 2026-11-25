@@ -20,8 +20,8 @@ export default defineSchema({
     ),
     premiumGrantedAt: v.optional(v.number()),
     premiumExpiresAt: v.optional(v.number()), // null = lifetime/subscription-based
-    // Active thread for English tutor (syncs across devices)
-    activeTutorThreadId: v.optional(v.string()),
+    // Active thread for AI assistant (syncs across devices)
+    activeAssistantThreadId: v.optional(v.string()),
     // Storage quota tracking (enforced in upload metadata sync)
     storageBytesUsed: v.optional(v.number()),
     uploadCount: v.optional(v.number()),
@@ -84,11 +84,6 @@ export default defineSchema({
     "platformSubscriptionId",
     "periodStart",
   ]),
-
-  todos: defineTable({
-    text: v.string(),
-    completed: v.boolean(),
-  }),
 
   // Orders table for tracking one-time purchases (credit purchases)
   orders: defineTable({

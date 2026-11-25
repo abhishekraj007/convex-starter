@@ -22,13 +22,12 @@
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
-    "todos": "Todos",
-    "tutor": "English Tutor",
     "pricing": "Pricing",
     "settings": "Settings",
     "uploads": "Uploads",
     "docs": "Docs",
-    "components": "Components"
+    "components": "Components",
+    "assistant": "AI Assistant"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -116,13 +115,6 @@
     "title": "Dashboard",
     "welcomeBack": "Welcome back, {name}!"
   },
-  "todos": {
-    "title": "Todo List",
-    "description": "Manage your tasks efficiently",
-    "addPlaceholder": "Add a new task...",
-    "empty": "No todos yet. Add one above!",
-    "deleteTodo": "Delete todo"
-  },
   "pricing": {
     "title": "Choose Your Plan",
     "description": "Select the perfect plan for your needs",
@@ -150,12 +142,12 @@
     "relaunch": "Relaunch",
     "dismiss": "Not Now"
   },
-  "tutor": {
-    "title": "English Tutor",
-    "description": "Practice and improve your English skills with AI guidance",
+  "assistant": {
+    "title": "AI Assistant",
+    "description": "Ask anything — a general-purpose agent powered by AI",
     "newChat": "New Chat",
-    "startJourney": "Start Your English Learning Journey",
-    "startDescription": "Ask me anything about English grammar, vocabulary, writing, or conversation.",
-    "inputPlaceholder": "Type your message..."
+    "startJourney": "How can I help you today?",
+    "startDescription": "Ask me anything — writing, coding, research, brainstorming, analysis, or advice.",
+    "inputPlaceholder": "Ask me anything..."
   }
 }

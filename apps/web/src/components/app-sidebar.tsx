@@ -2,8 +2,6 @@
 
 import * as React from "react";
 import {
-  BookOpen,
-  CheckSquare,
   ChevronsUpDown,
   CreditCard,
   FileText,
@@ -46,8 +44,7 @@ const groups = [
     items: [
       { title: "Home", url: "/", icon: Home },
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-      { title: "Todos", url: "/todos", icon: CheckSquare },
-      { title: "English Tutor", url: "/tutor", icon: BookOpen },
+      { title: "AI Assistant", url: "/assistant", icon: Sparkles },
       { title: "Uploads", url: "/uploads", icon: Upload },
     ],
   },

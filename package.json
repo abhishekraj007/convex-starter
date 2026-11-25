@@ -29,7 +29,8 @@
     "build:web": "pnpm -F web build",
     "start:web": "pnpm -F web start",
     "lint:web": "pnpm -F web lint",
-    "convex:deploy": "pnpm -F @convex-starter/backend exec convex deploy"
+    "convex:deploy": "pnpm -F @convex-starter/backend exec convex deploy",
+    "clean:db": "pnpm -F @convex-starter/backend exec convex run cleanDb:run"
   },
   "devDependencies": {
     "@babel/traverse--for-generate-function-map": "npm:@babel/traverse@^7.29.7",

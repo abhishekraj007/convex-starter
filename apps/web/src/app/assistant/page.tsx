@@ -19,12 +19,12 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/protected-route";
-import { Loader2, Send, BookOpen, MessageCircle, Trash2 } from "lucide-react";
+import { Loader2, Send, Sparkles, MessageCircle, Trash2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
-export default function EnglishTutorPage() {
+export default function AssistantPage() {
   const [message, setMessage] = useState("");
   const [threadId, setThreadId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -33,33 +33,33 @@ export default function EnglishTutorPage() {
 
   // Load user's active thread from database
   const activeThreadFromDb = useQuery(
-    api.englishTutor.getActiveThread,
+    api.assistant.getActiveThread,
     userData ? {} : "skip"
   );
 
   // Load user's threads
   const userThreads = useQuery(
-    api.englishTutor.listUserThreads,
+    api.assistant.listUserThreads,
     userData
       ? { paginationOpts: { numItems: 1, cursor: null } }
       : "skip"
   );
 
-  const createThread = useMutation(api.englishTutor.createTutorThread);
+  const createThread = useMutation(api.assistant.createAssistantThread);
   const sendMessageMutation = useMutation(
-    api.englishTutor.sendMessage
+    api.assistant.sendMessage
   ).withOptimisticUpdate(
-    optimisticallySendMessage(api.englishTutor.listThreadMessages)
+    optimisticallySendMessage(api.assistant.listThreadMessages)
   );
-  const deleteThreadAction = useAction(api.englishTutor.deleteThread);
+  const deleteThreadAction = useAction(api.assistant.deleteThread);
 
   const { results: messages, status } = useUIMessages(
-    api.englishTutor.listThreadMessages,
+    api.assistant.listThreadMessages,
     threadId ? { threadId } : "skip",
     { initialNumItems: 50, stream: true }
   );
 
-  const setActiveThread = useMutation(api.englishTutor.setActiveThread);
+  const setActiveThread = useMutation(api.assistant.setActiveThread);
 
   // Load or create thread
   useEffect(() => {
@@ -137,7 +137,7 @@ export default function EnglishTutorPage() {
         <Avatar
           className={cn("h-8 w-8", isUser ? "bg-primary" : "bg-secondary")}
         >
-          <AvatarFallback>{isUser ? "U" : "T"}</AvatarFallback>
+          <AvatarFallback>{isUser ? "U" : "A"}</AvatarFallback>
         </Avatar>
         <div
           className={cn(
@@ -189,11 +189,11 @@ export default function EnglishTutorPage() {
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-6 w-6 text-primary" />
+                <Sparkles className="h-6 w-6 text-primary" />
                 <div>
-                  <CardTitle>English Tutor</CardTitle>
+                  <CardTitle>AI Assistant</CardTitle>
                   <CardDescription>
-                    Practice and improve your English skills with AI guidance
+                    Ask anything — a general-purpose agent powered by AI
                   </CardDescription>
                 </div>
               </div>
@@ -219,13 +219,13 @@ export default function EnglishTutorPage() {
                 <div className="space-y-4">{messages.map(renderMessage)}</div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                  <BookOpen className="h-12 w-12 mb-4 opacity-50" />
+                  <Sparkles className="h-12 w-12 mb-4 opacity-50" />
                   <p className="text-lg font-medium mb-2">
-                    Start Your English Learning Journey
+                    How can I help you today?
                   </p>
                   <p className="text-sm max-w-md">
-                    Ask me anything about English grammar, vocabulary, writing,
-                    or conversation. I'm here to help you improve!
+                    Ask me anything — writing, coding, research, brainstorming,
+                    analysis, or advice. I can help with whatever you're working on.
                   </p>
                 </div>
               )}
@@ -239,7 +239,7 @@ export default function EnglishTutorPage() {
               <Input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type your message... (e.g., 'Can you explain the difference between affect and effect?')"
+                placeholder="Ask me anything..."
                 className="flex-1"
                 disabled={!threadId}
               />

@@ -22,13 +22,12 @@
   "nav": {
     "home": "Inicio",
     "dashboard": "Panel",
-    "todos": "Tareas",
-    "tutor": "Tutor de Ingles",
     "pricing": "Precios",
     "settings": "Configuracion",
     "uploads": "Archivos",
     "docs": "Documentacion",
-    "components": "Componentes"
+    "components": "Componentes",
+    "assistant": "Asistente IA"
   },
   "auth": {
     "welcomeBack": "Bienvenido de nuevo",
@@ -116,13 +115,6 @@
     "title": "Panel",
     "welcomeBack": "Bienvenido de nuevo, {name}!"
   },
-  "todos": {
-    "title": "Lista de Tareas",
-    "description": "Administra tus tareas eficientemente",
-    "addPlaceholder": "Agregar una nueva tarea...",
-    "empty": "No hay tareas aun. Agrega una arriba!",
-    "deleteTodo": "Eliminar tarea"
-  },
   "pricing": {
     "title": "Elige tu Plan",
     "description": "Selecciona el plan perfecto para tus necesidades",
@@ -150,12 +142,12 @@
     "relaunch": "Reiniciar",
     "dismiss": "Ahora No"
   },
-  "tutor": {
-    "title": "Tutor de Ingles",
-    "description": "Practica y mejora tus habilidades de ingles con guia de IA",
+  "assistant": {
+    "title": "Asistente IA",
+    "description": "Pregunta cualquier cosa — un agente de propósito general impulsado por IA",
     "newChat": "Nuevo Chat",
-    "startJourney": "Comienza tu Viaje de Aprendizaje de Ingles",
-    "startDescription": "Preguntame cualquier cosa sobre gramatica, vocabulario, escritura o conversacion en ingles.",
-    "inputPlaceholder": "Escribe tu mensaje..."
+    "startJourney": "¿Cómo puedo ayudarte hoy?",
+    "startDescription": "Pregúntame cualquier cosa — escritura, código, investigación, ideas, análisis o consejos.",
+    "inputPlaceholder": "Pregúntame cualquier cosa..."
   }
 }

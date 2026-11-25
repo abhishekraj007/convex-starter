@@ -36,8 +36,7 @@ export default function Header() {
 
   const links = [
     { to: "/dashboard" as const, label: t("dashboard") },
-    { to: "/todos" as const, label: t("todos") },
-    { to: "/tutor" as const, label: t("tutor") },
+    { to: "/assistant" as const, label: t("assistant") },
     { to: "/components" as const, label: "Design system" },
     { to: "/pricing" as const, label: t("pricing") },
     { to: "/docs" as const, label: t("docs") },

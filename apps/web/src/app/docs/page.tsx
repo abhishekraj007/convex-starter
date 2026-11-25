@@ -34,7 +34,7 @@ const sections = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "i18n", label: "Internationalization", icon: Globe },
   { id: "uploads", label: "File Uploads (R2)", icon: Upload },
-  { id: "ai-tutor", label: "AI English Tutor", icon: Bot },
+  { id: "ai-assistant", label: "AI Assistant", icon: Bot },
   { id: "native", label: "Native Mobile App", icon: Smartphone },
 ];
 
@@ -293,19 +293,19 @@ pnpm run dev --filter native    # Expo native app`}</CodeBlock>
                   <CodeBlock>{`import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const seedTodos = internalMutation({
+// Assumes a "notes" table defined in schema.ts — adapt to your own tables.
+export const seedNotes = internalMutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
-    const todos = [
-      { text: "Set up authentication", completed: true },
-      { text: "Configure payments", completed: true },
-      { text: "Deploy to production", completed: false },
-      { text: "Add custom features", completed: false },
+    const notes = [
+      { text: "Set up authentication" },
+      { text: "Configure payments" },
+      { text: "Deploy to production" },
     ];
 
-    for (const todo of todos) {
-      await ctx.db.insert("todos", todo);
+    for (const note of notes) {
+      await ctx.db.insert("notes", note);
     }
     return null;
   },
@@ -314,10 +314,10 @@ export const seedTodos = internalMutation({
                     Run it from the Convex dashboard or CLI:
                   </p>
                   <CodeBlock>{`# Run via CLI
-npx convex run seed:seedTodos
+npx convex run seed:seedNotes
 
 # Or from the dashboard:
-# Go to Functions > seed > seedTodos > Run`}</CodeBlock>
+# Go to Functions > seed > seedNotes > Run`}</CodeBlock>
                 </div>
 
                 <Separator />
@@ -832,8 +832,8 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
             </Card>
           </section>
 
-          {/* AI Tutor */}
-          <section id="ai-tutor">
+          {/* AI Assistant */}
+          <section id="ai-assistant">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -841,7 +841,7 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
                     <Bot className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>AI English Tutor</CardTitle>
+                    <CardTitle>AI Assistant</CardTitle>
                     <CardDescription>
                       Convex Agent with streaming responses
                     </CardDescription>
@@ -850,24 +850,53 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  The English Tutor feature uses{" "}
+                  The AI Assistant is a general-purpose agent built with{" "}
                   <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
                     @convex-dev/agent
                   </code>{" "}
-                  for AI-powered conversations with streaming. It connects to
-                  AI providers via Vercel AI Gateway.
+                  for AI-powered conversations with streaming. It can help
+                  with anything the user asks and connects to AI models via
+                  OpenRouter or the Vercel AI Gateway.
                 </p>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Setup</h4>
-                  <CodeBlock>{`# Set AI Gateway key
-npx convex env set AI_GATEWAY_API_KEY your_key`}</CodeBlock>
+                  <CodeBlock>{`# OpenRouter (default provider)
+npx convex env set OPENROUTER_API_KEY your_openrouter_key
+
+# Optional: override the chat model (any OpenRouter slug)
+npx convex env set AI_CHAT_MODEL anthropic/claude-haiku-5.5
+
+# Or switch to Vercel AI Gateway instead:
+npx convex env set AI_PROVIDER gateway
+npx convex env set AI_GATEWAY_API_KEY your_gateway_key`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The provider is selected with the{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_PROVIDER
+                    </code>{" "}
+                    env var (<code className="bg-muted px-1.5 py-0.5 rounded text-xs">openrouter</code> by default,{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">gateway</code> for Vercel AI Gateway).
+                    Chat and embedding models can be overridden with{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_CHAT_MODEL
+                    </code>{" "}
+                    and{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_EMBEDDING_MODEL
+                    </code>{" "}
+                    (defaults live in{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      packages/backend/convex/lib/aiModels.ts
+                    </code>
+                    ).
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">How It Works</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
                     <li>Each user gets conversation threads stored in Convex</li>
                     <li>Messages stream in real-time using Convex subscriptions</li>
-                    <li>The agent has a system prompt for English tutoring</li>
+                    <li>The agent has a general-purpose system prompt — customize it in packages/backend/convex/assistant.ts</li>
                     <li>Thread history is maintained for context-aware responses</li>
                   </ul>
                 </div>

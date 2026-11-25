@@ -375,8 +375,8 @@ export default function Home() {
           </div>
           {[
             { h: "Product", l: [["Pricing", "/pricing"], ["Dashboard", "/dashboard"], ["Design system", "/components"]] },
-            { h: "Build", l: [["Docs", "/docs"], ["Uploads", "/uploads"], ["Todos", "/todos"]] },
-            { h: "Account", l: [["Sign in", "/auth"], ["Settings", "/settings"], ["English Tutor", "/tutor"]] },
+            { h: "Build", l: [["Docs", "/docs"], ["Uploads", "/uploads"], ["AI Assistant", "/assistant"]] },
+            { h: "Account", l: [["Sign in", "/auth"], ["Settings", "/settings"], ["Pricing", "/pricing"]] },
           ].map((col) => (
             <div key={col.h} className="grid content-start gap-3">
               <p className="eyebrow">{col.h}</p>
