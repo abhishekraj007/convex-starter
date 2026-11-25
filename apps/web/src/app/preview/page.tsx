@@ -133,7 +133,7 @@ export default function ShellPreviewPage() {
                 ["Connect Convex deployment", true],
                 ["Configure email OTP", true],
                 ["Create R2 bucket", true],
-                ["Add Polar products", false],
+                ["Add payment provider products", false],
                 ["Invite your team", false],
               ].map(([label, done]) => (
                 <li key={label as string} className="flex items-center gap-2.5 rounded-md px-1 py-1.5 text-sm">

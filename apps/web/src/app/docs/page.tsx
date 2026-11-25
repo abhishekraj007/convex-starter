@@ -455,7 +455,13 @@ eas submit --platform android`}</CodeBlock>
                     <li>
                       <strong className="text-foreground">Polar:</strong> Set webhook URL to{" "}
                       <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                        https://your-convex.site/api/webhook/polar
+                        https://&lt;your-web-app&gt;/api/webhook/polar
+                      </code>
+                    </li>
+                    <li>
+                      <strong className="text-foreground">Dodo:</strong> Set webhook URL to{" "}
+                      <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                        https://your-convex.site/dodopayments-webhook
                       </code>
                     </li>
                     <li>
@@ -478,9 +484,9 @@ eas submit --platform android`}</CodeBlock>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Generate a new BETTER_AUTH_SECRET for production</li>
                     <li>
-                      Use production API keys for Google, Polar, RevenueCat
+                      Use production API keys for Google, your billing provider, RevenueCat
                     </li>
-                    <li>Set POLAR_SERVER to "production" (not "sandbox")</li>
+                    <li>Set POLAR_SERVER to "production" or DODO_PAYMENTS_ENVIRONMENT to "live_mode"</li>
                     <li>Update SITE_URL to your production domain</li>
                     <li>
                       Verify webhook endpoints are accessible and responding
@@ -568,23 +574,77 @@ eas submit --platform android`}</CodeBlock>
                   <div>
                     <CardTitle>Payments</CardTitle>
                     <CardDescription>
-                      Polar for web, RevenueCat for mobile
+                      Polar or Dodo for web, RevenueCat for mobile
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Web Payments (Polar)</h4>
+                  <h4 className="font-semibold text-sm">Web Payments (Polar or Dodo)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Polar handles web subscriptions and one-time purchases.
-                    Products are configured in the Polar dashboard and
-                    referenced by slug. Webhooks sync subscription status to
-                    the Convex database.
+                    Web checkouts run through Polar or Dodo Payments — switch
+                    providers with a single env variable. Pricing cards, the
+                    product catalog API and checkout links stay identical;
+                    only the hosted checkout, customer portal and webhook
+                    source change. Products are fetched live from the active
+                    provider, and credit pack amounts come from the product's{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">credits</code>{" "}
+                    metadata key on either platform.
                   </p>
-                  <CodeBlock>{`# Set Polar env vars on Convex
-npx convex env set POLAR_ORGANIZATION_TOKEN your_token
-npx convex env set POLAR_WEBHOOK_SECRET your_secret`}</CodeBlock>
+                  <CodeBlock>{`# In apps/web/.env (and apps/admin/.env)
+BILLING_PROVIDER=polar  # or "dodo"`}</CodeBlock>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Polar Setup</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Polar webhooks are handled by the web app, which syncs
+                    subscriptions and credit orders into Convex.
+                  </p>
+                  <CodeBlock>{`# apps/web/.env
+POLAR_ACCESS_TOKEN=polar_at_...
+POLAR_SERVER=sandbox           # or "production"
+POLAR_ORGANIZATION_ID=...
+POLAR_WEBHOOK_SECRET=polar_wh_...
+
+# Convex (shared secret so the web app can write billing rows)
+npx convex env set POLAR_WEBHOOK_SECRET polar_wh_...`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Register the webhook in the Polar dashboard at{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      https://&lt;your-web-app&gt;/api/webhook/polar
+                    </code>
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Dodo Payments Setup</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Dodo uses the official{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">@dodopayments/convex</code>{" "}
+                    component: webhooks are verified and processed directly in
+                    Convex (same pattern as RevenueCat), writing to the same
+                    shared tables.
+                  </p>
+                  <CodeBlock>{`# apps/web/.env — catalog, checkout and portal
+DODO_PAYMENTS_API_KEY=...
+DODO_PAYMENTS_ENVIRONMENT=test_mode   # or "live_mode"
+
+# Convex — webhook verification + product lookup
+npx convex env set DODO_PAYMENTS_API_KEY ...
+npx convex env set DODO_PAYMENTS_ENVIRONMENT test_mode
+npx convex env set DODO_PAYMENTS_WEBHOOK_SECRET ...`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Register the webhook in the Dodo dashboard at{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      https://&lt;your-deployment&gt;.convex.site/dodopayments-webhook
+                    </code>
+                  </p>
                 </div>
 
                 <Separator />
@@ -614,7 +674,7 @@ npx convex env set POLAR_WEBHOOK_SECRET your_secret`}</CodeBlock>
                     <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
                       platform
                     </code>{" "}
-                    field ("polar" or "revenuecat"). Premium status is
+                    field ("polar", "dodo" or "revenuecat"). Premium status is
                     determined by checking for any active subscription
                     regardless of platform.
                   </p>

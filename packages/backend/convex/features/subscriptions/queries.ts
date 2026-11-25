@@ -23,7 +23,9 @@ export const getUserSubscriptions = query({
       subscriptions,
       hasActiveSubscription: subscriptions.length > 0,
       platforms: subscriptions.map((s) => s.platform),
-      hasWebSubscription: subscriptions.some((s) => s.platform === "polar"),
+      hasWebSubscription: subscriptions.some(
+        (s) => s.platform === "polar" || s.platform === "dodo"
+      ),
       hasNativeSubscription: subscriptions.some(
         (s) => s.platform === "revenuecat"
       ),
@@ -36,7 +38,7 @@ export const getUserSubscriptions = query({
  */
 export const canPurchaseSubscription = query({
   args: {
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
   },
   handler: async (ctx, args) => {
     const userData = await Users.getUserAndProfile(ctx);
@@ -56,7 +58,7 @@ export const canPurchaseSubscription = query({
       const existingPlatform = activeSubscriptions[0].platform;
       return {
         canPurchase: false,
-        reason: `You already have an active subscription on ${existingPlatform === "polar" ? "web" : "mobile"}`,
+        reason: `You already have an active subscription on ${existingPlatform === "polar" || existingPlatform === "dodo" ? "web" : "mobile"}`,
         existingPlatform,
       };
     }
@@ -70,7 +72,7 @@ export const canPurchaseSubscription = query({
  */
 export const getPlatformCustomerId = query({
   args: {
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
   },
   handler: async (ctx, args) => {
     const userData = await Users.getUserAndProfile(ctx);
@@ -103,7 +105,7 @@ export const getSubscriptionByPlatformSubscriptionId = internalQuery({
       _id: v.id("subscriptions"),
       _creationTime: v.number(),
       userId: v.string(), // Better Auth user ID (stored as string)
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+      platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
       platformCustomerId: v.string(),
       platformSubscriptionId: v.string(),
       platformProductId: v.string(),
@@ -149,7 +151,7 @@ export const getOrderByPlatformOrderId = internalQuery({
       _id: v.id("orders"),
       _creationTime: v.number(),
       userId: v.string(), // Better Auth user ID (stored as string)
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+      platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
       platformOrderId: v.string(),
       platformProductId: v.string(),
       amount: v.number(),
@@ -171,5 +173,26 @@ export const getOrderByPlatformOrderId = internalQuery({
       )
       .unique();
     return order || null;
+  },
+});
+
+/**
+ * Internal query to resolve the Dodo Payments customer ID for a user.
+ * Used by the @dodopayments/convex component `identify` function.
+ * Reads the customer ID denormalized on the user's Dodo subscription rows.
+ */
+export const getDodoCustomerIdByUserId = internalQuery({
+  args: {
+    userId: v.string(),
+  },
+  returns: v.union(v.string(), v.null()),
+  handler: async (ctx, args) => {
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_user_platform", (q) =>
+        q.eq("userId", args.userId).eq("platform", "dodo")
+      )
+      .first();
+    return subscription?.platformCustomerId ?? null;
   },
 });

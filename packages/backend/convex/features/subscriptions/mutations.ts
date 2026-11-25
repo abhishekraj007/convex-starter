@@ -8,7 +8,7 @@ import { internalMutation } from "../../_generated/server";
 export const upsertSubscription = internalMutation({
   args: {
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
     platformCustomerId: v.string(),
     platformSubscriptionId: v.string(),
     platformProductId: v.string(),
@@ -107,7 +107,7 @@ export const upsertSubscription = internalMutation({
 export const insertOrder = internalMutation({
   args: {
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
     platformOrderId: v.string(),
     platformProductId: v.string(),
     amount: v.number(),

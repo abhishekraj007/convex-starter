@@ -18,7 +18,7 @@ export const upsertSubscriptionFromWebhook = action({
   args: {
     webhookSecret: v.string(),
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
     platformCustomerId: v.string(),
     platformSubscriptionId: v.string(),
     platformProductId: v.string(),
@@ -155,7 +155,7 @@ export const insertOrderFromWebhook = action({
   args: {
     webhookSecret: v.string(),
     userId: v.string(),
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
     platformOrderId: v.string(),
     platformProductId: v.string(),
     amount: v.number(),
@@ -191,7 +191,7 @@ export const getSubscriptionByPlatformId = action({
       _id: v.id("subscriptions"),
       _creationTime: v.number(),
       userId: v.string(),
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+      platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
       platformCustomerId: v.string(),
       platformSubscriptionId: v.string(),
       platformProductId: v.string(),
@@ -220,7 +220,7 @@ export const getSubscriptionByPlatformId = action({
     _id: Id<"subscriptions">;
     _creationTime: number;
     userId: string;
-    platform: "polar" | "revenuecat";
+    platform: "polar" | "revenuecat" | "dodo";
     platformCustomerId: string;
     platformSubscriptionId: string;
     platformProductId: string;
@@ -257,7 +257,7 @@ export const getOrderByPlatformId = action({
       _id: v.id("orders"),
       _creationTime: v.number(),
       userId: v.string(),
-      platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+      platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
       platformOrderId: v.string(),
       platformProductId: v.string(),
       amount: v.number(),
@@ -278,7 +278,7 @@ export const getOrderByPlatformId = action({
     _id: Id<"orders">;
     _creationTime: number;
     userId: string;
-    platform: "polar" | "revenuecat";
+    platform: "polar" | "revenuecat" | "dodo";
     platformOrderId: string;
     platformProductId: string;
     amount: number;

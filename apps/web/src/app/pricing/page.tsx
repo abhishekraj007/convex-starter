@@ -23,10 +23,10 @@ export default function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   // Fetch subscription products using react-query for caching
-  const { data: polarProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ["polar-subscriptions"],
+  const { data: subscriptionProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ["billing-subscriptions"],
     queryFn: async () => {
-      const response = await fetch("/api/polar/subscriptions");
+      const response = await fetch("/api/billing/subscriptions");
       if (!response.ok) {
         throw new Error("Failed to fetch subscription products");
       }
@@ -48,7 +48,7 @@ export default function PricingPage() {
   });
 
   // Never block the page on data: plans render from local constants and are
-  // upgraded in place once Polar products arrive.
+  // upgraded in place once live products arrive.
   const isLoading = productsLoading;
   const isAuthenticated = userData !== null && userData !== undefined;
 
@@ -93,8 +93,8 @@ export default function PricingPage() {
     (sub) => sub.status === "active" || sub.status === "canceled"
   );
 
-  const monthlyProduct = polarProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "month"));
-  const yearlyProduct = polarProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "year"));
+  const monthlyProduct = subscriptionProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "month"));
+  const yearlyProduct = subscriptionProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "year"));
   const priceOf = (product: typeof monthlyProduct, interval: string) =>
     (product?.prices?.find((p) => p.recurringInterval === interval)?.priceAmount || 0) / 100;
 
@@ -170,7 +170,7 @@ export default function PricingPage() {
         <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
           {[
             { icon: Undo2, title: "14-day money-back", body: "Not a fit? Get a full refund, no questions." },
-            { icon: ShieldCheck, title: "Secure checkout", body: "Payments and invoices handled by Polar." },
+            { icon: ShieldCheck, title: "Secure checkout", body: "Payments and invoices handled by a PCI-compliant provider." },
             { icon: Zap, title: "Cancel anytime", body: "Manage or cancel from the customer portal." },
           ].map((item) => (
             <div key={item.title} className="flex gap-3 bg-background p-5">

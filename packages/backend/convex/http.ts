@@ -3,6 +3,7 @@ import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./lib/betterAuth";
 // import * as PolarWebhooks from "./lib/polarWebhooks";
 import { handleRevenueCatWebhook } from "./lib/revenuecatWebhooks";
+import { handleDodoWebhook } from "./lib/dodoWebhooks";
 
 const http = httpRouter();
 
@@ -22,6 +23,15 @@ http.route({
   path: "/revenuecat/webhooks",
   method: "POST",
   handler: handleRevenueCatWebhook,
+});
+
+// Register Dodo Payments webhook route
+// Point your Dodo Payments dashboard webhook to:
+// https://<your-deployment>.convex.site/dodopayments-webhook
+http.route({
+  path: "/dodopayments-webhook",
+  method: "POST",
+  handler: handleDodoWebhook,
 });
 
 export default http;

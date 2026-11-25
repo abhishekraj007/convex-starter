@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@ui-sdk/react/toast";
+import type { BillingConfig } from "@/lib/billing/types";
 
 type EmbedCheckoutOptions = {
   productId: string;
@@ -38,7 +39,28 @@ function loadPolarEmbedCheckoutModule() {
   return polarEmbedCheckoutModulePromise;
 }
 
-function shouldUseRedirectCheckout() {
+let billingConfigPromise: Promise<BillingConfig> | null = null;
+
+function loadBillingConfig(): Promise<BillingConfig> {
+  if (!billingConfigPromise) {
+    billingConfigPromise = fetch("/api/billing/config")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch billing config");
+        }
+        return response.json() as Promise<BillingConfig>;
+      })
+      .catch((error) => {
+        // Allow retry on the next attempt instead of caching a failure.
+        billingConfigPromise = null;
+        throw error;
+      });
+  }
+
+  return billingConfigPromise;
+}
+
+function isRedirectOnlyEnvironment() {
   const { hostname, protocol } = window.location;
 
   if (protocol !== "https:") {
@@ -50,7 +72,13 @@ function shouldUseRedirectCheckout() {
   );
 }
 
-export function usePolarEmbedCheckout() {
+/**
+ * Opens the billing checkout for the active provider. When the provider
+ * supports it (Polar), checkout opens in an embedded overlay; otherwise the
+ * user is redirected to the provider's hosted checkout page. Both paths use
+ * the same /checkout URL contract, so the provider stays invisible to callers.
+ */
+export function useBillingCheckout() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -67,11 +95,11 @@ export function usePolarEmbedCheckout() {
   }, []);
 
   const preloadCheckout = () => {
-    if (shouldUseRedirectCheckout()) {
-      return;
-    }
-
-    void loadPolarEmbedCheckoutModule();
+    void loadBillingConfig().then((config) => {
+      if (config.embedEnabled && !isRedirectOnlyEnvironment()) {
+        void loadPolarEmbedCheckoutModule();
+      }
+    });
   };
 
   const openCheckout = async ({
@@ -102,7 +130,9 @@ export function usePolarEmbedCheckout() {
 
       const checkoutUrl = `${window.location.origin}/checkout?${params.toString()}`;
 
-      if (shouldUseRedirectCheckout()) {
+      const config = await loadBillingConfig();
+
+      if (!config.embedEnabled || isRedirectOnlyEnvironment()) {
         window.location.assign(checkoutUrl);
         return;
       }
@@ -138,7 +168,7 @@ export function usePolarEmbedCheckout() {
       });
     } catch (error) {
       setLoadingProductId(null);
-      console.error("Failed to open Polar checkout:", error);
+      console.error("Failed to open checkout:", error);
       toast.error("Failed to open checkout. Please try again.");
     }
   };

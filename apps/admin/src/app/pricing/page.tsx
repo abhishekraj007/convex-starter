@@ -33,7 +33,7 @@ export default function PricingPage() {
   const { data: polarProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ["polar-subscriptions"],
     queryFn: async () => {
-      const response = await fetch("/api/polar/subscriptions");
+      const response = await fetch("/api/billing/subscriptions");
       if (!response.ok) {
         throw new Error("Failed to fetch subscription products");
       }
@@ -151,7 +151,7 @@ export default function PricingPage() {
   // Get free tier from constants
   const freeTier = POLAR_PRICES.find((p) => p.id === "free")!;
 
-  // Map Polar products to pricing tiers
+  // Map live products to pricing tiers
   const monthlyProduct = polarProducts.find((p) =>
     p.prices?.some((price) => price.recurringInterval === "month")
   );

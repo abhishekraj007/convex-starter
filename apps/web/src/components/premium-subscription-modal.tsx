@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { usePolarSubscriptionsQuery } from "@/hooks/use-polar-catalog";
-import { usePolarEmbedCheckout } from "@/hooks/use-polar-embed-checkout";
+import { useBillingSubscriptionsQuery } from "@/hooks/use-billing-catalog";
+import { useBillingCheckout } from "@/hooks/use-billing-checkout";
 import { cn } from "@/lib/utils";
 
 interface PremiumSubscriptionModalProps {
@@ -30,12 +30,12 @@ export function PremiumSubscriptionModal({
 }: PremiumSubscriptionModalProps) {
   const userData = useConvexQuery(convexApi.user.fetchUserAndProfile);
   const { openCheckout, preloadCheckout, loadingProductId } =
-    usePolarEmbedCheckout();
+    useBillingCheckout();
   const {
     data: products = [],
     isLoading: isLoadingProducts,
     error,
-  } = usePolarSubscriptionsQuery(open);
+  } = useBillingSubscriptionsQuery(open);
 
   useEffect(() => {
     if (open) {

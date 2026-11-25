@@ -28,6 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "catalog:",
+    "dodopayments": "2.62.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^1.77.0",
     "motion": "^14.14.0",

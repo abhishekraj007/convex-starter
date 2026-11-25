@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | Convex SaaS Starter",
   },
   description:
-    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar payments, and RevenueCat. Launch your cross-platform SaaS in days, not months.",
+    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar or Dodo payments, and RevenueCat. Launch your cross-platform SaaS in days, not months.",
   keywords: [
     "SaaS starter kit",
     "Next.js SaaS template",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     "React Native",
     "Expo",
     "Better Auth",
-    "Polar payments",
+    "Polar or Dodo payments",
     "RevenueCat",
     "TypeScript",
     "full-stack starter",

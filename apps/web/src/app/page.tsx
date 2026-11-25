@@ -28,15 +28,15 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Convex SaaS Starter - Ship Your SaaS Faster",
   description:
-    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar payments, and RevenueCat. Launch your cross-platform SaaS in days.",
+    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar or Dodo payments, and RevenueCat. Launch your cross-platform SaaS in days.",
 };
 
-const stack = ["Next.js 16", "Convex", "Expo SDK 56", "Better Auth", "Polar", "RevenueCat", "Cloudflare R2", "ui-sdk"];
+const stack = ["Next.js 16", "Convex", "Expo SDK 56", "Better Auth", "Polar / Dodo", "RevenueCat", "Cloudflare R2", "ui-sdk"];
 
 const faqs = [
   {
     q: "What do I get out of the box?",
-    a: "A Next.js web app, an admin console and an Expo mobile app sharing one Convex backend, with email + OTP auth, Polar and RevenueCat billing, a credit system, R2 uploads, i18n and a documented design system.",
+    a: "A Next.js web app, an admin console and an Expo mobile app sharing one Convex backend, with email + OTP auth, Polar or Dodo and RevenueCat billing, a credit system, R2 uploads, i18n and a documented design system.",
   },
   {
     q: "Can I use only the web app?",
@@ -224,7 +224,7 @@ export default function Home() {
             </div>
           </BentoCell>
 
-          <BentoCell className="md:col-span-2" icon={CreditCard} title="Billing that reconciles" body="Polar on the web, RevenueCat on mobile, one credit ledger in Convex.">
+          <BentoCell className="md:col-span-2" icon={CreditCard} title="Billing that reconciles" body="Polar or Dodo on the web — switched with one env var — RevenueCat on mobile, one credit ledger in Convex.">
             <div className="absolute inset-0 flex items-center justify-center p-6">
               <div className="surface-float w-full max-w-56 rounded-xl p-4 text-[12px]">
                 <div className="flex items-center justify-between">
@@ -312,7 +312,7 @@ export default function Home() {
       <section className="border-y border-border bg-subtle">
         <div className="mx-auto max-w-6xl px-5 py-28">
           <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-            <SectionHeading eyebrow="Pricing" title="Simple plans, wired to Polar." lead="These are the demo plans the starter ships with. Edit one constant to change them." />
+            <SectionHeading eyebrow="Pricing" title="Simple plans, wired to your payment provider." lead="These are the demo plans the starter ships with. Edit one constant to change them." />
             <Button variant="secondary" shape="pill" render={<Link href="/pricing" />}>
               Compare plans <ArrowUpRight />
             </Button>
