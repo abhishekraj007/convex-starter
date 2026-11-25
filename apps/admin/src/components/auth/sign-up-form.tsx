@@ -12,10 +12,15 @@ import {
   AdminFormError,
 } from "@/components/auth/admin-auth-shell";
 import { useEmailAuth } from "@/hooks/use-email-auth";
+import { useQuery } from "convex/react";
+import { api } from "@convex-starter/backend/convex/_generated/api";
 
 export function SignUpForm() {
   const router = useRouter();
   const { isLoading, signUp } = useEmailAuth();
+  const authSettings = useQuery(api.authSettings.getAuthSettings);
+  const requireEmailVerification =
+    authSettings?.requireEmailVerification ?? true;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,6 +35,11 @@ export function SignUpForm() {
     }
     try {
       await signUp({ email: email.trim(), password, name: name.trim() });
+      if (!requireEmailVerification) {
+        router.push("/" as never);
+        router.refresh();
+        return;
+      }
       const params = new URLSearchParams({
         email: email.trim(),
         type: "email-verification",

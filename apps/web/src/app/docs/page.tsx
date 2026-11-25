@@ -527,7 +527,7 @@ eas submit --platform android`}</CodeBlock>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Supported Methods</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
-                    <li>Email/Password (no email verification required by default)</li>
+                    <li>Email/Password (OTP verification required by default — disable with AUTH_REQUIRE_EMAIL_VERIFICATION=false)</li>
                     <li>Google OAuth</li>
                     <li>Apple Sign-In (native app)</li>
                     <li>Anonymous auth (native app)</li>

@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as adminEmails from "../adminEmails.js";
 import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
+import type * as authSettings from "../authSettings.js";
 import type * as cleanDb from "../cleanDb.js";
 import type * as features_appConfig_guards from "../features/appConfig/guards.js";
 import type * as features_appConfig_index from "../features/appConfig/index.js";
@@ -32,6 +34,7 @@ import type * as features_subscriptions_queries from "../features/subscriptions/
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as lib_aiModels from "../lib/aiModels.js";
+import type * as lib_authFlags from "../lib/authFlags.js";
 import type * as lib_betterAuth_component from "../lib/betterAuth/component.js";
 import type * as lib_betterAuth_createAuth from "../lib/betterAuth/createAuth.js";
 import type * as lib_betterAuth_index from "../lib/betterAuth/index.js";
@@ -63,8 +66,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adminEmails: typeof adminEmails;
   assistant: typeof assistant;
   auth: typeof auth;
+  authSettings: typeof authSettings;
   cleanDb: typeof cleanDb;
   "features/appConfig/guards": typeof features_appConfig_guards;
   "features/appConfig/index": typeof features_appConfig_index;
@@ -87,6 +92,7 @@ declare const fullApi: ApiFromModules<{
   healthCheck: typeof healthCheck;
   http: typeof http;
   "lib/aiModels": typeof lib_aiModels;
+  "lib/authFlags": typeof lib_authFlags;
   "lib/betterAuth/component": typeof lib_betterAuth_component;
   "lib/betterAuth/createAuth": typeof lib_betterAuth_createAuth;
   "lib/betterAuth/index": typeof lib_betterAuth_index;

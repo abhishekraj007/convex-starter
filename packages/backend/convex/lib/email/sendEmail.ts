@@ -31,10 +31,26 @@ type EmailDependencies = {
 
 const CLOUDFLARE_EMAIL_API_BASE = "https://api.cloudflare.com/client/v4";
 
+function deriveAccountId(env: NodeJS.ProcessEnv): string | null {
+  const direct =
+    env.CLOUDFLARE_ACCOUNT_ID?.trim() || env.R2_ACCOUNT_ID?.trim();
+  if (direct) {
+    return direct;
+  }
+  // Fall back to the account id embedded in the R2 S3 endpoint hostname
+  // (https://<account-id>.r2.cloudflarestorage.com), which most setups
+  // already configure for file uploads.
+  const endpoint = env.R2_ENDPOINT?.trim();
+  const match = endpoint?.match(
+    /^https?:\/\/([a-f0-9]{32})\.r2\.cloudflarestorage\.com/,
+  );
+  return match?.[1] ?? null;
+}
+
 export function getEmailConfig(
   env: NodeJS.ProcessEnv = process.env,
 ): EmailConfig | null {
-  const accountId = env.CLOUDFLARE_ACCOUNT_ID?.trim();
+  const accountId = deriveAccountId(env);
   const apiToken = env.CLOUDFLARE_EMAIL_API_TOKEN?.trim();
   const from = env.AUTH_EMAIL_FROM?.trim();
   if (!accountId || !apiToken || !from) {

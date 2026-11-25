@@ -10,6 +10,8 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { AuthShell, FormError } from "@/components/auth/auth-shell";
 import { SocialAuthButtons } from "@/components/auth/social-auth-buttons";
 import { useEmailAuth } from "@/hooks/use-email-auth";
+import { useQuery } from "convex/react";
+import { api } from "@convex-starter/backend/convex/_generated/api";
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -18,6 +20,9 @@ export default function AuthScreen() {
   const passwordWasReset = searchParams.get("reset") === "1";
 
   const { isLoading, signIn, signUp } = useEmailAuth();
+  const authSettings = useQuery(api.authSettings.getAuthSettings);
+  const requireEmailVerification =
+    authSettings?.requireEmailVerification ?? true;
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,6 +53,11 @@ export default function AuthScreen() {
         password,
         name: name.trim(),
       });
+      if (!requireEmailVerification) {
+        router.push(redirectTo as never);
+        router.refresh();
+        return;
+      }
       const params = new URLSearchParams({
         email: email.trim(),
         type: "email-verification",
@@ -69,7 +79,9 @@ export default function AuthScreen() {
       description={
         isSignIn
           ? "Sign in to your account to continue"
-          : "Start with email and verify your inbox"
+          : requireEmailVerification
+            ? "Start with email and verify your inbox"
+            : "Start with email and password"
       }
     >
       {passwordWasReset ? (

@@ -12,12 +12,17 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Input, Label, Spinner, TextField } from "heroui-native";
 import { useEmailAuth } from "@/lib/betterAuth/email";
+import { useQuery } from "convex/react";
+import { api } from "@convex-starter/backend/convex/_generated/api";
 
 export default function EmailAuthScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { isLoading, signIn, signUp } = useEmailAuth();
+  const authSettings = useQuery(api.authSettings.getAuthSettings);
+  const requireEmailVerification =
+    authSettings?.requireEmailVerification ?? true;
 
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [name, setName] = useState("");
@@ -49,6 +54,10 @@ export default function EmailAuthScreen() {
         password,
         name: name.trim(),
       });
+      if (!requireEmailVerification) {
+        router.replace("/(root)/(main)" as never);
+        return;
+      }
       router.push({
         pathname: "/(root)/(auth)/verify-otp",
         params: { email: email.trim(), type: "email-verification" },

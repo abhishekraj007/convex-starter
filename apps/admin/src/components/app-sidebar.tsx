@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   Bell,
+  Mail,
   ChevronsUpDown,
   LayoutDashboard,
   LogOut,
@@ -56,6 +57,7 @@ const groups = [
     items: [
       { title: "Uploads", url: "/uploads", icon: Upload },
       { title: "Notifications", url: "/notifications", icon: Bell },
+      { title: "Emails", url: "/emails", icon: Mail },
     ],
   },
   {

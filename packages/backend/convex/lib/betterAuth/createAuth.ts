@@ -8,6 +8,7 @@ import authConfig from "../../auth.config";
 import { betterAuth } from "better-auth";
 import { emailOTP } from "better-auth/plugins";
 import { authComponent } from "./component";
+import { isEmailVerificationRequired } from "../authFlags";
 
 // web client id com.noosperai.feelchat.web
 
@@ -18,6 +19,8 @@ const iosAppBundleIdentifier = "com.noosperai.quotes";
 const appleClientId = process.env.APPLE_CLIENT_ID || iosAppBundleIdentifier;
 // Generated via: node scripts/generate-apple-secret.mjs
 const appleClientSecret = process.env.APPLE_CLIENT_SECRET;
+
+const requireEmailVerification = isEmailVerificationRequired();
 
 const appleAudience = Array.from(
   new Set([appleClientId, iosAppBundleIdentifier]),
@@ -56,9 +59,11 @@ export function createAuth(ctx: GenericCtx<DataModel>) {
     },
     emailAndPassword: {
       enabled: true,
-      // New email/password accounts must prove ownership of their inbox with
-      // an OTP before a session is issued. Social providers are unaffected.
-      requireEmailVerification: true,
+      // When enabled (default), new email/password accounts must prove
+      // ownership of their inbox with an OTP before a session is issued.
+      // Disable with AUTH_REQUIRE_EMAIL_VERIFICATION=false. Social providers
+      // are unaffected either way.
+      requireEmailVerification,
       sendResetPassword: async ({ user, url }) => {
         // Schedule the send so the HTTP action returns quickly (and does not
         // leak whether the address exists through response timing).
@@ -105,7 +110,8 @@ export function createAuth(ctx: GenericCtx<DataModel>) {
         storeOTP: "hashed",
         // Sign-up sends an "email-verification" OTP instead of a magic link,
         // and the default email-verification endpoint is routed through OTP.
-        sendVerificationOnSignUp: true,
+        // No verification email is sent when verification is disabled.
+        sendVerificationOnSignUp: requireEmailVerification,
         overrideDefaultEmailVerification: true,
         // 3 OTP emails per minute per address (Better Auth adds the key).
         rateLimit: { window: 60, max: 3 },

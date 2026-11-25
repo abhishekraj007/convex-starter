@@ -158,3 +158,46 @@ export function buildPasswordResetEmail(options: {
     ].join("\n"),
   };
 }
+export function buildAdminEmail(options: {
+  subject: string;
+  body: string;
+  appName?: string;
+}): EmailContent {
+  const appName = options.appName ?? DEFAULT_APP_NAME;
+  const paragraphs = options.body
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0);
+
+  const paragraphsHtml = paragraphs
+    .map(
+      (paragraph) =>
+        `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#44403c;">${escapeHtml(
+          paragraph,
+        ).replaceAll("\n", "<br />")}</p>`,
+    )
+    .join("\n");
+
+  return {
+    subject: options.subject,
+    html: `<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /></head>
+  <body style="margin:0;padding:32px 16px;background-color:#f5f5f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1917;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:480px;background-color:#ffffff;border:1px solid #e7e5e4;border-radius:12px;padding:32px;">
+          <tr><td>
+            <p style="margin:0 0 8px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#78716c;">${escapeHtml(appName)}</p>
+            <h1 style="margin:0 0 20px;font-size:22px;line-height:1.3;color:#1c1917;">${escapeHtml(options.subject)}</h1>
+            ${paragraphsHtml}
+            <p style="margin:24px 0 0;padding-top:20px;border-top:1px solid #e7e5e4;font-size:12px;line-height:1.6;color:#a8a29e;">You are receiving this email because you have an account with ${escapeHtml(appName)}.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>`,
+    text: [options.subject, "", options.body].join("\n"),
+  };
+}
