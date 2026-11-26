@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "git:merge-main": "bash scripts/merge-develop-to-main.sh",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:admin": "turbo -F admin dev",
