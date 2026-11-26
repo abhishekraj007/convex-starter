@@ -298,7 +298,7 @@ export default function SettingsPage() {
           {/* Danger Zone */}
           <Card className="border-destructive">
             <CardHeader>
-              <CardTitle className="text-destructive">Danger Zone</CardTitle>
+              <CardTitle className="text-destructive-text">Danger Zone</CardTitle>
               <CardDescription>
                 Irreversible actions that affect your account
               </CardDescription>

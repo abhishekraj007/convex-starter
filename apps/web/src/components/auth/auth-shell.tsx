@@ -22,7 +22,7 @@ export function AuthShell({
       <Card className={cn("w-full max-w-[400px] rounded-2xl py-0 shadow-[inset_0_1px_0_var(--highlight),var(--elev-3)]", className)}>
         <CardContent className="space-y-6 p-7 sm:p-8">
           <header className="space-y-2 text-center">
-            <BrandMark className="mx-auto mb-4 size-9 rounded-xl [&>svg]:size-5" />
+            <BrandMark className="mx-auto mb-4 size-9" />
             <h1 className="text-[1.625rem] leading-tight font-semibold tracking-[-0.035em]">
               {title}
             </h1>

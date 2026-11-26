@@ -48,7 +48,7 @@ export function FormDocs() {
   const [loading, setLoading] = React.useState(false);
   return (
     <>
-      <DocSection id="button" eyebrow="Actions" title="Button" description="Cobalt primary for the one committing action per view, hairline secondary for everything else, ghost inside toolbars and tables. Every button presses down 1px.">
+      <DocSection id="button" eyebrow="Actions" title="Button" description="Indigo primary for the one committing action per view, floating white secondary for everything else, ghost inside toolbars and tables. Every button presses down 1px.">
         <Demo
           title="Variants"
           code={`<Button>Deploy</Button>

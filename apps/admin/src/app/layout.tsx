@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../index.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/counter.css";
@@ -8,8 +8,12 @@ import { LayoutContent } from "@/components/layout-content";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Inter for all UI text (dense tables/forms read best with it); Geist Mono only for code and IDs.
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+// Plus Jakarta Sans everywhere: warm geometric letterforms and heavy numerals; Geist Mono for code and IDs.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -17,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Convex Starter",
+  title: "Convex Starter - Admin",
   description: "Reusable Convex Starter admin console",
 };
 
@@ -36,7 +40,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn(inter.variable, geistMono.variable)}
+      className={cn(jakarta.variable, geistMono.variable)}
     >
       <body className="font-sans antialiased">
         <Providers>

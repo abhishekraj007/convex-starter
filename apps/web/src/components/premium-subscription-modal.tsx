@@ -169,7 +169,7 @@ export function PremiumSubscriptionModal({
               ) : productsError ? (
                 <div
                   className={cn(
-                    "rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-5 text-center text-sm text-destructive",
+                    "rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-5 text-center text-sm text-destructive-text",
                     "dark:border-destructive/35 dark:bg-destructive/10",
                   )}
                 >

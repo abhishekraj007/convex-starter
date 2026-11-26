@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Loop mark">
+  <defs>
+    <linearGradient id="loop-tile" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B64FF"/>
+      <stop offset="1" stop-color="#414BF0"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="17" fill="url(#loop-tile)"/>
+  <circle cx="25.5" cy="32" r="11" fill="none" stroke="#F8F9FF" stroke-width="5.5"/>
+  <circle cx="38.5" cy="32" r="11" fill="none" stroke="#7CEF82" stroke-width="5.5"/>
+</svg>

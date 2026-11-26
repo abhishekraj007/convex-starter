@@ -14,6 +14,7 @@ import {
   createThread,
   getThreadMetadata,
   saveMessage,
+  updateThreadMetadata,
   listUIMessages,
   vStreamArgs,
   syncStreams,
@@ -48,6 +49,15 @@ Be direct, accurate, and helpful. If you don't know something, say so.`,
     },
   },
 });
+
+function deriveThreadTitle(prompt: string) {
+  const text = prompt.replace(/\s+/g, " ").trim();
+  if (!text) return "New conversation";
+  if (text.length <= 56) return text;
+  const cut = text.slice(0, 56);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 20 ? lastSpace : 56).trimEnd()}…`;
+}
 
 async function requireUserId(
   ctx: QueryCtx | MutationCtx | ActionCtx
@@ -150,7 +160,14 @@ export const sendMessage = mutation({
   },
   handler: async (ctx, { threadId, prompt }) => {
     const userId = await requireUserId(ctx);
-    await assertThreadOwner(ctx, threadId, userId);
+    const thread = await assertThreadOwner(ctx, threadId, userId);
+
+    if (!thread.title || thread.title === "New conversation") {
+      await updateThreadMetadata(ctx, components.agent, {
+        threadId,
+        patch: { title: deriveThreadTitle(prompt) },
+      });
+    }
 
     // Save the user's message
     const { messageId } = await saveMessage(ctx, components.agent, {

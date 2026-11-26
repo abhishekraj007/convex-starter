@@ -8,7 +8,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/components/mode-toggle";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { CreditsModal } from "@/components/credits-modal";
@@ -43,9 +42,8 @@ export function AuthenticatedLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-20 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background/80 px-3 backdrop-blur-xl md:px-4">
-            <SidebarTrigger className="-ml-1 text-muted-foreground" />
-            <Separator orientation="vertical" className="mr-1 h-4" />
+          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 bg-background/80 px-4 backdrop-blur-xl md:px-8">
+            <SidebarTrigger className="-ml-1 rounded-full text-muted-foreground md:hidden" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden sm:inline-flex">
@@ -53,11 +51,11 @@ export function AuthenticatedLayout({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden sm:inline-flex" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{pageTitle}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-semibold text-foreground">{pageTitle}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
-            <div className="ml-auto flex items-center gap-1.5">
+            <div className="ml-auto flex items-center gap-2">
               <div className="hidden lg:block">
                 <LocaleSwitcher compact />
               </div>

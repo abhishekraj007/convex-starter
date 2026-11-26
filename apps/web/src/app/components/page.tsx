@@ -77,16 +77,15 @@ const nav: DocNavGroup[] = [
 export default function DesignSystemPage() {
   return (
     <div className="relative">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-grid [mask-image:radial-gradient(60%_80%_at_30%_0%,black,transparent)]" />
       <div className="mx-auto max-w-7xl px-6">
         <header className="flex flex-wrap items-end justify-between gap-6 border-b border-border pt-16 pb-10">
           <div className="max-w-2xl">
-            <p className="eyebrow">Design system · v2</p>
+            <p className="eyebrow">Design system · v3</p>
             <h1 className="mt-3 text-[3rem] leading-[1.02] font-semibold tracking-[-0.045em]">
-              Graphite <span className="text-muted-foreground">+ Iris</span>
+              Canvas <span className="text-muted-foreground">+ Indigo</span>
             </h1>
             <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
-              The tokens, type and components behind the Convex Starter web app. Neutral surfaces, one accent, depth from hairlines and light.
+              The tokens, type and components behind the Convex Starter web app. A lavender canvas, floating white cards, generous radii and one vivid indigo accent.
               Built on <code className="rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[13px]">@ui-sdk/react</code>.
             </p>
             <dl className="mt-6 flex gap-8">

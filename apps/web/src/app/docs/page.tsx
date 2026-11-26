@@ -478,7 +478,7 @@ eas submit --platform android`}</CodeBlock>
                 </div>
 
                 <div className="rounded-lg bg-destructive/5 border border-destructive/10 p-4">
-                  <p className="text-sm font-medium mb-1 text-destructive">
+                  <p className="text-sm font-medium mb-1 text-destructive-text">
                     Production Checklist
                   </p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">

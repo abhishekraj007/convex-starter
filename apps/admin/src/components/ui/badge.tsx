@@ -4,18 +4,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex h-5.5 w-fit shrink-0 items-center gap-1.5 rounded-full border px-2 text-xs font-medium whitespace-nowrap tabular-nums [&>svg]:size-3",
+  "inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-[11.5px] leading-none font-semibold tracking-[0.01em] whitespace-nowrap tabular-nums [&>svg]:size-3",
   {
     variants: {
       variant: {
-        default: "border-border bg-card text-foreground shadow-[inset_0_1px_0_var(--highlight)]",
+        default: "border-transparent bg-card text-foreground shadow-[0_1px_2px_color-mix(in_oklab,var(--shadow-color)_6%,transparent)]",
         secondary: "border-transparent bg-muted text-muted-foreground",
         solid: "border-transparent bg-primary text-primary-foreground",
-        brand: "border-brand/20 bg-brand/10 text-brand-text",
-        success: "border-success/20 bg-success/10 text-success-text",
-        warning: "border-warning/25 bg-warning/12 text-warning-text",
-        info: "border-info/20 bg-info/10 text-info-text",
-        destructive: "border-destructive/20 bg-destructive/10 text-destructive-text",
+        brand: "border-transparent bg-brand-soft text-brand-text",
+        success: "border-transparent bg-success-fill text-success-fill-foreground",
+        warning: "border-transparent bg-warning/18 text-warning-text",
+        info: "border-transparent bg-info/12 text-info-text",
+        destructive: "border-transparent bg-destructive text-destructive-foreground",
         outline: "border-border-strong bg-transparent text-muted-foreground",
       },
     },
@@ -28,10 +28,10 @@ const dotColor: Record<string, string> = {
   secondary: "bg-faint-foreground",
   solid: "bg-primary-foreground",
   brand: "bg-brand",
-  success: "bg-success",
+  success: "bg-success-fill-foreground",
   warning: "bg-warning",
   info: "bg-info",
-  destructive: "bg-destructive",
+  destructive: "bg-destructive-foreground",
   outline: "bg-faint-foreground",
 };
 

@@ -47,11 +47,11 @@ export default function Header() {
       className={cn(
         "sticky top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-200",
         scrolled
-          ? "border-border bg-background/75 backdrop-blur-xl backdrop-saturate-150"
+          ? "border-border bg-background/90 backdrop-blur-xl backdrop-saturate-150"
           : "border-transparent bg-transparent"
       )}
     >
-      <div className="mx-auto grid h-14 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-5">
+      <div className="mx-auto grid h-14 max-w-6xl grid-cols-[1fr_auto] items-center gap-3 px-4 sm:px-5 md:grid-cols-[1fr_auto_1fr] md:gap-4">
         <div className="flex items-center gap-2">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} side="left">
             <SheetTrigger
@@ -79,7 +79,7 @@ export default function Header() {
               </nav>
             </SheetContent>
           </Sheet>
-          <Link href="/" aria-label="Convex Starter home" className="rounded-md">
+          <Link href="/" aria-label="Convex Starter home" className="shrink-0 rounded-md whitespace-nowrap">
             <BrandLockup />
           </Link>
         </div>

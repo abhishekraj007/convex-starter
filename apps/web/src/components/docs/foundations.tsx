@@ -144,7 +144,7 @@ export function Foundations() {
         id="colors"
         eyebrow="Foundations"
         title="Color"
-        description="A monochrome base with a single accent. Neutrals carry 95% of the UI; the brand color is reserved for focus, active states, links and data. Values are read live from the current theme. Hover a swatch to copy its variable."
+        description="A tinted lavender canvas holds white cards; one vivid indigo carries primary actions, active navigation and data. Status uses bright mint and coral pills. Values are read live from the current theme. Hover a swatch to copy its variable."
       >
         <SwatchGrid title="Neutrals and surfaces" items={neutral} />
         <SwatchGrid title="Actions" items={action} />
@@ -171,7 +171,7 @@ export function Foundations() {
         id="typography"
         eyebrow="Foundations"
         title="Typography"
-        description="Geist for everything, Geist Mono for code, data and eyebrows. Large sizes tighten tracking aggressively; hierarchy comes from weight and three text tones (foreground, muted, faint), not from size alone."
+        description="Plus Jakarta Sans for everything, Geist Mono for code, IDs and tabular data. Big numerals run at 800 with tight tracking; hierarchy comes from weight and three text tones (foreground, muted, faint), not from size alone."
       >
         <div className="surface overflow-hidden rounded-xl">
           {typeScale.map((t, i) => (
@@ -202,7 +202,7 @@ export function Foundations() {
         />
       </DocSection>
 
-      <DocSection id="radius" eyebrow="Foundations" title="Radius" description="Derived from one --radius (10px). Controls md, cards xl, dialogs 2xl, pills full.">
+      <DocSection id="radius" eyebrow="Foundations" title="Radius" description="Derived from one --radius (14px). Controls md, cards 2xl, panels 3xl, pills full.">
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {radii.map((r) => (
             <div key={r.name} className="grid gap-2">

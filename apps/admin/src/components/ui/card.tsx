@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Raised surface: hairline + inset top highlight + soft layered shadow (see `surface` utility). */
+/** Floating card: white surface, nearly invisible hairline and a wide soft shadow. */
 function Card({
   className,
   variant = "raised",
@@ -13,7 +13,7 @@ function Card({
       data-slot="card"
       data-variant={variant}
       className={cn(
-        "flex flex-col gap-5 rounded-xl py-5 text-card-foreground",
+        "flex flex-col gap-4 rounded-2xl py-5 text-card-foreground",
         variant === "raised" && "surface",
         variant === "flat" && "surface-flat",
         variant === "ghost" && "border border-dashed border-border-strong",
@@ -41,7 +41,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("text-[15px] leading-snug font-semibold tracking-[-0.015em]", className)}
+      className={cn("text-base leading-snug font-bold tracking-[-0.02em]", className)}
       {...props}
     />
   );

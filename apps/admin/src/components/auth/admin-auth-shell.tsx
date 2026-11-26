@@ -82,7 +82,7 @@ export function AdminAuthShell({
         <div className="flex flex-1 items-center justify-center px-6 pb-16">
           <div className={cn("w-full max-w-[380px] space-y-6", className)}>
             <header className="space-y-2">
-              <BrandMark className="size-9 rounded-lg [&>svg]:size-5" />
+              <BrandMark className="size-9" />
               <h1 className="pt-3 text-[1.75rem] leading-tight font-semibold tracking-[-0.035em]">{title}</h1>
               <p className="text-sm text-muted-foreground">{description}</p>
             </header>

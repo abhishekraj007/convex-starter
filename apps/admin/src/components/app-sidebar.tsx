@@ -5,10 +5,10 @@ import {
   Bell,
   Mail,
   ChevronsUpDown,
+  PanelLeftIcon,
   LayoutDashboard,
   LogOut,
   Palette,
-  Search,
   Settings,
   SlidersHorizontal,
   Upload,
@@ -30,6 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -40,9 +41,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Kbd } from "@/components/ui/kbd";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "./ui/skeleton";
 import { BrandMark } from "@/components/brand-mark";
+import { AppSearch } from "@/components/app-search";
+import { cn } from "@/lib/utils";
 
 const groups = [
   {
@@ -74,39 +77,64 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const userData = useQuery(api.user.fetchUserAndProfile);
+  const { state, toggleSidebar, isMobile } = useSidebar();
+  const collapsed = !isMobile && state === "collapsed";
 
   const userName = userData?.profile?.name || userData?.userMetadata?.name || "Admin";
   const userEmail = userData?.userMetadata?.email || "admin@convex-starter.dev";
   const userImage = userData?.userMetadata?.image;
 
   return (
-    <Sidebar>
-      <SidebarHeader className="gap-2.5 border-b border-sidebar-border px-3 py-3">
-        <button
-          type="button"
-          className="flex h-9 w-full items-center gap-2 rounded-lg px-1.5 text-left transition-colors hover:bg-sidebar-accent"
-        >
-          <BrandMark />
-          <span className="grid min-w-0 flex-1 leading-tight">
-            <span className="truncate text-[13px] font-semibold tracking-[-0.01em]">Convex Starter</span>
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-success" /> Production
-            </span>
-          </span>
-          <ChevronsUpDown className="size-3.5 text-faint-foreground" />
-        </button>
-        <button
-          type="button"
-          className="flex h-8 w-full items-center gap-2 rounded-md border border-sidebar-border bg-card px-2 text-[13px] text-faint-foreground shadow-[inset_0_1px_0_var(--highlight)] transition-colors hover:border-border-strong hover:text-muted-foreground dark:bg-white/[0.03]"
-        >
-          <Search className="size-3.5" />
-          Jump to…
-          <Kbd className="ml-auto h-[18px] text-[10px]">⌘K</Kbd>
-        </button>
+    <Sidebar variant="inset" collapsible="icon">
+      <SidebarHeader
+        className={cn(
+          collapsed ? "items-center gap-2 px-1 pt-4 pb-2" : "gap-3 px-4 pr-10 pt-5 pb-2 md:pr-4"
+        )}
+      >
+        {collapsed ? (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              onClick={toggleSidebar}
+              className="size-9 shrink-0 rounded-xl"
+            >
+              <PanelLeftIcon />
+            </Button>
+            <AppSearch compact />
+          </>
+        ) : (
+          <>
+            <div className="flex h-9 w-full items-center gap-2.5 px-1">
+              <BrandMark />
+              <span className="grid min-w-0 flex-1 leading-tight">
+                <span className="truncate text-[14px] tracking-[-0.03em]"><span className="font-extrabold">Convex</span> <span className="ml-[0.14em] font-medium text-muted-foreground">Starter</span></span>
+                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="size-1.5 rounded-full bg-success" /> Production
+                </span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+                onClick={toggleSidebar}
+                className="ml-auto size-7 shrink-0 text-muted-foreground"
+              >
+                <PanelLeftIcon />
+              </Button>
+            </div>
+            <AppSearch />
+          </>
+        )}
       </SidebarHeader>
-      <SidebarContent className="px-1 pt-1">
+      <SidebarContent className={collapsed ? "px-0" : "px-2"}>
         {groups.map((group) => (
-          <SidebarGroup key={group.label} className="py-1.5">
+          <SidebarGroup key={group.label} className={cn("py-3", collapsed ? "px-2" : "px-1")}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -114,7 +142,6 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
                   const active = pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      {active ? <span aria-hidden="true" className="absolute top-2 bottom-2 -left-2 z-10 w-[3px] rounded-r-full bg-primary" /> : null}
                       <SidebarMenuButton isActive={active} tooltip={item.title} render={<a href={item.url} />}>
                         <item.icon />
                         <span>{item.title}</span>
@@ -127,36 +154,49 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className={cn("gap-3", collapsed ? "items-center px-2 pb-3" : "px-3 pb-4")}>
         {isLoading ? (
-          <div className="flex h-12 items-center gap-2.5 px-1.5">
-            <Skeleton className="size-8 rounded-lg" />
-            <div className="flex-1 space-y-1.5">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-2.5 w-32" />
+          collapsed ? (
+            <Skeleton className="size-8 rounded-full" />
+          ) : (
+            <div className="flex h-12 items-center gap-2.5 px-1.5">
+              <Skeleton className="size-9 rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-2.5 w-32" />
+              </div>
             </div>
-          </div>
+          )
         ) : (
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <button
                   type="button"
-                  className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-sidebar-accent data-[open]:bg-sidebar-accent"
+                  aria-label={collapsed ? "Account menu" : undefined}
+                  title={collapsed ? "Account menu" : undefined}
+                  className={cn(
+                    "flex items-center border-0 bg-transparent text-left shadow-none transition-colors hover:bg-sidebar-accent data-[open]:bg-sidebar-accent",
+                    collapsed ? "size-8 justify-center rounded-full p-0" : "h-auto w-full gap-2.5 rounded-xl p-2"
+                  )}
                 />
               }
             >
-              <Avatar className="size-8 rounded-lg">
+              <Avatar className={collapsed ? "size-8" : "size-9"}>
                 <AvatarImage src={userImage || undefined} alt={userName} />
-                <AvatarFallback className="rounded-lg bg-[linear-gradient(135deg,var(--chart-1),var(--chart-2))] text-white">
+                <AvatarFallback className="bg-brand text-brand-foreground">
                   {userName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="grid min-w-0 flex-1 leading-tight">
-                <span className="truncate text-[13px] font-medium">{userName}</span>
-                <span className="truncate text-[11.5px] text-faint-foreground">{userEmail}</span>
-              </span>
-              <ChevronsUpDown className="size-3.5 text-faint-foreground" />
+              {collapsed ? null : (
+                <>
+                  <span className="grid min-w-0 flex-1 leading-tight">
+                    <span className="truncate text-[13px] font-semibold">{userName}</span>
+                    <span className="truncate text-[11.5px] text-faint-foreground">{userEmail}</span>
+                  </span>
+                  <ChevronsUpDown className="size-3.5 text-faint-foreground" />
+                </>
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent className="min-w-56" side="top" align="start" sideOffset={6}>
               <DropdownMenuLabel>{userEmail}</DropdownMenuLabel>

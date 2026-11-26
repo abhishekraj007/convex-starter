@@ -27,20 +27,24 @@ function TooltipTrigger({
 function TooltipContent({
   className,
   children,
+  hideArrow = false,
   ...props
 }: Omit<React.ComponentProps<typeof UiTooltipContent>, "children"> & {
   children?: React.ReactNode;
+  hideArrow?: boolean;
 }) {
   return (
     <UiTooltipContent
       className={cn(
-        "z-50 flex w-fit items-center gap-2 rounded-md border-0 bg-primary px-2 py-1 text-xs font-medium text-balance text-primary-foreground shadow-md",
+        "z-50 flex w-fit items-center gap-2 rounded-lg border border-promo-border bg-promo px-2.5 py-1.5 text-xs font-semibold text-balance text-promo-foreground shadow-[var(--elev-3)]",
         className
       )}
       {...props}
     >
       {children}
-      <TooltipArrow className="z-50 size-2.5 rounded-[2px] bg-primary fill-primary" />
+      {hideArrow ? null : (
+        <TooltipArrow className="z-50 size-2.5 rounded-[2px] bg-promo fill-promo" />
+      )}
     </UiTooltipContent>
   );
 }

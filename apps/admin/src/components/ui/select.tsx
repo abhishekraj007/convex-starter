@@ -49,7 +49,7 @@ function SelectTrigger({
   return (
     <UiSelectTrigger
       className={cn(
-        "flex h-9 w-fit items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 py-2 text-sm whitespace-nowrap shadow-[inset_0_1px_0_var(--highlight),var(--elev-1)] transition-[border-color,box-shadow,background-color] hover:border-border-strong data-open:border-ring data-open:shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_20%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/[0.03]",
+        "flex h-10 w-fit items-center justify-between gap-2 rounded-xl border border-input bg-card px-3.5 py-2 text-sm whitespace-nowrap shadow-[0_1px_2px_color-mix(in_oklab,var(--shadow-color)_5%,transparent)] transition-[border-color,box-shadow,background-color] hover:border-border-strong data-open:border-ring data-open:shadow-[0_0_0_4px_color-mix(in_oklab,var(--ring)_18%,transparent)] disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
@@ -68,7 +68,7 @@ function SelectContent({
   return (
     <UiSelectContent
       className={cn(
-        "surface-float z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-xl p-1",
+        "surface-float z-50 max-h-(--available-height) min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-2xl p-1.5",
         className
       )}
       {...props}

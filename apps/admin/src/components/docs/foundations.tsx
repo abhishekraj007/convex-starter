@@ -82,7 +82,7 @@ function SwatchGrid({ title, items }: { title: string; items: { token: string; l
 }
 
 const typeScale = [
-    { name: "Display", cls: "text-[2.75rem] leading-[1.04] font-semibold tracking-[-0.04em]", spec: "44 / 46 · 600 · -0.04em", sample: "Console · Cobalt" },
+    { name: "Display", cls: "text-[2.75rem] leading-[1.04] font-semibold tracking-[-0.04em]", spec: "44 / 46 · 600 · -0.04em", sample: "Canvas · Indigo" },
   { name: "Display sm", cls: "text-[2.25rem] leading-[1.1] font-semibold tracking-[-0.035em]", spec: "36 / 40 · 600 · -0.035em", sample: "Run the product" },
   { name: "Page title", cls: "text-2xl font-semibold tracking-[-0.03em]", spec: "24 / 30 · 600 · -0.03em", sample: "Users" },
   { name: "Heading 2", cls: "text-lg font-semibold tracking-[-0.02em]", spec: "18 / 28 · 600 · -0.02em", sample: "Recent invoices" },
@@ -144,7 +144,7 @@ export function Foundations() {
         id="colors"
         eyebrow="Foundations"
         title="Color"
-        description="Cool zinc neutrals with one cobalt accent. In the console, cobalt is the primary action color as well as focus and selection; semantic colors are kept for status only. Values are read live from the current theme. Hover a swatch to copy its variable."
+        description="A tinted lavender canvas holds white cards; one vivid indigo carries primary actions, active navigation and data. Status uses bright mint and coral pills. Values are read live from the current theme. Hover a swatch to copy its variable."
       >
         <SwatchGrid title="Neutrals and surfaces" items={neutral} />
         <SwatchGrid title="Actions" items={action} />
@@ -171,7 +171,7 @@ export function Foundations() {
         id="typography"
         eyebrow="Foundations"
         title="Typography"
-        description="Inter (cv11, ss01) for UI at a dense 13–14px base, Geist Mono for IDs, code and numbers in tables. Headings stay modest and tight; hierarchy comes from weight and three text tones."
+        description="Plus Jakarta Sans for UI at a 15px base, Geist Mono for IDs, code and numbers in tables. Headings run bold with tight tracking; hierarchy comes from weight and three text tones."
       >
         <div className="surface overflow-hidden rounded-xl">
           {typeScale.map((t, i) => (
@@ -192,7 +192,7 @@ export function Foundations() {
         </Demo>
       </DocSection>
 
-      <DocSection id="spacing" eyebrow="Foundations" title="Spacing" description="A 4px base. Dense: controls 32–36px tall, table rows 44px, cards 16–20px padding, page gutters 32px.">
+      <DocSection id="spacing" eyebrow="Foundations" title="Spacing" description="A 4px base. Controls run 32–40px tall, table rows 48px, cards 20–24px padding and page gutters 24–32px.">
         <TokenTable
           rows={spacing.map((s) => ({
             token: `space-${s}`,
@@ -202,7 +202,7 @@ export function Foundations() {
         />
       </DocSection>
 
-      <DocSection id="radius" eyebrow="Foundations" title="Radius" description="Derived from one --radius (8px), tighter than the marketing site. Controls md, cards xl, dialogs 2xl.">
+      <DocSection id="radius" eyebrow="Foundations" title="Radius" description="Derived from one --radius (14px). Controls md, cards 2xl, panels 3xl, pills full.">
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-7">
           {radii.map((r) => (
             <div key={r.name} className="grid gap-2">

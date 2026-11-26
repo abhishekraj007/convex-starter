@@ -1,255 +1,32 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useMutation, useQuery, useAction } from "convex/react";
-import { api } from "@convex-starter/backend/convex/_generated/api";
-import {
-  useUIMessages,
-  optimisticallySendMessage,
-  SmoothText,
-} from "@convex-dev/agent/react";
-import type { UIMessage } from "@convex-dev/agent/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { AssistantChat } from "@/components/assistant/assistant-chat";
 import { ProtectedRoute } from "@/components/protected-route";
-import { Loader2, Send, Sparkles, MessageCircle, Trash2 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { useAssistantChat } from "@/hooks/use-assistant-chat";
 
 export default function AssistantPage() {
-  const [message, setMessage] = useState("");
-  const [threadId, setThreadId] = useState<string | null>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const userData = useQuery(api.user.fetchUserAndProfile);
-
-  // Load user's active thread from database
-  const activeThreadFromDb = useQuery(
-    api.assistant.getActiveThread,
-    userData ? {} : "skip"
-  );
-
-  // Load user's threads
-  const userThreads = useQuery(
-    api.assistant.listUserThreads,
-    userData
-      ? { paginationOpts: { numItems: 1, cursor: null } }
-      : "skip"
-  );
-
-  const createThread = useMutation(api.assistant.createAssistantThread);
-  const sendMessageMutation = useMutation(
-    api.assistant.sendMessage
-  ).withOptimisticUpdate(
-    optimisticallySendMessage(api.assistant.listThreadMessages)
-  );
-  const deleteThreadAction = useAction(api.assistant.deleteThread);
-
-  const { results: messages, status } = useUIMessages(
-    api.assistant.listThreadMessages,
-    threadId ? { threadId } : "skip",
-    { initialNumItems: 50, stream: true }
-  );
-
-  const setActiveThread = useMutation(api.assistant.setActiveThread);
-
-  // Load or create thread
-  useEffect(() => {
-    if (!userData || threadId) return;
-
-    // Load active thread from database
-    if (activeThreadFromDb) {
-      setThreadId(activeThreadFromDb);
-      return;
-    }
-
-    // Check if user has existing threads
-    if (userThreads?.page && userThreads.page.length > 0) {
-      const mostRecentThread = userThreads.page[0]._id;
-      setThreadId(mostRecentThread);
-      setActiveThread({ threadId: mostRecentThread });
-    } else if (userThreads?.page) {
-      // No existing threads, create new one
-      createThread({}).then((newThreadId) => {
-        setThreadId(newThreadId);
-      });
-    }
-  }, [
-    userData,
-    threadId,
-    activeThreadFromDb,
-    userThreads,
-    createThread,
-    setActiveThread,
-  ]);
-
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const viewport = scrollAreaRef.current.querySelector(
-        '[data-slot="scroll-area-viewport"]'
-      );
-      if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
-      }
-    }
-  }, [messages]);
-
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() || !threadId) return;
-
-    const userMessage = message;
-    setMessage("");
-
-    await sendMessageMutation({
-      threadId,
-      prompt: userMessage,
-    });
-  };
-
-  const handleNewConversation = async () => {
-    if (!userData) return;
-    const newThreadId = await createThread({});
-    setThreadId(newThreadId);
-  };
-
-  const renderMessage = (msg: UIMessage) => {
-    const isUser = msg.role === "user";
-    const isStreaming = msg.status === "streaming";
-
-    return (
-      <div
-        key={msg.key}
-        className={cn(
-          "flex gap-3 mb-4",
-          isUser ? "flex-row-reverse" : "flex-row"
-        )}
-      >
-        <Avatar
-          className={cn("h-8 w-8", isUser ? "bg-primary" : "bg-secondary")}
-        >
-          <AvatarFallback>{isUser ? "U" : "A"}</AvatarFallback>
-        </Avatar>
-        <div
-          className={cn(
-            "flex flex-col gap-1 max-w-[80%]",
-            isUser ? "items-end" : "items-start"
-          )}
-        >
-          <div
-            className={cn(
-              "px-4 py-2 rounded-lg",
-              isUser ? "bg-primary text-primary-foreground" : "bg-muted"
-            )}
-          >
-            {isStreaming ? (
-              <div className="flex items-center gap-2">
-                <div className="text-sm whitespace-pre-wrap">
-                  <SmoothText text={msg.text} />
-                </div>
-                <Loader2 className="h-3 w-3 animate-spin" />
-              </div>
-            ) : (
-              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-            )}
-          </div>
-          {msg._creationTime && (
-            <span className="text-xs text-muted-foreground">
-              {new Date(msg._creationTime).toLocaleTimeString()}
-            </span>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  if (!userData) {
-    return (
-      <ProtectedRoute>
-        <div className="flex items-center justify-center h-full">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
   return (
     <ProtectedRoute>
-      <div className="container mx-auto p-4 h-screen max-h-screen flex flex-col max-w-4xl">
-        <Card className="flex-1 flex flex-col min-h-0">
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-6 w-6 text-primary" />
-                <div>
-                  <CardTitle>AI Assistant</CardTitle>
-                  <CardDescription>
-                    Ask anything — a general-purpose agent powered by AI
-                  </CardDescription>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNewConversation}
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                New Chat
-              </Button>
-            </div>
-          </CardHeader>
-
-          <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-            <div ref={scrollAreaRef} className="min-h-0 flex-1">
-              <ScrollArea className="h-full p-4">
-              {!threadId || status === "LoadingFirstPage" ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
-              ) : messages && messages.length > 0 ? (
-                <div className="space-y-4">{messages.map(renderMessage)}</div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                  <Sparkles className="h-12 w-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium mb-2">
-                    How can I help you today?
-                  </p>
-                  <p className="text-sm max-w-md">
-                    Ask me anything — writing, coding, research, brainstorming,
-                    analysis, or advice. I can help with whatever you're working on.
-                  </p>
-                </div>
-              )}
-              </ScrollArea>
-            </div>
-
-            <form
-              onSubmit={handleSend}
-              className="p-4 border-t flex gap-2 bg-background shrink-0"
-            >
-              <Input
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ask me anything..."
-                className="flex-1"
-                disabled={!threadId}
-              />
-              <Button type="submit" disabled={!message.trim() || !threadId}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      <AssistantWorkspace />
     </ProtectedRoute>
+  );
+}
+
+function AssistantWorkspace() {
+  const chat = useAssistantChat();
+
+  return (
+    <AssistantChat
+      firstName={chat.firstName}
+      threads={chat.threads}
+      activeThreadId={chat.activeThreadId}
+      threadTitle={chat.threadTitle}
+      messages={chat.messages}
+      isLoading={chat.isLoading}
+      isGenerating={chat.isGenerating}
+      onSend={chat.send}
+      onNewChat={chat.newChat}
+      onSelectThread={chat.selectThread}
+    />
   );
 }

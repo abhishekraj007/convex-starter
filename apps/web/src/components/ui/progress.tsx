@@ -13,10 +13,10 @@ function Progress({
 }: React.ComponentProps<typeof UiProgress> & { label?: string; showValue?: boolean }) {
   return (
     <UiProgress className={cn("min-w-0 gap-y-2", className)} {...props}>
-      {label ? <ProgressLabel className="text-[13px] font-medium">{label}</ProgressLabel> : <span />}
-      {showValue ? <ProgressValue className="font-mono text-xs" /> : <span />}
+      {label ? <ProgressLabel className="text-[13px] font-semibold">{label}</ProgressLabel> : <span />}
+      {showValue ? <ProgressValue className="font-mono text-xs text-muted-foreground" /> : <span />}
       <ProgressTrack className="col-span-2 h-1.5 overflow-hidden rounded-full bg-muted">
-        <ProgressIndicator className="rounded-full bg-[linear-gradient(90deg,color-mix(in_oklab,var(--brand)_70%,var(--chart-3)),var(--brand))] transition-[width] duration-500" />
+        <ProgressIndicator className="rounded-full bg-brand transition-[width] duration-500" />
       </ProgressTrack>
     </UiProgress>
   );

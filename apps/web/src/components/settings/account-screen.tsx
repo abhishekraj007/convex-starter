@@ -107,7 +107,7 @@ function ActionRow({
       className={cn(
         "flex min-h-16 w-full items-center justify-between rounded-[1.75rem] bg-muted/60 px-5 text-left transition-[transform,background-color,color,box-shadow] active:scale-[0.96]",
         tone === "destructive"
-          ? "text-destructive hover:bg-destructive/10"
+          ? "text-destructive-text hover:bg-destructive/10"
           : "text-foreground hover:bg-muted",
       )}
     >
@@ -116,7 +116,7 @@ function ActionRow({
           className={cn(
             "size-5",
             tone === "destructive"
-              ? "text-destructive"
+              ? "text-destructive-text"
               : "text-muted-foreground",
           )}
         />
@@ -131,7 +131,7 @@ function ActionRow({
         className={cn(
           "size-5",
           tone === "destructive"
-            ? "text-destructive/70"
+            ? "text-destructive-text/70"
             : "text-muted-foreground",
         )}
       />

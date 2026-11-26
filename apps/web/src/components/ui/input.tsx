@@ -11,7 +11,7 @@ function Input({ className, ...props }: React.ComponentProps<typeof UiInput>) {
     <UiInput
       className={cn(
         fieldStyles,
-        "flex h-9 px-3 py-1 file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
+        "flex h-10 px-3.5 py-1 file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium",
         className
       )}
       {...props}

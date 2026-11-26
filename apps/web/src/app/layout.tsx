@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { isRTL } from "@convex-starter/i18n";
@@ -7,9 +7,10 @@ import "../index.css";
 import Providers from "@/components/providers";
 import { LayoutContent } from "@/components/layout-content";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -83,7 +84,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={isRTL(locale) ? "rtl" : "ltr"}
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${jakarta.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">
