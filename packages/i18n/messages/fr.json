@@ -22,13 +22,12 @@
   "nav": {
     "home": "Accueil",
     "dashboard": "Tableau de bord",
-    "todos": "Taches",
-    "tutor": "Tuteur d'anglais",
     "pricing": "Tarifs",
     "settings": "Parametres",
     "uploads": "Fichiers",
     "docs": "Documentation",
-    "components": "Composants"
+    "components": "Composants",
+    "assistant": "Assistant IA"
   },
   "auth": {
     "welcomeBack": "Bon retour",
@@ -116,13 +115,6 @@
     "title": "Tableau de bord",
     "welcomeBack": "Bon retour, {name} !"
   },
-  "todos": {
-    "title": "Liste de Taches",
-    "description": "Gerez vos taches efficacement",
-    "addPlaceholder": "Ajouter une nouvelle tache...",
-    "empty": "Aucune tache pour le moment. Ajoutez-en une ci-dessus !",
-    "deleteTodo": "Supprimer la tache"
-  },
   "pricing": {
     "title": "Choisissez Votre Plan",
     "description": "Selectionnez le plan parfait pour vos besoins",
@@ -150,12 +142,12 @@
     "relaunch": "Relancer",
     "dismiss": "Plus Tard"
   },
-  "tutor": {
-    "title": "Tuteur d'Anglais",
-    "description": "Pratiquez et ameliorez vos competences en anglais avec l'aide de l'IA",
+  "assistant": {
+    "title": "Assistant IA",
+    "description": "Posez n'importe quelle question — un agent polyvalent propulsé par l'IA",
     "newChat": "Nouvelle Discussion",
-    "startJourney": "Commencez Votre Parcours d'Apprentissage de l'Anglais",
-    "startDescription": "Posez-moi n'importe quelle question sur la grammaire, le vocabulaire, l'ecriture ou la conversation en anglais.",
-    "inputPlaceholder": "Tapez votre message..."
+    "startJourney": "Comment puis-je vous aider aujourd'hui ?",
+    "startDescription": "Demandez-moi n'importe quoi — rédaction, codage, recherche, brainstorming, analyse ou conseils.",
+    "inputPlaceholder": "Demandez-moi n'importe quoi..."
   }
 }

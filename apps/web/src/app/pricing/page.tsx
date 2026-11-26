@@ -3,20 +3,14 @@
 import { useQuery as useConvexQuery } from "convex/react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@convex-starter/backend/convex/_generated/api";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { ShieldCheck, Undo2, Zap } from "lucide-react";
+import { PricingCards, type PricingCardTier } from "@/components/marketing/pricing-cards";
+import { staticPricingTiers } from "@/components/marketing/pricing-data";
 import { LoginModal } from "@/components/login-modal";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { POLAR_PRICES, type PolarTier } from "../contstants/pricing";
+
 
 export default function PricingPage() {
   const router = useRouter();
@@ -29,10 +23,10 @@ export default function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   // Fetch subscription products using react-query for caching
-  const { data: polarProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ["polar-subscriptions"],
+  const { data: subscriptionProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ["billing-subscriptions"],
     queryFn: async () => {
-      const response = await fetch("/api/polar/subscriptions");
+      const response = await fetch("/api/billing/subscriptions");
       if (!response.ok) {
         throw new Error("Failed to fetch subscription products");
       }
@@ -53,10 +47,9 @@ export default function PricingPage() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const isLoading =
-    userData === undefined ||
-    userSubscriptions === undefined ||
-    productsLoading;
+  // Never block the page on data: plans render from local constants and are
+  // upgraded in place once live products arrive.
+  const isLoading = productsLoading;
   const isAuthenticated = userData !== null && userData !== undefined;
 
   const customerId = userSubscriptions?.subscriptions?.[0]?.platformCustomerId;
@@ -95,236 +88,103 @@ export default function PricingPage() {
     router.push(`/portal?userId=${customerId}` as any);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="mt-4 text-muted-foreground">Loading pricing...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const hasActiveSubscription =
-    userSubscriptions?.hasActiveSubscription || false;
-
-  // Get the current subscription (active or canceled)
-  const currentSubscription = userSubscriptions?.subscriptions?.find(
+  const hasActiveSubscription = userSubscriptions?.hasActiveSubscription || false;
+  const hasAnySubscription = !!userSubscriptions?.subscriptions?.find(
     (sub) => sub.status === "active" || sub.status === "canceled"
   );
 
-  const currentProductKey = currentSubscription?.productType;
+  const monthlyProduct = subscriptionProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "month"));
+  const yearlyProduct = subscriptionProducts.find((p) => p.prices?.some((price) => price.recurringInterval === "year"));
+  const priceOf = (product: typeof monthlyProduct, interval: string) =>
+    (product?.prices?.find((p) => p.recurringInterval === interval)?.priceAmount || 0) / 100;
 
-  // Check if user has any subscription (active or canceled)
-  const hasAnySubscription = !!currentSubscription;
+  const productIds: Record<string, string | undefined> = {
+    monthly: monthlyProduct?.id,
+    yearly: yearlyProduct?.id,
+  };
 
-  // Get free tier from constants
-  const freeTier = POLAR_PRICES.find((p) => p.id === "free")!;
+  const tiers: PricingCardTier[] = staticPricingTiers().map((tier) => {
+    if (tier.id === "monthly" && monthlyProduct) {
+      return { ...tier, name: monthlyProduct.name || tier.name, price: priceOf(monthlyProduct, "month") };
+    }
+    if (tier.id === "yearly" && yearlyProduct) {
+      const price = priceOf(yearlyProduct, "year");
+      return { ...tier, name: yearlyProduct.name || tier.name, price, note: `$${(price / 12).toFixed(2)}/mo billed annually` };
+    }
+    return tier;
+  });
 
-  // Map Polar products to pricing tiers
-  const monthlyProduct = polarProducts.find((p) =>
-    p.prices?.some((price) => price.recurringInterval === "month")
-  );
-  const yearlyProduct = polarProducts.find((p) =>
-    p.prices?.some((price) => price.recurringInterval === "year")
-  );
-
-  const monthlyTier: PolarTier = monthlyProduct
-    ? {
-        name: monthlyProduct.name || "Monthly Pro",
-        id: "monthly",
-        description: monthlyProduct.description || "Monthly subscription",
-        features: POLAR_PRICES.find((p) => p.id === "monthly")?.features || [],
-        featured: true,
-        productId: monthlyProduct.id,
-        price:
-          (monthlyProduct.prices?.find((p) => p.recurringInterval === "month")
-            ?.priceAmount || 0) / 100,
-        frequency: "/month",
-      }
-    : POLAR_PRICES.find((p) => p.id === "monthly")!;
-
-  const yearlyTier: PolarTier = yearlyProduct
-    ? {
-        name: yearlyProduct.name || "Yearly Pro",
-        id: "yearly",
-        description: yearlyProduct.description || "Yearly subscription",
-        features: POLAR_PRICES.find((p) => p.id === "yearly")?.features || [],
-        featured: false,
-        productId: yearlyProduct.id,
-        price:
-          (yearlyProduct.prices?.find((p) => p.recurringInterval === "year")
-            ?.priceAmount || 0) / 100,
-        frequency: "/year",
-      }
-    : POLAR_PRICES.find((p) => p.id === "yearly")!;
+  const renderAction = (tier: PricingCardTier) => {
+    const variant = tier.featured ? "default" : "secondary";
+    if (tier.id === "free") {
+      return (
+        <Button className="w-full" variant="secondary" disabled>
+          {isAuthenticated && !hasActiveSubscription ? "Current plan" : "Free forever"}
+        </Button>
+      );
+    }
+    if (!isAuthenticated) {
+      return (
+        <Button className="w-full" variant={variant} onClick={() => setLoginModalOpen(true)}>
+          Get started
+        </Button>
+      );
+    }
+    if (hasAnySubscription) {
+      return (
+        <Button className="w-full" variant={variant} onClick={goToPortal}>
+          Manage subscription
+        </Button>
+      );
+    }
+    const productId = productIds[tier.id];
+    return (
+      <Button
+        className="w-full"
+        variant={variant}
+        onClick={() => handleCheckout(productId)}
+        disabled={isLoading || !productId || checkoutLoading === productId}
+      >
+        {checkoutLoading === productId ? "Redirecting…" : `Upgrade to ${tier.name}`}
+      </Button>
+    );
+  };
 
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
-        <p className="text-xl text-muted-foreground">
-          Select the perfect plan for your needs
-        </p>
+    <div className="relative">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-grid [mask-image:radial-gradient(60%_70%_at_50%_0%,black,transparent)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute top-[-180px] left-1/2 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--brand)_16%,transparent),transparent)]" />
+      <div className="mx-auto max-w-6xl px-6 pt-20 pb-24">
+        <div className="max-w-3xl">
+          <p className="eyebrow">Pricing</p>
+          <h1 className="mt-3 text-[3rem] leading-[1.02] font-semibold tracking-[-0.045em] text-balance">
+            Start free. <span className="text-muted-foreground">Upgrade when it earns.</span>
+          </h1>
+          <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
+            Every plan includes the full starter: auth, realtime data, storage and the design system. Pro unlocks unlimited credits and priority support.
+          </p>
+        </div>
+
+        <PricingCards className="mt-12" tiers={tiers} renderAction={renderAction} />
+
+        <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+          {[
+            { icon: Undo2, title: "14-day money-back", body: "Not a fit? Get a full refund, no questions." },
+            { icon: ShieldCheck, title: "Secure checkout", body: "Payments and invoices handled by a PCI-compliant provider." },
+            { icon: Zap, title: "Cancel anytime", body: "Manage or cancel from the customer portal." },
+          ].map((item) => (
+            <div key={item.title} className="flex gap-3 bg-background p-5">
+              <item.icon className="mt-0.5 size-4 shrink-0 text-faint-foreground" />
+              <div>
+                <p className="text-sm font-medium">{item.title}</p>
+                <p className="mt-0.5 text-[13px] text-muted-foreground">{item.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {/* Free Tier */}
-        <Card className="relative">
-          <CardHeader>
-            <CardTitle className="text-2xl">{freeTier.name}</CardTitle>
-            <CardDescription>{freeTier.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-6">
-              <span className="text-4xl font-bold">${freeTier.price}</span>
-              <span className="text-muted-foreground">
-                {freeTier.frequency}
-              </span>
-            </div>
-            <ul className="space-y-3">
-              {freeTier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" variant="outline" disabled>
-              {!hasActiveSubscription ? "Current Plan" : "Free Plan"}
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Monthly Pro */}
-        <Card className="relative border-primary shadow-lg">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
-              Popular
-            </span>
-          </div>
-          <CardHeader>
-            <CardTitle className="text-2xl">{monthlyTier.name}</CardTitle>
-            <CardDescription>{monthlyTier.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-6">
-              <span className="text-4xl font-bold">${monthlyTier.price}</span>
-              <span className="text-muted-foreground">
-                {monthlyTier.frequency}
-              </span>
-            </div>
-            <ul className="space-y-3">
-              {monthlyTier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter>
-            {!isAuthenticated ? (
-              <Button
-                className="w-full"
-                onClick={() => setLoginModalOpen(true)}
-              >
-                Get Started
-              </Button>
-            ) : hasAnySubscription ? (
-              <Button onClick={goToPortal} className="w-full">
-                Manage Subscription
-              </Button>
-            ) : (
-              <Button
-                className="w-full"
-                onClick={() =>
-                  handleCheckout(monthlyTier.productId || undefined)
-                }
-                disabled={checkoutLoading === monthlyTier.productId}
-              >
-                {checkoutLoading === monthlyTier.productId
-                  ? "Loading..."
-                  : "Get Started"}
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-
-        {/* Yearly Pro */}
-        <Card className="relative">
-          <div className="absolute top-0 right-4">
-            <span className="bg-primary text-primary-foreground px-3 py-1 rounded-b-lg text-xs font-semibold">
-              Save 17%
-            </span>
-          </div>
-          <CardHeader>
-            <CardTitle className="text-2xl">{yearlyTier.name}</CardTitle>
-            <CardDescription>{yearlyTier.description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-2">
-              <span className="text-4xl font-bold">${yearlyTier.price}</span>
-              <span className="text-muted-foreground">
-                {yearlyTier.frequency}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-6">
-              ${((yearlyTier.price || 0) / 12).toFixed(2)}/month billed annually
-            </p>
-            <ul className="space-y-3">
-              {yearlyTier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <Check className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-          <CardFooter>
-            {!isAuthenticated ? (
-              <Button
-                className="w-full"
-                onClick={() => setLoginModalOpen(true)}
-              >
-                Get Started
-              </Button>
-            ) : hasAnySubscription ? (
-              <Button onClick={goToPortal} className="w-full">
-                Manage Subscription
-              </Button>
-            ) : (
-              <Button
-                className="w-full"
-                onClick={() =>
-                  handleCheckout(yearlyTier.productId || undefined)
-                }
-                disabled={checkoutLoading === yearlyTier.productId}
-              >
-                {checkoutLoading === yearlyTier.productId
-                  ? "Loading..."
-                  : "Get Started"}
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* FAQ or Additional Info */}
-      <div className="mt-16 text-center">
-        <p className="text-muted-foreground">
-          All plans include a 14-day money-back guarantee. Cancel anytime.
-        </p>
-      </div>
-
-      <LoginModal
-        open={loginModalOpen}
-        onOpenChange={setLoginModalOpen}
-        returnUrl="/pricing"
-      />
+      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} returnUrl="/pricing" />
     </div>
   );
 }

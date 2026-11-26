@@ -1,9 +1,14 @@
 import { type GenericCtx } from "@convex-dev/better-auth";
 import { convex, crossDomain } from "@convex-dev/better-auth/plugins";
+import { requireActionCtx } from "@convex-dev/better-auth/utils";
 import { expo } from "@better-auth/expo";
 import type { DataModel } from "../../_generated/dataModel";
+import { internal } from "../../_generated/api";
+import authConfig from "../../auth.config";
 import { betterAuth } from "better-auth";
+import { emailOTP } from "better-auth/plugins";
 import { authComponent } from "./component";
+import { isEmailVerificationRequired } from "../authFlags";
 
 // web client id com.noosperai.feelchat.web
 
@@ -14,6 +19,8 @@ const iosAppBundleIdentifier = "com.noosperai.quotes";
 const appleClientId = process.env.APPLE_CLIENT_ID || iosAppBundleIdentifier;
 // Generated via: node scripts/generate-apple-secret.mjs
 const appleClientSecret = process.env.APPLE_CLIENT_SECRET;
+
+const requireEmailVerification = isEmailVerificationRequired();
 
 const appleAudience = Array.from(
   new Set([appleClientId, iosAppBundleIdentifier]),
@@ -28,8 +35,8 @@ const trustedOrigins = Array.from(
     authBaseUrl,
     nativeAppUrl,
     // Local development
-    "http://localhost:3004", // admin local
-    "http://localhost:3005", // web local
+    "http://localhost:3004", // web local
+    "http://localhost:3015", // admin local
     // Production (Railway)
     "https://dating-ai.up.railway.app",
     "https://admin-dating.up.railway.app",
@@ -40,14 +47,8 @@ const trustedOrigins = Array.from(
   ]),
 );
 
-export function createAuth(
-  ctx: GenericCtx<DataModel>,
-  { optionsOnly }: { optionsOnly?: boolean } = { optionsOnly: false },
-) {
+export function createAuth(ctx: GenericCtx<DataModel>) {
   return betterAuth({
-    logger: {
-      disabled: optionsOnly,
-    },
     baseURL: authBaseUrl,
     trustedOrigins,
     database: authComponent.adapter(ctx),
@@ -58,7 +59,31 @@ export function createAuth(
     },
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      // When enabled (default), new email/password accounts must prove
+      // ownership of their inbox with an OTP before a session is issued.
+      // Disable with AUTH_REQUIRE_EMAIL_VERIFICATION=false. Social providers
+      // are unaffected either way.
+      requireEmailVerification,
+      sendResetPassword: async ({ user, url }) => {
+        // Schedule the send so the HTTP action returns quickly (and does not
+        // leak whether the address exists through response timing).
+        const actionCtx = requireActionCtx(ctx);
+        await actionCtx.scheduler.runAfter(
+          0,
+          internal.auth.deliverPasswordResetEmail,
+          {
+            to: user.email,
+            resetUrl: url,
+          },
+        );
+      },
+    },
+    // Better Auth rate limiting protects the OTP endpoints (and the rest of
+    // the auth surface). The email OTP plugin also declares per-path limits.
+    rateLimit: {
+      enabled: true,
+      window: 60,
+      max: 100,
     },
     socialProviders: {
       google: {
@@ -74,6 +99,36 @@ export function createAuth(
       },
     },
     // crossDomain plugin enables multi-app OAuth by skipping state cookie check
-    plugins: [expo(), convex(), crossDomain({ siteUrl })],
+    plugins: [
+      expo(),
+      convex({ authConfig, jwksRotateOnTokenGenerationError: true }),
+      crossDomain({ siteUrl }),
+      emailOTP({
+        otpLength: 6,
+        expiresIn: 10 * 60,
+        allowedAttempts: 5,
+        storeOTP: "hashed",
+        // Sign-up sends an "email-verification" OTP instead of a magic link,
+        // and the default email-verification endpoint is routed through OTP.
+        // No verification email is sent when verification is disabled.
+        sendVerificationOnSignUp: requireEmailVerification,
+        overrideDefaultEmailVerification: true,
+        // 3 OTP emails per minute per address (Better Auth adds the key).
+        rateLimit: { window: 60, max: 3 },
+        sendVerificationOTP: async ({ email, otp, type }) => {
+          const actionCtx = requireActionCtx(ctx);
+          await actionCtx.scheduler.runAfter(
+            0,
+            internal.auth.deliverAuthOtpEmail,
+            {
+              to: email,
+              otp,
+              // Change-email OTPs use the same "confirm this inbox" copy.
+              type: type === "change-email" ? "email-verification" : type,
+            },
+          );
+        },
+      }),
+    ],
   });
 }

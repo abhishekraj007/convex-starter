@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "skills": {
+    "convex-performance-audit": {
+      "source": "get-convex/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/convex-performance-audit/SKILL.md",
+      "computedHash": "6eab78012995323466a4f846c68b24cfe6b20f302a96e9b8414f2665e969ad6e"
+    },
+    "convex-quickstart": {
+      "source": "get-convex/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/convex-quickstart/SKILL.md",
+      "computedHash": "81f3fa1e143d1faea0888072b7b464e0f7756bc1ea3a74d6cfe81d51731fcaec"
+    },
+    "legend-list-best-practices": {
+      "source": "legendapp/legend-skills",
+      "sourceType": "github",
+      "skillPath": "legend-list-best-practices/SKILL.md",
+      "computedHash": "f48fa01d2d8d29dd2efe334437713f0914714b2bc6629644899ee602bfe035a1"
+    },
+    "ui-sdk": {
+      "source": "vercel-labs/ui",
+      "commit": "8060d16d7a9ab3fc79fee25764607344df078c36",
+      "sourceType": "github",
+      "skillPath": "packages/core/skills/ui-sdk/SKILL.md",
+      "computedHash": "cabe635c8f279e77b50a265c499ea2e8ebd471574b96acfc61a11a147d553e6d"
+    }
+  }
+}

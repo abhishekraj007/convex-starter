@@ -1,59 +1,28 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Slider as SliderPrimitive } from "radix-ui"
+import * as React from "react";
+import { Slider as UiSlider, SliderControl, SliderIndicator, SliderThumb, SliderTrack } from "@ui-sdk/react/slider";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Slider({
   className,
-  defaultValue,
-  value,
-  min = 0,
-  max = 100,
+  thumbLabel = "Value",
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
-  const _values = React.useMemo(
-    () =>
-      Array.isArray(value)
-        ? value
-        : Array.isArray(defaultValue)
-          ? defaultValue
-          : [min, max],
-    [value, defaultValue, min, max]
-  )
-
+}: React.ComponentProps<typeof UiSlider> & { thumbLabel?: string }) {
   return (
-    <SliderPrimitive.Root
-      data-slot="slider"
-      defaultValue={defaultValue}
-      value={value}
-      min={min}
-      max={max}
-      className={cn(
-        "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col",
-        className
-      )}
-      {...props}
-    >
-      <SliderPrimitive.Track
-        data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-4xl bg-muted data-horizontal:h-3 data-horizontal:w-full data-vertical:h-full data-vertical:w-3"
-      >
-        <SliderPrimitive.Range
-          data-slot="slider-range"
-          className="absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full"
-        />
-      </SliderPrimitive.Track>
-      {Array.from({ length: _values.length }, (_, index) => (
-        <SliderPrimitive.Thumb
-          data-slot="slider-thumb"
-          key={index}
-          className="block size-4 shrink-0 rounded-4xl border border-primary bg-white shadow-sm ring-ring/50 transition-colors select-none hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
-        />
-      ))}
-    </SliderPrimitive.Root>
-  )
+    <UiSlider className={cn("min-w-0", className)} {...props}>
+      <SliderControl className="flex h-5 items-center">
+        <SliderTrack className="relative h-1.5 w-full rounded-full bg-muted shadow-[inset_0_1px_1px_color-mix(in_oklab,var(--shadow-color)_8%,transparent)]">
+          <SliderIndicator className="rounded-full bg-primary" />
+          <SliderThumb
+            aria-label={thumbLabel}
+            className="size-4.5 rounded-full border border-border-strong bg-white shadow-[0_1px_3px_oklch(0_0_0/0.2)] transition-shadow hover:shadow-[0_0_0_5px_color-mix(in_oklab,var(--ring)_18%,transparent)]"
+          />
+        </SliderTrack>
+      </SliderControl>
+    </UiSlider>
+  );
 }
 
-export { Slider }
+export { Slider };

@@ -8,8 +8,11 @@
  * @module
  */
 
+import type * as adminEmails from "../adminEmails.js";
+import type * as assistant from "../assistant.js";
 import type * as auth from "../auth.js";
-import type * as englishTutor from "../englishTutor.js";
+import type * as authSettings from "../authSettings.js";
+import type * as cleanDb from "../cleanDb.js";
 import type * as features_appConfig_guards from "../features/appConfig/guards.js";
 import type * as features_appConfig_index from "../features/appConfig/index.js";
 import type * as features_appConfig_mutations from "../features/appConfig/mutations.js";
@@ -18,6 +21,7 @@ import type * as features_appConfig_shared from "../features/appConfig/shared.js
 import type * as features_credits_index from "../features/credits/index.js";
 import type * as features_credits_mutations from "../features/credits/mutations.js";
 import type * as features_credits_queries from "../features/credits/queries.js";
+import type * as features_premium_access from "../features/premium/access.js";
 import type * as features_premium_admin from "../features/premium/admin.js";
 import type * as features_premium_guards from "../features/premium/guards.js";
 import type * as features_premium_index from "../features/premium/index.js";
@@ -29,18 +33,28 @@ import type * as features_subscriptions_mutations from "../features/subscription
 import type * as features_subscriptions_queries from "../features/subscriptions/queries.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
+import type * as lib_aiModels from "../lib/aiModels.js";
+import type * as lib_authFlags from "../lib/authFlags.js";
 import type * as lib_betterAuth_component from "../lib/betterAuth/component.js";
 import type * as lib_betterAuth_createAuth from "../lib/betterAuth/createAuth.js";
 import type * as lib_betterAuth_index from "../lib/betterAuth/index.js";
+import type * as lib_dodo from "../lib/dodo.js";
+import type * as lib_dodoWebhooks from "../lib/dodoWebhooks.js";
+import type * as lib_email_index from "../lib/email/index.js";
+import type * as lib_email_sendEmail from "../lib/email/sendEmail.js";
+import type * as lib_email_templates from "../lib/email/templates.js";
+import type * as lib_polarWebhookAuth from "../lib/polarWebhookAuth.js";
 import type * as lib_rateLimit from "../lib/rateLimit.js";
+import type * as lib_revenuecatProducts from "../lib/revenuecatProducts.js";
 import type * as lib_revenuecatWebhooks from "../lib/revenuecatWebhooks.js";
+import type * as lib_signedStorageUrls from "../lib/signedStorageUrls.js";
+import type * as lib_storageOwnership from "../lib/storageOwnership.js";
 import type * as lib_uploadValidation from "../lib/uploadValidation.js";
 import type * as migrations_addCreditsToProfiles from "../migrations/addCreditsToProfiles.js";
 import type * as model_user from "../model/user.js";
 import type * as privateData from "../privateData.js";
 import type * as purchases from "../purchases.js";
 import type * as pushNotifications from "../pushNotifications.js";
-import type * as todos from "../todos.js";
 import type * as uploads from "../uploads.js";
 import type * as user from "../user.js";
 import type * as util from "../util.js";
@@ -52,8 +66,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adminEmails: typeof adminEmails;
+  assistant: typeof assistant;
   auth: typeof auth;
-  englishTutor: typeof englishTutor;
+  authSettings: typeof authSettings;
+  cleanDb: typeof cleanDb;
   "features/appConfig/guards": typeof features_appConfig_guards;
   "features/appConfig/index": typeof features_appConfig_index;
   "features/appConfig/mutations": typeof features_appConfig_mutations;
@@ -62,6 +79,7 @@ declare const fullApi: ApiFromModules<{
   "features/credits/index": typeof features_credits_index;
   "features/credits/mutations": typeof features_credits_mutations;
   "features/credits/queries": typeof features_credits_queries;
+  "features/premium/access": typeof features_premium_access;
   "features/premium/admin": typeof features_premium_admin;
   "features/premium/guards": typeof features_premium_guards;
   "features/premium/index": typeof features_premium_index;
@@ -73,18 +91,28 @@ declare const fullApi: ApiFromModules<{
   "features/subscriptions/queries": typeof features_subscriptions_queries;
   healthCheck: typeof healthCheck;
   http: typeof http;
+  "lib/aiModels": typeof lib_aiModels;
+  "lib/authFlags": typeof lib_authFlags;
   "lib/betterAuth/component": typeof lib_betterAuth_component;
   "lib/betterAuth/createAuth": typeof lib_betterAuth_createAuth;
   "lib/betterAuth/index": typeof lib_betterAuth_index;
+  "lib/dodo": typeof lib_dodo;
+  "lib/dodoWebhooks": typeof lib_dodoWebhooks;
+  "lib/email/index": typeof lib_email_index;
+  "lib/email/sendEmail": typeof lib_email_sendEmail;
+  "lib/email/templates": typeof lib_email_templates;
+  "lib/polarWebhookAuth": typeof lib_polarWebhookAuth;
   "lib/rateLimit": typeof lib_rateLimit;
+  "lib/revenuecatProducts": typeof lib_revenuecatProducts;
   "lib/revenuecatWebhooks": typeof lib_revenuecatWebhooks;
+  "lib/signedStorageUrls": typeof lib_signedStorageUrls;
+  "lib/storageOwnership": typeof lib_storageOwnership;
   "lib/uploadValidation": typeof lib_uploadValidation;
   "migrations/addCreditsToProfiles": typeof migrations_addCreditsToProfiles;
   "model/user": typeof model_user;
   privateData: typeof privateData;
   purchases: typeof purchases;
   pushNotifications: typeof pushNotifications;
-  todos: typeof todos;
   uploads: typeof uploads;
   user: typeof user;
   util: typeof util;
@@ -119,6 +147,7 @@ export declare const internal: FilterApi<
 export declare const components: {
   betterAuth: import("@convex-dev/better-auth/_generated/component.js").ComponentApi<"betterAuth">;
   polar: import("@convex-dev/polar/_generated/component.js").ComponentApi<"polar">;
+  dodopayments: import("@dodopayments/convex/_generated/component.js").ComponentApi<"dodopayments">;
   agent: import("@convex-dev/agent/_generated/component.js").ComponentApi<"agent">;
   r2: import("@convex-dev/r2/_generated/component.js").ComponentApi<"r2">;
   pushNotifications: import("@convex-dev/expo-push-notifications/_generated/component.js").ComponentApi<"pushNotifications">;

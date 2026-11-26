@@ -34,7 +34,7 @@ const sections = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "i18n", label: "Internationalization", icon: Globe },
   { id: "uploads", label: "File Uploads (R2)", icon: Upload },
-  { id: "ai-tutor", label: "AI English Tutor", icon: Bot },
+  { id: "ai-assistant", label: "AI Assistant", icon: Bot },
   { id: "native", label: "Native Mobile App", icon: Smartphone },
 ];
 
@@ -112,7 +112,7 @@ export default function DocsPage() {
 ├── apps/
 │   ├── web/                # Next.js web application
 │   │   ├── src/app/        # App Router pages
-│   │   ├── src/components/ # React components (shadcn/ui)
+│   │   ├── src/components/ # React components (ui-sdk)
 │   │   └── src/lib/        # Utilities and auth client
 │   └── native/             # Expo React Native app
 │       ├── app/            # Expo Router screens
@@ -129,7 +129,7 @@ export default function DocsPage() {
                   <h4 className="font-semibold text-sm">Key Technologies</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
                     <li>
-                      <strong className="text-foreground">Web:</strong> Next.js 16, React 19, shadcn/ui,
+                      <strong className="text-foreground">Web:</strong> Next.js 16, React 19, Vercel ui-sdk,
                       Tailwind CSS 4, TanStack Query
                     </li>
                     <li>
@@ -293,19 +293,19 @@ pnpm run dev --filter native    # Expo native app`}</CodeBlock>
                   <CodeBlock>{`import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const seedTodos = internalMutation({
+// Assumes a "notes" table defined in schema.ts — adapt to your own tables.
+export const seedNotes = internalMutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
-    const todos = [
-      { text: "Set up authentication", completed: true },
-      { text: "Configure payments", completed: true },
-      { text: "Deploy to production", completed: false },
-      { text: "Add custom features", completed: false },
+    const notes = [
+      { text: "Set up authentication" },
+      { text: "Configure payments" },
+      { text: "Deploy to production" },
     ];
 
-    for (const todo of todos) {
-      await ctx.db.insert("todos", todo);
+    for (const note of notes) {
+      await ctx.db.insert("notes", note);
     }
     return null;
   },
@@ -314,10 +314,10 @@ export const seedTodos = internalMutation({
                     Run it from the Convex dashboard or CLI:
                   </p>
                   <CodeBlock>{`# Run via CLI
-npx convex run seed:seedTodos
+npx convex run seed:seedNotes
 
 # Or from the dashboard:
-# Go to Functions > seed > seedTodos > Run`}</CodeBlock>
+# Go to Functions > seed > seedNotes > Run`}</CodeBlock>
                 </div>
 
                 <Separator />
@@ -455,7 +455,13 @@ eas submit --platform android`}</CodeBlock>
                     <li>
                       <strong className="text-foreground">Polar:</strong> Set webhook URL to{" "}
                       <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                        https://your-convex.site/api/webhook/polar
+                        https://&lt;your-web-app&gt;/api/webhook/polar
+                      </code>
+                    </li>
+                    <li>
+                      <strong className="text-foreground">Dodo:</strong> Set webhook URL to{" "}
+                      <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                        https://your-convex.site/dodopayments-webhook
                       </code>
                     </li>
                     <li>
@@ -472,15 +478,15 @@ eas submit --platform android`}</CodeBlock>
                 </div>
 
                 <div className="rounded-lg bg-destructive/5 border border-destructive/10 p-4">
-                  <p className="text-sm font-medium mb-1 text-destructive">
+                  <p className="text-sm font-medium mb-1 text-destructive-text">
                     Production Checklist
                   </p>
                   <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                     <li>Generate a new BETTER_AUTH_SECRET for production</li>
                     <li>
-                      Use production API keys for Google, Polar, RevenueCat
+                      Use production API keys for Google, your billing provider, RevenueCat
                     </li>
-                    <li>Set POLAR_SERVER to "production" (not "sandbox")</li>
+                    <li>Set POLAR_SERVER to "production" or DODO_PAYMENTS_ENVIRONMENT to "live_mode"</li>
                     <li>Update SITE_URL to your production domain</li>
                     <li>
                       Verify webhook endpoints are accessible and responding
@@ -521,7 +527,7 @@ eas submit --platform android`}</CodeBlock>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Supported Methods</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
-                    <li>Email/Password (no email verification required by default)</li>
+                    <li>Email/Password (OTP verification required by default — disable with AUTH_REQUIRE_EMAIL_VERIFICATION=false)</li>
                     <li>Google OAuth</li>
                     <li>Apple Sign-In (native app)</li>
                     <li>Anonymous auth (native app)</li>
@@ -568,23 +574,77 @@ eas submit --platform android`}</CodeBlock>
                   <div>
                     <CardTitle>Payments</CardTitle>
                     <CardDescription>
-                      Polar for web, RevenueCat for mobile
+                      Polar or Dodo for web, RevenueCat for mobile
                     </CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Web Payments (Polar)</h4>
+                  <h4 className="font-semibold text-sm">Web Payments (Polar or Dodo)</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Polar handles web subscriptions and one-time purchases.
-                    Products are configured in the Polar dashboard and
-                    referenced by slug. Webhooks sync subscription status to
-                    the Convex database.
+                    Web checkouts run through Polar or Dodo Payments — switch
+                    providers with a single env variable. Pricing cards, the
+                    product catalog API and checkout links stay identical;
+                    only the hosted checkout, customer portal and webhook
+                    source change. Products are fetched live from the active
+                    provider, and credit pack amounts come from the product's{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">credits</code>{" "}
+                    metadata key on either platform.
                   </p>
-                  <CodeBlock>{`# Set Polar env vars on Convex
-npx convex env set POLAR_ORGANIZATION_TOKEN your_token
-npx convex env set POLAR_WEBHOOK_SECRET your_secret`}</CodeBlock>
+                  <CodeBlock>{`# In apps/web/.env (and apps/admin/.env)
+BILLING_PROVIDER=polar  # or "dodo"`}</CodeBlock>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Polar Setup</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Polar webhooks are handled by the web app, which syncs
+                    subscriptions and credit orders into Convex.
+                  </p>
+                  <CodeBlock>{`# apps/web/.env
+POLAR_ACCESS_TOKEN=polar_at_...
+POLAR_SERVER=sandbox           # or "production"
+POLAR_ORGANIZATION_ID=...
+POLAR_WEBHOOK_SECRET=polar_wh_...
+
+# Convex (shared secret so the web app can write billing rows)
+npx convex env set POLAR_WEBHOOK_SECRET polar_wh_...`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Register the webhook in the Polar dashboard at{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      https://&lt;your-web-app&gt;/api/webhook/polar
+                    </code>
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Dodo Payments Setup</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Dodo uses the official{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">@dodopayments/convex</code>{" "}
+                    component: webhooks are verified and processed directly in
+                    Convex (same pattern as RevenueCat), writing to the same
+                    shared tables.
+                  </p>
+                  <CodeBlock>{`# apps/web/.env — catalog, checkout and portal
+DODO_PAYMENTS_API_KEY=...
+DODO_PAYMENTS_ENVIRONMENT=test_mode   # or "live_mode"
+
+# Convex — webhook verification + product lookup
+npx convex env set DODO_PAYMENTS_API_KEY ...
+npx convex env set DODO_PAYMENTS_ENVIRONMENT test_mode
+npx convex env set DODO_PAYMENTS_WEBHOOK_SECRET ...`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Register the webhook in the Dodo dashboard at{" "}
+                    <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                      https://&lt;your-deployment&gt;.convex.site/dodopayments-webhook
+                    </code>
+                  </p>
                 </div>
 
                 <Separator />
@@ -614,7 +674,7 @@ npx convex env set POLAR_WEBHOOK_SECRET your_secret`}</CodeBlock>
                     <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
                       platform
                     </code>{" "}
-                    field ("polar" or "revenuecat"). Premium status is
+                    field ("polar", "dodo" or "revenuecat"). Premium status is
                     determined by checking for any active subscription
                     regardless of platform.
                   </p>
@@ -772,8 +832,8 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
             </Card>
           </section>
 
-          {/* AI Tutor */}
-          <section id="ai-tutor">
+          {/* AI Assistant */}
+          <section id="ai-assistant">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -781,7 +841,7 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
                     <Bot className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <CardTitle>AI English Tutor</CardTitle>
+                    <CardTitle>AI Assistant</CardTitle>
                     <CardDescription>
                       Convex Agent with streaming responses
                     </CardDescription>
@@ -790,24 +850,53 @@ npx convex env set R2_BUCKET your_bucket_name`}</CodeBlock>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  The English Tutor feature uses{" "}
+                  The AI Assistant is a general-purpose agent built with{" "}
                   <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
                     @convex-dev/agent
                   </code>{" "}
-                  for AI-powered conversations with streaming. It connects to
-                  AI providers via Vercel AI Gateway.
+                  for AI-powered conversations with streaming. It can help
+                  with anything the user asks and connects to AI models via
+                  OpenRouter or the Vercel AI Gateway.
                 </p>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Setup</h4>
-                  <CodeBlock>{`# Set AI Gateway key
-npx convex env set AI_GATEWAY_API_KEY your_key`}</CodeBlock>
+                  <CodeBlock>{`# OpenRouter (default provider)
+npx convex env set OPENROUTER_API_KEY your_openrouter_key
+
+# Optional: override the chat model (any OpenRouter slug)
+npx convex env set AI_CHAT_MODEL anthropic/claude-haiku-5.5
+
+# Or switch to Vercel AI Gateway instead:
+npx convex env set AI_PROVIDER gateway
+npx convex env set AI_GATEWAY_API_KEY your_gateway_key`}</CodeBlock>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The provider is selected with the{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_PROVIDER
+                    </code>{" "}
+                    env var (<code className="bg-muted px-1.5 py-0.5 rounded text-xs">openrouter</code> by default,{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">gateway</code> for Vercel AI Gateway).
+                    Chat and embedding models can be overridden with{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_CHAT_MODEL
+                    </code>{" "}
+                    and{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      AI_EMBEDDING_MODEL
+                    </code>{" "}
+                    (defaults live in{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                      packages/backend/convex/lib/aiModels.ts
+                    </code>
+                    ).
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">How It Works</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
                     <li>Each user gets conversation threads stored in Convex</li>
                     <li>Messages stream in real-time using Convex subscriptions</li>
-                    <li>The agent has a system prompt for English tutoring</li>
+                    <li>The agent has a general-purpose system prompt — customize it in packages/backend/convex/assistant.ts</li>
                     <li>Thread history is maintained for context-aware responses</li>
                   </ul>
                 </div>

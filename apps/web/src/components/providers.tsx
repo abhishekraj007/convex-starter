@@ -5,7 +5,7 @@ import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { ThemeProvider } from "./theme-provider";
-import { Toaster } from "./ui/sonner";
+import { Toaster } from "./ui/toaster";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -30,7 +30,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           {children}
         </ConvexBetterAuthProvider>
       </QueryClientProvider>
-      <Toaster richColors />
+      <Toaster />
     </ThemeProvider>
   );
 }

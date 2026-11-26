@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
+import { toast } from "@ui-sdk/react/toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +15,9 @@ import {
 import { ProtectedRoute } from "@/components/protected-route";
 import { Upload, Loader2, Trash2, Image as ImageIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export default function UploadsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -27,9 +31,20 @@ export default function UploadsPage() {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+    if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Choose a JPEG, PNG or WebP image.");
+      event.target.value = "";
+      return;
     }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      toast.error("Images must be 10 MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setSelectedFile(file);
   };
 
   const handleUpload = async () => {
@@ -37,11 +52,6 @@ export default function UploadsPage() {
 
     try {
       setIsUploading(true);
-      console.log(
-        "Starting upload for file:",
-        selectedFile.name,
-        selectedFile.type
-      );
 
       // Generate upload URL with user ID in the key
       const { url, key } = await generateUploadUrl({});
@@ -62,22 +72,29 @@ export default function UploadsPage() {
       // Sync metadata to trigger onSyncMetadata callback
       await syncMetadata({ key });
 
-      console.log("Upload successful! Key:", key);
-
+      toast.success("Upload complete");
       setSelectedFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error("Upload failed:", error);
+      toast.error(
+        error instanceof Error ? error.message : "The upload failed.",
+      );
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleDelete = async (key: string) => {
-    if (confirm("Are you sure you want to delete this file?")) {
+    if (!confirm("Are you sure you want to delete this file?")) return;
+    try {
       await deleteUpload({ key });
+      toast.success("File deleted");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "The file could not be deleted.",
+      );
     }
   };
 
@@ -117,6 +134,7 @@ export default function UploadsPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
+                  accept={ACCEPTED_IMAGE_TYPES.join(",")}
                   onChange={handleFileSelect}
                   disabled={isUploading}
                   className="flex-1 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"

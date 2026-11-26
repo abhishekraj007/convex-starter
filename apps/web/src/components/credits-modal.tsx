@@ -14,24 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Coins, Sparkles, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { BillingProduct } from "@/lib/billing/types";
 
 interface CreditsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-interface PolarProduct {
-  id: string;
-  name: string;
-  description?: string;
-  prices?: Array<{
-    priceAmount: number;
-    priceCurrency: string;
-  }>;
-  metadata?: {
-    credits?: string;
-    credtis?: string; // Handle typo
-  };
 }
 
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
@@ -40,14 +27,14 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   // Fetch products using react-query for caching
-  const { data: polarProducts = [], isLoading } = useQuery({
-    queryKey: ["polar-products"],
+  const { data: billingProducts = [], isLoading } = useQuery({
+    queryKey: ["billing-products"],
     queryFn: async () => {
-      const response = await fetch("/api/polar/products");
+      const response = await fetch("/api/billing/products");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
-      return response.json() as Promise<PolarProduct[]>;
+      return response.json() as Promise<BillingProduct[]>;
     },
     enabled: open, // Only fetch when modal is open
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -90,7 +77,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
   };
 
   // Extract credit amount from product name or metadata
-  const getCreditAmount = (product: PolarProduct) => {
+  const getCreditAmount = (product: BillingProduct) => {
     // Try metadata first
     const metadata = (product as any).metadata;
     if (metadata?.credits) {
@@ -113,8 +100,8 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
   };
 
   // Convert products object to sorted array
-  const creditProducts = polarProducts
-    .filter((product): product is PolarProduct => !!product)
+  const creditProducts = billingProducts
+    .filter((product): product is BillingProduct => !!product)
     .map((product) => {
       const credits = getCreditAmount(product);
       return {

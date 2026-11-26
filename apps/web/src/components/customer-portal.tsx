@@ -2,16 +2,12 @@
 
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import { useEffect, useState } from "react";
 
 export function CustomerPortal() {
   const [customerState, setCustomerState] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadCustomerState();
-  }, []);
 
   const loadCustomerState = async () => {
     try {
@@ -23,6 +19,10 @@ export function CustomerPortal() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadCustomerState();
+  }, []);
 
   const openPortal = async () => {
     try {

@@ -2,9 +2,10 @@
 
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import { useQuery } from "convex/react";
+import { Smartphone, Upload, Users } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { PageShell } from "@/components/admin/page-shell";
-import { StatChip } from "@/components/admin/stat-chip";
+import { StatCard } from "@/components/admin/stat-card";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +18,12 @@ export default function DashboardPage() {
     userData?.profile?.isAdmin ? {} : "skip",
   );
 
+  const stats = [
+    { label: "Uploads", value: uploads?.length ?? 0, caption: "Files stored in this workspace", icon: Upload },
+    { label: "Push audience", value: audienceStats?.eligibleUsers ?? 0, caption: "Users eligible for notifications", icon: Users },
+    { label: "Registered devices", value: audienceStats?.registeredUsers ?? 0, caption: "Devices receiving push", icon: Smartphone },
+  ];
+
   return (
     <ProtectedRoute>
       <PageShell>
@@ -25,24 +32,16 @@ export default function DashboardPage() {
           subtitle="Overview of reusable account, upload, notification, and runtime configuration tools."
         />
 
-        <div className="mb-6 flex flex-wrap gap-2">
-          <StatChip label="uploads" value={uploads?.length ?? 0} />
-          <StatChip
-            label="push audience"
-            value={audienceStats?.eligibleUsers ?? 0}
-            variant="outline"
-          />
-          <StatChip
-            label="registered devices"
-            value={audienceStats?.registeredUsers ?? 0}
-            variant="outline"
-          />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {stats.map((stat) => (
+            <StatCard key={stat.label} {...stat} />
+          ))}
         </div>
 
         {userData === undefined ? (
-          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="mt-4 h-40 w-full rounded-3xl" />
         ) : (
-          <Card>
+          <Card className="mt-4 rounded-3xl">
             <CardHeader>
               <CardTitle className="text-lg">
                 Welcome back,{" "}
@@ -50,7 +49,7 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Use this admin console to manage shared app settings, uploads,
                 push notifications, account access, and billing primitives.
               </p>

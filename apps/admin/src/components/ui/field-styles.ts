@@ -1,0 +1,3 @@
+/** Shared look for text-entry controls: white floating field, indigo focus halo. */
+export const fieldStyles =
+  "w-full min-w-0 rounded-xl border border-input bg-card text-sm text-foreground shadow-[0_1px_2px_color-mix(in_oklab,var(--shadow-color)_5%,transparent)] transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-faint-foreground hover:border-border-strong focus-visible:border-ring focus-visible:shadow-[0_0_0_4px_color-mix(in_oklab,var(--ring)_18%,transparent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:shadow-[0_0_0_4px_color-mix(in_oklab,var(--destructive)_16%,transparent)] data-invalid:border-destructive";

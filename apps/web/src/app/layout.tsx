@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { isRTL } from "@convex-starter/i18n";
@@ -7,15 +7,17 @@ import "../index.css";
 import Providers from "@/components/providers";
 import { LayoutContent } from "@/components/layout-content";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://convex-starter.app";
 
@@ -25,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | Convex SaaS Starter",
   },
   description:
-    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar payments, and RevenueCat. Launch your cross-platform SaaS in days, not months.",
+    "The complete SaaS starter kit with Next.js, Expo React Native, Convex, Better Auth, Polar or Dodo payments, and RevenueCat. Launch your cross-platform SaaS in days, not months.",
   keywords: [
     "SaaS starter kit",
     "Next.js SaaS template",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     "React Native",
     "Expo",
     "Better Auth",
-    "Polar payments",
+    "Polar or Dodo payments",
     "RevenueCat",
     "TypeScript",
     "full-stack starter",
@@ -79,10 +81,13 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={isRTL(locale) ? "rtl" : "ltr"} suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
+    <html
+      lang={locale}
+      dir={isRTL(locale) ? "rtl" : "ltr"}
+      className={`${jakarta.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <LayoutContent>{children}</LayoutContent>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex-starter/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProtectedRouteProps {

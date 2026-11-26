@@ -20,8 +20,8 @@ export default defineSchema({
     ),
     premiumGrantedAt: v.optional(v.number()),
     premiumExpiresAt: v.optional(v.number()), // null = lifetime/subscription-based
-    // Active thread for English tutor (syncs across devices)
-    activeTutorThreadId: v.optional(v.string()),
+    // Active thread for AI assistant (syncs across devices)
+    activeAssistantThreadId: v.optional(v.string()),
     // Storage quota tracking (enforced in upload metadata sync)
     storageBytesUsed: v.optional(v.number()),
     uploadCount: v.optional(v.number()),
@@ -33,7 +33,7 @@ export default defineSchema({
   // Single source of truth for all subscription and premium status data
   subscriptions: defineTable({
     userId: v.string(), // Better Auth user ID (stored as string)
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
 
     // Customer and subscription identifiers (required for tracking)
     platformCustomerId: v.string(), // Polar/RevenueCat customer ID
@@ -71,15 +71,24 @@ export default defineSchema({
       "platformSubscriptionId",
     ]),
 
-  todos: defineTable({
-    text: v.string(),
-    completed: v.boolean(),
-  }),
+  // Idempotency ledger for subscription-cycle credit grants.
+  // One row per (platformSubscriptionId, periodStart) guarantees renewal
+  // credits are granted exactly once regardless of webhook event ordering.
+  subscriptionCreditGrants: defineTable({
+    userId: v.string(), // Better Auth user ID (stored as string)
+    platformSubscriptionId: v.string(),
+    periodStart: v.number(),
+    credits: v.number(),
+    createdAt: v.number(),
+  }).index("by_subscription_and_period", [
+    "platformSubscriptionId",
+    "periodStart",
+  ]),
 
   // Orders table for tracking one-time purchases (credit purchases)
   orders: defineTable({
     userId: v.string(), // Better Auth user ID (stored as string)
-    platform: v.union(v.literal("polar"), v.literal("revenuecat")),
+    platform: v.union(v.literal("polar"), v.literal("revenuecat"), v.literal("dodo")),
     platformOrderId: v.string(), // Unique order ID from platform
     platformProductId: v.string(), // Product ID that was purchased
     amount: v.number(), // Credit amount purchased

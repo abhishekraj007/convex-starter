@@ -1,6 +1,6 @@
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import z from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -70,7 +70,7 @@ export default function SignInForm({
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive">
+									<p key={error?.message} className="text-destructive-text">
 										{error?.message}
 									</p>
 								))}
@@ -93,7 +93,7 @@ export default function SignInForm({
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
 								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-destructive">
+									<p key={error?.message} className="text-destructive-text">
 										{error?.message}
 									</p>
 								))}

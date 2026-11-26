@@ -18,22 +18,22 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "mb-4 flex flex-col gap-3 border-b border-border/60 pb-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
+        "mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4",
         className,
       )}
     >
       <div className="min-w-0">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="text-[1.75rem] leading-tight font-bold tracking-[-0.04em] sm:text-[2rem]">
           {title}
         </h1>
         {subtitle ? (
-          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
             {subtitle}
           </p>
         ) : null}
       </div>
       {actions ? (
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+        <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
           {actions}
         </div>
       ) : null}

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Figtree } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../index.css";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/counter.css";
@@ -8,7 +8,12 @@ import { LayoutContent } from "@/components/layout-content";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
+// Plus Jakarta Sans everywhere: warm geometric letterforms and heavy numerals; Geist Mono for code and IDs.
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -16,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Convex Starter",
+  title: "Convex Starter - Admin",
   description: "Reusable Convex Starter admin console",
 };
 
@@ -35,9 +40,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("font-sans", figtree.variable)}
+      className={cn(jakarta.variable, geistMono.variable)}
     >
-      <body className={`${geistMono.variable} font-mono antialiased`}>
+      <body className="font-sans antialiased">
         <Providers>
           <TooltipProvider>
             <LayoutContent>{children}</LayoutContent>

@@ -2,14 +2,17 @@
 
 import * as React from "react";
 import {
-  BookOpen,
   Bell,
+  Mail,
+  ChevronsUpDown,
+  PanelLeftIcon,
   LayoutDashboard,
-  Settings,
   LogOut,
-  ChevronUp,
-  Upload,
+  Palette,
+  Settings,
   SlidersHorizontal,
+  Upload,
+  Users,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -27,37 +30,46 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { BrandMark } from "@/components/brand-mark";
+import { AppSearch } from "@/components/app-search";
+import { cn } from "@/lib/utils";
 
-const menuItems = [
+const groups = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
+    label: "Overview",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Users", url: "/preview", icon: Users },
+    ],
   },
   {
-    title: "Uploads",
-    url: "/uploads",
-    icon: Upload,
+    label: "Content",
+    items: [
+      { title: "Uploads", url: "/uploads", icon: Upload },
+      { title: "Notifications", url: "/notifications", icon: Bell },
+      { title: "Emails", url: "/emails", icon: Mail },
+    ],
   },
   {
-    title: "App Config",
-    url: "/app-config",
-    icon: SlidersHorizontal,
-  },
-  {
-    title: "Notifications",
-    url: "/notifications",
-    icon: Bell,
+    label: "Configuration",
+    items: [
+      { title: "App Config", url: "/app-config", icon: SlidersHorizontal },
+      { title: "Settings", url: "/settings", icon: Settings },
+      { title: "Design system", url: "/components", icon: Palette },
+    ],
   },
 ];
 
@@ -65,125 +77,151 @@ export function AppSidebar({ isLoading = false }: { isLoading?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const userData = useQuery(api.user.fetchUserAndProfile);
+  const { state, toggleSidebar, isMobile } = useSidebar();
+  const collapsed = !isMobile && state === "collapsed";
 
-  const userName =
-    userData?.profile?.name || userData?.userMetadata?.name || "User";
-  const userEmail = userData?.userMetadata?.email || "";
+  const userName = userData?.profile?.name || userData?.userMetadata?.name || "Admin";
+  const userEmail = userData?.userMetadata?.email || "admin@convex-starter.dev";
   const userImage = userData?.userMetadata?.image;
-  const isPremium = Boolean(userData?.profile?.isPremium);
-  const userBadgeLabel = isPremium ? "Premium" : "Admin console";
 
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <BookOpen className="h-4 w-4" />
-          </div>
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-semibold">
-              Convex Starter
-            </span>
-            <span className="flex h-4 items-center text-xs text-muted-foreground">
-              {isLoading ? <Skeleton className="h-3 w-20" /> : userBadgeLabel}
-            </span>
-          </div>
-        </div>
+    <Sidebar variant="inset" collapsible="icon">
+      <SidebarHeader
+        className={cn(
+          collapsed ? "items-center gap-2 px-1 pt-4 pb-2" : "gap-3 px-4 pr-10 pt-5 pb-2 md:pr-4"
+        )}
+      >
+        {collapsed ? (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              onClick={toggleSidebar}
+              className="size-9 shrink-0 rounded-xl"
+            >
+              <PanelLeftIcon />
+            </Button>
+            <AppSearch compact />
+          </>
+        ) : (
+          <>
+            <div className="flex h-9 w-full items-center gap-2.5 px-1">
+              <BrandMark />
+              <span className="grid min-w-0 flex-1 leading-tight">
+                <span className="truncate text-[14px] tracking-[-0.03em]"><span className="font-extrabold">Convex</span> <span className="ml-[0.14em] font-medium text-muted-foreground">Starter</span></span>
+                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="size-1.5 rounded-full bg-success" /> Production
+                </span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+                onClick={toggleSidebar}
+                className="ml-auto size-7 shrink-0 text-muted-foreground"
+              >
+                <PanelLeftIcon />
+              </Button>
+            </div>
+            <AppSearch />
+          </>
+        )}
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className={collapsed ? "px-0" : "px-2"}>
+        {groups.map((group) => (
+          <SidebarGroup key={group.label} className={cn("py-3", collapsed ? "px-2" : "px-1")}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => {
+                  const active = pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton isActive={active} tooltip={item.title} render={<a href={item.url} />}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            {isLoading ? (
-              <div className="flex h-14 items-center gap-2 rounded-lg px-3">
-                <Skeleton className="h-8 w-8 rounded-lg" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-3 w-32" />
-                </div>
+      <SidebarFooter className={cn("gap-3", collapsed ? "items-center px-2 pb-3" : "px-3 pb-4")}>
+        {isLoading ? (
+          collapsed ? (
+            <Skeleton className="size-8 rounded-full" />
+          ) : (
+            <div className="flex h-12 items-center gap-2.5 px-1.5">
+              <Skeleton className="size-9 rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-2.5 w-32" />
               </div>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  >
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage
-                        src={userImage || undefined}
-                        alt={userName}
-                      />
-                      <AvatarFallback className="rounded-lg">
-                        {userName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{userName}</span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {userEmail}
-                      </span>
-                    </div>
-                    <ChevronUp className="ml-auto size-4 shrink-0" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                  side="top"
-                  align="end"
-                  sideOffset={4}
-                >
-                  <DropdownMenuItem asChild>
-                    <a href="/settings">
-                      <Settings />
-                      Settings
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Button
-                      onClick={() => {
-                        authClient.signOut({
-                          fetchOptions: {
-                            onSuccess: () => {
-                              router.replace("/");
-                            },
-                          },
-                        });
-                      }}
-                      variant={"link"}
-                      className="w-full justify-start"
-                    >
-                      <LogOut />
-                      Log out
-                    </Button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </SidebarMenuItem>
-        </SidebarMenu>
+            </div>
+          )
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label={collapsed ? "Account menu" : undefined}
+                  title={collapsed ? "Account menu" : undefined}
+                  className={cn(
+                    "flex items-center border-0 bg-transparent text-left shadow-none transition-colors hover:bg-sidebar-accent data-[open]:bg-sidebar-accent",
+                    collapsed ? "size-8 justify-center rounded-full p-0" : "h-auto w-full gap-2.5 rounded-xl p-2"
+                  )}
+                />
+              }
+            >
+              <Avatar className={collapsed ? "size-8" : "size-9"}>
+                <AvatarImage src={userImage || undefined} alt={userName} />
+                <AvatarFallback className="bg-brand text-brand-foreground">
+                  {userName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {collapsed ? null : (
+                <>
+                  <span className="grid min-w-0 flex-1 leading-tight">
+                    <span className="truncate text-[13px] font-semibold">{userName}</span>
+                    <span className="truncate text-[11.5px] text-faint-foreground">{userEmail}</span>
+                  </span>
+                  <ChevronsUpDown className="size-3.5 text-faint-foreground" />
+                </>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-56" side="top" align="start" sideOffset={6}>
+              <DropdownMenuLabel>{userEmail}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => router.push("/settings" as never)}>
+                <Settings />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => {
+                  authClient.signOut({
+                    fetchOptions: {
+                      onSuccess: () => {
+                        router.replace("/");
+                      },
+                    },
+                  });
+                }}
+              >
+                <LogOut />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

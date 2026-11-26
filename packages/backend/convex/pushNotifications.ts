@@ -8,7 +8,7 @@ import { requireAdmin } from "./features/appConfig/guards";
 
 // Initialize the push notifications component
 // Using string type for userId to work with Better Auth's user IDs
-const pushNotifications = new PushNotifications<string>(
+export const pushNotifications = new PushNotifications<string>(
   components.pushNotifications,
   {
     logLevel: "DEBUG",

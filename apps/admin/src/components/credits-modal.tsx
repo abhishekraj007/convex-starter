@@ -43,7 +43,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
   const { data: polarProducts = [], isLoading } = useQuery({
     queryKey: ["polar-products"],
     queryFn: async () => {
-      const response = await fetch("/api/polar/products");
+      const response = await fetch("/api/billing/products");
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }

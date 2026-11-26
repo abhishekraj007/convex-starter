@@ -39,8 +39,7 @@ export default function UserMenu({ isPremium }: UserMenuProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+      <DropdownMenuTrigger render={<Button variant="ghost" className="relative h-10 w-10 rounded-full" />}>
           <Avatar className="h-10 w-10">
             <AvatarImage src={userImage || undefined} alt={userName} />
             <AvatarFallback>{initials}</AvatarFallback>
@@ -50,7 +49,6 @@ export default function UserMenu({ isPremium }: UserMenuProps) {
               <Crown className="h-3 w-3 text-primary-foreground fill-primary-foreground" />
             </div>
           )}
-        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card w-56" align="end">
         <DropdownMenuLabel className="font-normal">
@@ -63,7 +61,7 @@ export default function UserMenu({ isPremium }: UserMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => router.push("/settings" as any)}
+          onSelect={() => router.push("/settings" as any)}
           className="cursor-pointer"
         >
           <Settings className="mr-2 h-4 w-4" />
@@ -71,7 +69,7 @@ export default function UserMenu({ isPremium }: UserMenuProps) {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
+          onSelect={() => {
             authClient.signOut({
               fetchOptions: {
                 onSuccess: () => {

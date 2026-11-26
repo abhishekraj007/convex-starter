@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { toast } from "@ui-sdk/react/toast";
 import z from "zod";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -224,7 +224,7 @@ export function LoginModal({ open, onOpenChange, returnUrl }: LoginModalProps) {
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-destructive">
+                      <p className="text-sm text-destructive-text">
                         {String(field.state.meta.errors[0])}
                       </p>
                     )}
@@ -247,7 +247,7 @@ export function LoginModal({ open, onOpenChange, returnUrl }: LoginModalProps) {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
+                    <p className="text-sm text-destructive-text">
                       {String(field.state.meta.errors[0])}
                     </p>
                   )}
@@ -269,7 +269,7 @@ export function LoginModal({ open, onOpenChange, returnUrl }: LoginModalProps) {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
+                    <p className="text-sm text-destructive-text">
                       {String(field.state.meta.errors[0])}
                     </p>
                   )}
